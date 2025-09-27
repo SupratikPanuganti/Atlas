@@ -12,6 +12,7 @@ import { Card } from "./ui/Card"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 import type { BettingStats } from "../types"
+import { PressableCard, FadeInView } from "./animations"
 
 interface BettingStatsCardsProps {
   stats: BettingStats
@@ -43,7 +44,8 @@ export function BettingStatsCards({ stats }: BettingStatsCardsProps) {
     subtitle, 
     icon, 
     color = colors.text,
-    trend 
+    trend,
+    delay = 0
   }: {
     title: string
     value: string
@@ -51,20 +53,23 @@ export function BettingStatsCards({ stats }: BettingStatsCardsProps) {
     icon: React.ReactNode
     color?: string
     trend?: React.ReactNode
+    delay?: number
   }) => (
-    <Card style={styles.statCard}>
-      <View style={styles.statHeader}>
-        {icon}
-        <Text style={styles.statTitle}>{title}</Text>
-      </View>
-      <Text style={[styles.statValue, { color }]}>{value}</Text>
-      {subtitle && (
-        <View style={styles.statSubtitle}>
-          {trend}
-          <Text style={styles.statSubtitleText}>{subtitle}</Text>
+    <FadeInView delay={delay} duration={800}>
+      <PressableCard style={styles.statCard}>
+        <View style={styles.statHeader}>
+          {icon}
+          <Text style={styles.statTitle}>{title}</Text>
         </View>
-      )}
-    </Card>
+        <Text style={[styles.statValue, { color }]}>{value}</Text>
+        {subtitle && (
+          <View style={styles.statSubtitle}>
+            {trend}
+            <Text style={styles.statSubtitleText}>{subtitle}</Text>
+          </View>
+        )}
+      </PressableCard>
+    </FadeInView>
   )
 
   const totalWins = stats.totalBets > 0 ? Math.round(stats.totalBets * (stats.winRate / 100)) : 0;
@@ -80,6 +85,7 @@ export function BettingStatsCards({ stats }: BettingStatsCardsProps) {
           icon={<DollarSign size={20} color={colors.primary} />}
           color={getProfitColor(stats.totalProfit)}
           trend={getTrendIcon(stats.totalProfit)}
+          delay={0}
         />
         
         <StatCard
@@ -92,6 +98,7 @@ export function BettingStatsCards({ stats }: BettingStatsCardsProps) {
             <Trophy size={16} color={colors.positive} /> : 
             <TrendingDown size={16} color={colors.danger} />
           }
+          delay={400}
         />
       </View>
     </View>

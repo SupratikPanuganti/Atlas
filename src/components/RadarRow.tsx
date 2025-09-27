@@ -7,13 +7,22 @@ import { typography } from "../theme/typography"
 interface RadarRowProps {
   item: RadarItem
   onPress: (item: RadarItem) => void
+  forceSign?: "both" | "positive" | "negative"
 }
 
-export function RadarRow({ item, onPress }: RadarRowProps) {
+export function RadarRow({ item, onPress, forceSign = "both" }: RadarRowProps) {
   const getDeltaColor = (delta: number) => {
     if (delta > 1) return colors.positive
+    if (delta === 1) return colors.danger
     if (delta > 0.5) return colors.primary
     return colors.muted
+  }
+
+  // If a filter is active, force color for all rows in the list
+  const getColorForDisplay = (delta: number) => {
+    if (forceSign === "positive") return colors.positive
+    if (forceSign === "negative") return colors.danger
+    return getDeltaColor(delta)
   }
 
   const getStaleColor = (minutes: number) => {
@@ -32,7 +41,7 @@ export function RadarRow({ item, onPress }: RadarRowProps) {
 
         {/* Delta vs Median */}
         <View style={styles.deltaContainer}>
-          <Text style={[styles.deltaValue, { color: getDeltaColor(item.deltaVsMedian) }]}>
+          <Text style={[styles.deltaValue, { color: getColorForDisplay(item.deltaVsMedian) }]}>
             {item.deltaVsMedian > 0 ? "+" : ""}
             {item.deltaVsMedian.toFixed(1)}
           </Text>

@@ -10,6 +10,7 @@ import { BetItem } from "./BetItem"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 import type { Bet } from "../types"
+import { FadeInView, PressableCard } from "./animations"
 
 interface BetHistoryProps {
   bets: Bet[]
@@ -94,13 +95,14 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
         style={styles.filtersContainer}
         contentContainerStyle={styles.filtersContent}
       >
-        {filters.map((filter) => (
-          <Chip
-            key={filter.key}
-            label={`${filter.label} (${filter.count})`}
-            onPress={() => setActiveFilter(filter.key)}
-            style={styles.filterChip}
-          />
+        {filters.map((filter, index) => (
+          <FadeInView key={filter.key} delay={index * 50} duration={400}>
+            <Chip
+              label={`${filter.label} (${filter.count})`}
+              onPress={() => setActiveFilter(filter.key)}
+              style={styles.filterChip}
+            />
+          </FadeInView>
         ))}
       </ScrollView>
 
@@ -110,13 +112,14 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
         showsVerticalScrollIndicator={false}
         nestedScrollEnabled={true}
       >
-        {filteredBets.map((bet) => (
-          <BetItem
-            key={bet.id}
-            bet={bet}
-            showDate={true}
-            onViewBet={onViewBet}
-          />
+        {filteredBets.map((bet, index) => (
+          <FadeInView key={bet.id} delay={index * 100} duration={500}>
+            <BetItem
+              bet={bet}
+              showDate={true}
+              onViewBet={onViewBet}
+            />
+          </FadeInView>
         ))}
       </ScrollView>
 

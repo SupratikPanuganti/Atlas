@@ -10,6 +10,11 @@ import { typography } from "../theme/typography"
 interface ChartPoint {
   time: string
   percentage: number
+  ev?: number  // Expected Value
+  confidence?: number  // Confidence level (0-1)
+  factors?: string[]  // Key factors driving this recommendation
+  currentTotal?: number  // Current total for the prop (PRA, points, assists, etc.)
+  targetLine?: number  // The line they need to hit (e.g., 42.5 for PRA)
   insight?: string
   type: 'peak' | 'trough' | 'normal'
   gameEvent?: string
@@ -34,34 +39,62 @@ export function ShadcnLineChart({
   title = "Line Chart - Linear",
   description = "January - June 2024"
 }: ShadcnLineChartProps) {
-  // Fixed Y-axis scale from 25% to 75%
-  const minPercentage = 25
-  const maxPercentage = 75
-  const range = maxPercentage - minPercentage
+  // Fixed Y-axis scale for Expected Value from -20% to +20%
+  const minEV = -0.20
+  const maxEV = 0.20
+  const range = maxEV - minEV
+
+  // Create base point at x=0, y=initial EV (or 0)
+  const initialEV = data.length > 0 ? (data[0].ev || 0) : 0
+  const basePoint: ChartPoint = {
+    time: "Start",
+    percentage: 0, // Not used for Y-axis anymore
+    ev: initialEV,
+    type: 'normal',
+    insight: "Initial prediction"
+  }
+  
+  // Include base point and all data points
+  const allData = [basePoint, ...data]
 
   const getPointColor = (point: ChartPoint, index: number) => {
-    // If it's the first point, use default color
-    if (index === 0) return colors.primary
+    // Base point (x=0) should be gray
+    if (index === 0) return colors.neutral
     
-    // Find previous point to determine slope
-    const previousPoint = data[data.indexOf(point) - 1]
-    if (!previousPoint) return colors.primary
+    // If player is subbed out, make it gray
+    if (point.gameEvent && (
+      point.gameEvent.toLowerCase().includes('subbed out') ||
+      point.gameEvent.toLowerCase().includes('bench rotation') ||
+      point.gameEvent.toLowerCase().includes('sits')
+    )) {
+      return colors.neutral
+    }
     
-    // Positive slope (odds increasing) = green, negative slope (odds decreasing) = red
-    const slope = point.percentage - previousPoint.percentage
-    return slope > 0 ? colors.positive : colors.negative
+    // Use EV-based coloring for better recommendations
+    if (point.ev !== undefined) {
+      if (point.ev > 0.1) return colors.positive      // Strong positive EV
+      if (point.ev > 0.05) return colors.primary      // Moderate positive EV  
+      if (point.ev > -0.05) return colors.warning     // Neutral EV
+      return colors.negative                           // Negative EV
+    }
+    
+    // Fallback to type-based coloring
+    switch (point.type) {
+      case 'peak': return colors.positive
+      case 'trough': return colors.negative
+      default: return colors.primary
+    }
   }
 
   const renderChartLine = () => {
     const quarters = ['Q1', 'Q2', 'Q3', 'Q4']
-
-    // Remove first and last dots, keep middle dots
-    const filteredData = data.slice(1, -1)
     
-    const points = filteredData.map((point, index) => {
+    const points = allData.map((point, index) => {
       // Evenly space dots across the chart width with padding
-      const x = ((index + 1) / (filteredData.length + 1)) * (chartWidth - 40)
-      const y = chartHeight - 40 - ((point.percentage - minPercentage) / range) * (chartHeight - 80)
+      const x = (index / (allData.length - 1)) * (chartWidth - 40)
+      // Use EV for Y-axis positioning
+      const pointEV = point.ev !== undefined ? point.ev : 0
+      const y = chartHeight - 40 - ((pointEV - minEV) / range) * (chartHeight - 80)
       
       return { x, y, point }
     })
@@ -70,16 +103,17 @@ export function ShadcnLineChart({
       <View style={styles.chartContainer}>
         {/* Y-axis labels */}
         <View style={styles.yAxis}>
-          <Text style={styles.yLabel}>{maxPercentage.toFixed(0)}%</Text>
-          <Text style={styles.yLabel}>{((maxPercentage + minPercentage) / 2).toFixed(0)}%</Text>
-          <Text style={styles.yLabel}>{minPercentage.toFixed(0)}%</Text>
+          <Text style={styles.yLabel}>+{(maxEV * 100).toFixed(0)}%</Text>
+          <Text style={styles.yLabel}>0%</Text>
+          <Text style={styles.yLabel}>{(minEV * 100).toFixed(0)}%</Text>
         </View>
         
         {/* Chart area */}
         <View style={styles.chartArea}>
           {/* Grid lines - horizontal only */}
           <View style={styles.gridLine} />
-          <View style={[styles.gridLine, { top: chartHeight / 2 }]} />
+          {/* Zero line (break-even) */}
+          <View style={[styles.gridLine, { top: chartHeight / 2, backgroundColor: colors.textSecondary + '60', height: 2 }]} />
           <View style={[styles.gridLine, { bottom: 0 }]} />
           
           {/* Data points - clickable (no lines) */}
@@ -132,20 +166,44 @@ export function ShadcnLineChart({
         <View style={[
           styles.insightBox,
           {
-            borderColor: getPointColor(selectedPoint, data.indexOf(selectedPoint)),
-            backgroundColor: getPointColor(selectedPoint, data.indexOf(selectedPoint)) + '10'
+            borderColor: getPointColor(selectedPoint, allData.indexOf(selectedPoint)),
+            backgroundColor: getPointColor(selectedPoint, allData.indexOf(selectedPoint)) + '10'
           }
         ]}>
           <Text style={[
             styles.insightTitle,
-            { color: getPointColor(selectedPoint, data.indexOf(selectedPoint)) }
+            { color: getPointColor(selectedPoint, allData.indexOf(selectedPoint)) }
           ]}>
-            {selectedPoint.type === 'peak' ? 'Peak Opportunity' : 
+            {selectedPoint.time === "Start" ? 'Base Point' :
+             selectedPoint.gameEvent && (
+               selectedPoint.gameEvent.toLowerCase().includes('subbed out') ||
+               selectedPoint.gameEvent.toLowerCase().includes('bench rotation') ||
+               selectedPoint.gameEvent.toLowerCase().includes('sits')
+             ) ? 'Player Subbed Out' :
+             selectedPoint.ev !== undefined ? 
+               (selectedPoint.ev > 0.1 ? 'Strong Bet' :
+                selectedPoint.ev > 0.05 ? 'Good Bet' :
+                selectedPoint.ev > -0.05 ? 'Neutral' : 'Avoid Bet') :
+             selectedPoint.type === 'peak' ? 'Peak Opportunity' : 
              selectedPoint.type === 'trough' ? 'Trough Opportunity' : 'Normal Point'}
           </Text>
           <Text style={styles.insightText}>
-            {selectedPoint.percentage.toFixed(1)}% at {selectedPoint.time}
+            {selectedPoint.ev !== undefined ? 
+              `EV: ${(selectedPoint.ev * 100).toFixed(1)}% | Confidence: ${(selectedPoint.confidence * 100).toFixed(0)}%` :
+              `${selectedPoint.percentage.toFixed(1)}% at ${selectedPoint.time}`
+            }
           </Text>
+          {selectedPoint.currentTotal !== undefined && selectedPoint.targetLine !== undefined && (
+            <Text style={styles.statsText}>
+              Current: {selectedPoint.currentTotal} | Target: {selectedPoint.targetLine} | 
+              Need: {(selectedPoint.targetLine - selectedPoint.currentTotal).toFixed(1)}
+            </Text>
+          )}
+          {selectedPoint.factors && selectedPoint.factors.length > 0 && (
+            <Text style={styles.factorsText}>
+              Key factors: {selectedPoint.factors.join(', ')}
+            </Text>
+          )}
           <Text style={styles.eventText}>
             {selectedPoint.gameEvent}
           </Text>
@@ -258,6 +316,18 @@ const styles = StyleSheet.create({
     fontSize: typography.xs,
     color: colors.textSecondary,
     fontStyle: 'italic',
+    marginTop: 4,
+  },
+  factorsText: {
+    fontSize: typography.xs,
+    color: colors.textSecondary,
+    fontStyle: 'italic',
+    marginTop: 2,
+  },
+  statsText: {
+    fontSize: typography.sm,
+    color: colors.text,
+    fontWeight: typography.medium,
     marginTop: 4,
   },
 })
