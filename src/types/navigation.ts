@@ -12,7 +12,7 @@ export type RootStackParamList = {
 export type MainTabParamList = {
   Home: undefined
   Radar: undefined
-  Watch: undefined
+  Chats: undefined
 }
 
 export type AuthStackParamList = {
