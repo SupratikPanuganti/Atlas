@@ -91,10 +91,10 @@ export function BetItem({ bet, showCurrentValue = false, showDate = false, onVie
           </Text>
         </View>
         <View style={styles.headerRight}>
-          <Text style={styles.stakeText}>${bet.stake.toFixed(2)}</Text>
           <View style={styles.betStatus}>
             {getBetStatusIcon(bet.status)}
           </View>
+          <Text style={styles.stakeText}>${bet.stake.toFixed(2)}</Text>
         </View>
       </View>
 
@@ -215,8 +215,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   liveStatLabel: {
-    fontSize: typography.xs,
+    fontSize: typography.base,
     color: colors.text,
+    fontWeight: "600",
   },
   progressBar: {
     height: 4,
@@ -254,5 +255,14 @@ const styles = StyleSheet.create({
     fontSize: typography.xs,
     color: colors.muted,
     fontWeight: "500",
+  },
+  headerRight: {
+    alignItems: "flex-end",
+  },
+  stakeText: {
+    marginTop: 6,
+    fontSize: typography.base,
+    color: colors.text,
+    fontWeight: "600",
   },
 })
