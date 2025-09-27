@@ -270,6 +270,12 @@ export const demoService = {
           currentScore: undefined,
           quarter: undefined,
           timeRemaining: undefined
+        },
+        currentValue: 18.50,
+        liveStats: {
+          current: 198,
+          projected: 267.3,
+          confidence: 0.82
         }
       },
       // Yesterday's settled bets
@@ -291,6 +297,12 @@ export const demoService = {
           awayTeam: "Auburn Tigers",
           gameTime: "7:00 PM ET",
           currentScore: "UGA 31 - AUB 13"
+        },
+        currentValue: 18.50,
+        liveStats: {
+          current: 198,
+          projected: 267.3,
+          confidence: 0.82
         }
       },
       {
@@ -311,6 +323,12 @@ export const demoService = {
           awayTeam: "Auburn Tigers",
           gameTime: "7:00 PM ET",
           currentScore: "UGA 31 - AUB 13"
+        },
+        currentValue: 18.50,
+        liveStats: {
+          current: 198,
+          projected: 267.3,
+          confidence: 0.82
         }
       },
       // Older bets
@@ -332,6 +350,12 @@ export const demoService = {
           awayTeam: "Tennessee Volunteers",
           gameTime: "7:00 PM ET",
           currentScore: "ALA 34 - TEN 20"
+        },
+        currentValue: 18.50,
+        liveStats: {
+          current: 198,
+          projected: 267.3,
+          confidence: 0.82
         }
       },
       {
@@ -352,6 +376,12 @@ export const demoService = {
           awayTeam: "Tennessee Volunteers",
           gameTime: "7:00 PM ET",
           currentScore: "ALA 34 - TEN 20"
+        },
+        currentValue: 18.50,
+        liveStats: {
+          current: 198,
+          projected: 267.3,
+          confidence: 0.82
         }
       },
       {
@@ -372,6 +402,12 @@ export const demoService = {
           awayTeam: "Tennessee Volunteers",
           gameTime: "7:00 PM ET",
           currentScore: "ALA 34 - TEN 20"
+        },
+        currentValue: 18.50,
+        liveStats: {
+          current: 198,
+          projected: 267.3,
+          confidence: 0.82
         }
       }
     ]

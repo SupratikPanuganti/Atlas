@@ -25,15 +25,11 @@ import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 import { useNavigation } from "@react-navigation/native"
 import type { CompositeNavigationProp } from "@react-navigation/native"
-import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs"
 import type { StackNavigationProp } from "@react-navigation/stack"
 import type { MainTabParamList, RootStackParamList } from "../types/navigation"
 import { FadeInView, SlideInView, PressableCard } from "../components/animations"
 
-type HomeScreenNavigationProp = CompositeNavigationProp<
-  BottomTabNavigationProp<MainTabParamList, 'Home'>,
-  StackNavigationProp<RootStackParamList>
->
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList> & any
 
 const { width } = Dimensions.get("window")
 
@@ -64,7 +60,9 @@ export default function HomeScreen() {
     const propId = `${bet.prop}_${bet.betType === 'over' ? 'over' : 'under'}_${bet.line}_${(bet.player || 'player').toLowerCase().split(' ')[1] || 'player123'}`
     navigation.navigate('LivePricing', {
       lineId: propId,
-      lineData: { propId }
+      lineData: { propId },
+      stake: bet.stake,
+      potential: bet.potentialWin,
     })
   }
 

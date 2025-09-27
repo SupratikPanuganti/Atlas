@@ -1,4 +1,5 @@
 import { View, Text, StyleSheet } from "react-native"
+import { Button } from "./ui/Button"
 import { Chip } from "./ui/Chip"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
