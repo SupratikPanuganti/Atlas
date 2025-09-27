@@ -18,9 +18,9 @@ export default function RadarScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [selectedSport, setSelectedSport] = useState("NBA")
   const [selectedPropTypes, setSelectedPropTypes] = useState<string[]>(["AST", "PRA", "REB"])
-  const [minDelta, setMinDelta] = useState(0.5)
+  const [selectedDeltaSign, setSelectedDeltaSign] = useState<"both" | "positive" | "negative">("positive")
 
-  // Demo data - more realistic NBA props
+  //Demo data - more realistic NBA props
   const demoRadarItems: RadarItem[] = [
     {
       propId: "PRA_over_42.5_jokic",
@@ -63,21 +63,29 @@ export default function RadarScreen() {
   const filteredItems = useMemo(() => {
     const items = radarItems.length > 0 ? radarItems : demoRadarItems
 
-    return items.filter((item) => {
+      const filtered = items.filter((item) => {
       // Filter by prop type
       const propType = item.propId.split("_")[0]
       if (selectedPropTypes.length > 0 && !selectedPropTypes.includes(propType)) {
         return false
       }
 
-      // Filter by min delta
-      if (item.deltaVsMedian < minDelta) {
-        return false
-      }
+    // Filter by delta sign grouping
+    // Per request: lines with value 1.0 should appear in both groups.
+    // Positive lines are those with delta >= 1.0, negative are delta <= 1.0
+    if (selectedDeltaSign === "positive" && item.deltaVsMedian < 1.0) return false
+    if (selectedDeltaSign === "negative" && item.deltaVsMedian > 1.0) return false
 
       return true
     })
-  }, [radarItems, demoRadarItems, selectedPropTypes, minDelta])
+
+    // Sort: negatives should be least->greatest, positives greatest->least. "both" defaults to greatest->least.
+    if (selectedDeltaSign === "negative") {
+      return filtered.sort((a, b) => a.deltaVsMedian - b.deltaVsMedian)
+    }
+
+    return filtered.sort((a, b) => b.deltaVsMedian - a.deltaVsMedian)
+  }, [radarItems, demoRadarItems, selectedPropTypes, selectedDeltaSign])
 
   const handleRefresh = async () => {
     setRefreshing(true)
@@ -101,7 +109,9 @@ export default function RadarScreen() {
     })
   }
 
-  const renderRadarItem = ({ item }: { item: RadarItem }) => <RadarRow item={item} onPress={handleRadarItemPress} />
+  const renderRadarItem = ({ item }: { item: RadarItem }) => (
+    <RadarRow item={item} onPress={handleRadarItemPress} forceSign={selectedDeltaSign} />
+  )
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
@@ -132,10 +142,10 @@ export default function RadarScreen() {
             <RadarFilters
               selectedSport={selectedSport}
               selectedPropTypes={selectedPropTypes}
-              minDelta={minDelta}
+              selectedDeltaSign={selectedDeltaSign}
               onSportChange={setSelectedSport}
               onPropTypeToggle={handlePropTypeToggle}
-              onMinDeltaChange={setMinDelta}
+              onDeltaSignChange={setSelectedDeltaSign}
             />
           </>
         }
