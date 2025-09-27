@@ -57,15 +57,6 @@ export default function WatchScreen() {
     }
   }
 
-  const renderHighlight = ({ item }: { item: HighlightItem }) => (
-    <View style={styles.highlightItem}>
-      <View style={styles.highlightHeader}>
-        {getHighlightIcon(item.type)}
-        <Text style={styles.highlightTime}>{item.time}</Text>
-      </View>
-      <Text style={styles.highlightDescription}>{item.description}</Text>
-    </View>
-  )
 
   return (
     <SafeAreaView style={styles.container} edges={[]}>
@@ -101,7 +92,15 @@ export default function WatchScreen() {
           </View>
 
           <View style={styles.highlightsList}>
-            {highlights.map((item) => renderHighlight({ item }))}
+            {highlights.map((item) => (
+              <View key={item.id} style={styles.highlightItem}>
+                <View style={styles.highlightHeader}>
+                  {getHighlightIcon(item.type)}
+                  <Text style={styles.highlightTime}>{item.time}</Text>
+                </View>
+                <Text style={styles.highlightDescription}>{item.description}</Text>
+              </View>
+            ))}
           </View>
         </Card>
       </View>
