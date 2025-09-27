@@ -16,45 +16,46 @@ export default function RadarScreen() {
   const { radarItems } = useAppStore()
   const navigation = useNavigation()
   const [refreshing, setRefreshing] = useState(false)
-  const [selectedSport, setSelectedSport] = useState("NBA")
-  const [selectedPropTypes, setSelectedPropTypes] = useState<string[]>(["AST", "PRA", "REB"])
-  const [selectedDeltaSign, setSelectedDeltaSign] = useState<"both" | "positive" | "negative">("positive")
+  const [selectedSport, setSelectedSport] = useState("NCAAF")
+  const [selectedPropTypes, setSelectedPropTypes] = useState<string[]>(["PASS_YDS", "RUSH_YDS", "REC"])
+  const [minDelta, setMinDelta] = useState(0.5)
 
-  //Demo data - more realistic NBA props
+  // Demo data - Georgia vs Alabama NCAA Football props
+
   const demoRadarItems: RadarItem[] = [
     {
-      propId: "PRA_over_42.5_jokic",
-      label: "Nikola Jokic PRA 42.5 o",
+      propId: "RUSH_YDS_over_125.5_milton",
+      label: "Kendall Milton Rush Yds 125.5 o",
       deltaVsMedian: 1.5,
       staleMin: 4,
     },
     {
-      propId: "AST_over_7.5_lebron",
-      label: "LeBron James AST 7.5 o",
+      propId: "PASS_YDS_over_275.5_beck",
+      label: "Carson Beck Pass Yds 275.5 o",
       deltaVsMedian: 1.0,
       staleMin: 3,
     },
     {
-      propId: "REB_over_12.5_embiid",
-      label: "Joel Embiid REB 12.5 o",
+      propId: "PASS_YDS_over_280.5_milroe",
+      label: "Jalen Milroe Pass Yds 280.5 o",
       deltaVsMedian: 2.1,
       staleMin: 6,
     },
     {
-      propId: "PTS_over_25.5_curry",
-      label: "Stephen Curry PTS 25.5 o",
+      propId: "REC_over_5.5_smith",
+      label: "Arian Smith Receptions 5.5 o",
       deltaVsMedian: 0.8,
       staleMin: 2,
     },
     {
-      propId: "AST_over_9.5_haliburton",
-      label: "Tyrese Haliburton AST 9.5 o",
+      propId: "REC_over_6.5_williams",
+      label: "Ryan Williams Receptions 6.5 o",
       deltaVsMedian: 1.8,
       staleMin: 5,
     },
     {
-      propId: "REB_over_10.5_sabonis",
-      label: "Domantas Sabonis REB 10.5 o",
+      propId: "RUSH_YDS_over_85.5_haynes",
+      label: "Justice Haynes Rush Yds 85.5 o",
       deltaVsMedian: 1.2,
       staleMin: 3,
     },

@@ -47,7 +47,7 @@ export default function LiveScreen() {
 
   // Demo data
   const demoPricing = {
-    propId: "AST_over_7.5_player123",
+    propId: "PASS_YDS_over_275.5_player123",
     worthPer1: 0.28,
     pFair: 0.68,
     fairPrice: 0.558,
@@ -60,15 +60,15 @@ export default function LiveScreen() {
     onExplain: () => setShowExplain(true),
   }
 
-  // Determine scenario based on the clicked prop or use assists as default
-  const getScenarioFromPropId = (propId?: string): 'assists' | 'points' | 'rebounds' => {
-    if (!propId) return 'assists'
+  // Determine scenario based on the clicked prop or use passing_yards as default
+  const getScenarioFromPropId = (propId?: string): 'passing_yards' | 'rushing_yards' | 'receptions' => {
+    if (!propId) return 'passing_yards'
     
-    if (propId.includes('PRA') || propId.includes('AST')) return 'assists'
-    if (propId.includes('PTS')) return 'points'
-    if (propId.includes('REB')) return 'rebounds'
+    if (propId.includes('PASS_YDS') || propId.includes('PASS_TD')) return 'passing_yards'
+    if (propId.includes('RUSH_YDS') || propId.includes('RUSH_TD')) return 'rushing_yards'
+    if (propId.includes('REC') || propId.includes('REC_YDS')) return 'receptions'
     
-    return 'assists' // default
+    return 'passing_yards' // default
   }
 
   // Use the scenario based on the actual clicked prop
@@ -104,25 +104,27 @@ export default function LiveScreen() {
       
       // Map player IDs to actual names
       const playerNames: { [key: string]: string } = {
-        'jokic': 'Nikola Jokić',
-        'lebron': 'LeBron James',
-        'embiid': 'Joel Embiid',
-        'curry': 'Stephen Curry',
-        'haliburton': 'Tyrese Haliburton',
-        'sabonis': 'Domantas Sabonis',
-        'player123': 'Luka Dončić',
-        'player456': 'Stephen Curry', 
-        'player789': 'Nikola Jokić'
+        'beck': 'Carson Beck',
+        'milroe': 'Jalen Milroe',
+        'milton': 'Kendall Milton',
+        'smith': 'Arian Smith',
+        'williams': 'Ryan Williams',
+        'haynes': 'Justice Haynes',
+        'player123': 'Carson Beck',
+        'player456': 'Kendall Milton', 
+        'player789': 'Arian Smith'
       }
       
       const playerName = playerNames[playerId] || playerId.replace('player', 'Player ')
       
       // Format the prop type for display
       const propTypeMap: { [key: string]: string } = {
-        'AST': 'Assists',
-        'PTS': 'Points',
-        'REB': 'Rebounds',
-        'PRA': 'PRA'
+        'PASS_YDS': 'Pass Yards',
+        'RUSH_YDS': 'Rush Yards',
+        'REC': 'Receptions',
+        'PASS_TD': 'Pass TDs',
+        'RUSH_TD': 'Rush TDs',
+        'REC_YDS': 'Rec Yards'
       }
       
       const displayPropType = propTypeMap[propType] || propType

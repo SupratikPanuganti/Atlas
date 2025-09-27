@@ -10,10 +10,10 @@ export const demoService = {
   },
 
   // Generate demo pricing data for different scenarios
-  generateDemoPricing: (scenario: 'assists' | 'points' | 'rebounds' = 'assists') => {
+  generateDemoPricing: (scenario: 'passing_yards' | 'rushing_yards' | 'receptions' = 'passing_yards') => {
     const scenarios = {
-      assists: {
-        prop: "AST_over_7.5_player123",
+      passing_yards: {
+        prop: "PASS_YDS_over_275.5_player123",
         p_fair: 0.68,
         fair_price: 0.558,
         market_price: 0.45,
@@ -26,37 +26,37 @@ export const demoService = {
           { 
             name: "pace" as const, 
             impact: 0.07,
-            explanation: "Game pace has accelerated to 103.2 possessions/game (4% above season average). Higher pace = more possessions = more assist opportunities as the team pushes the ball in transition.",
-            details: "Current pace: 103.2 vs Season avg: 99.1. Last 5 minutes pace: 108.3 (spike detected)"
+            explanation: "Georgia's tempo has increased to 75.2 plays/game (6% above season average). Higher tempo = more passing opportunities in this high-stakes SEC matchup.",
+            details: "Current pace: 75.2 vs Season avg: 71.1. Last 2 drives: 82.1 plays/60min (uptempo detected)"
           },
           { 
             name: "minutes" as const, 
             impact: 0.05,
-            explanation: "Player is logging 2.3 more minutes than projected due to favorable matchup and hot hand. More minutes = more opportunities to accumulate assists.",
-            details: "Projected: 28.2 min, Actual: 30.5 min. Usage rate up 8% in Q4 due to opponent's weak perimeter defense."
+            explanation: "QB seeing extended drives due to Alabama's aggressive pass rush forcing quick reads. More snaps = more passing opportunities.",
+            details: "Projected: 68 snaps, Actual: 72 snaps. Pass rate up 12% in 2nd half due to trailing by 7."
           },
           { 
             name: "turnovers" as const, 
             impact: 0.03,
-            explanation: "Recent surge in live-ball turnovers (3 in last 90 seconds) creates fast-break opportunities where assists are more likely to occur.",
-            details: "TO rate: 18% (season avg: 14%). Fast-break assists account for 23% of total assists this game vs 15% season average."
+            explanation: "Alabama's recent fumble (recovered by Georgia) creates short field situation where passing attack can be more aggressive.",
+            details: "TO margin: +1 Georgia. Field position avg: 38-yard line vs 32-yard typical. Red zone opportunities up 18%."
           },
           { 
             name: "teammate_efficiency" as const, 
             impact: 0.02,
-            explanation: "Shooting efficiency of primary targets is 12% above season average, meaning passes are more likely to result in made baskets.",
-            details: "FG% on passes from this player: 58.3% vs 46.1% season average. Hot shooting streak in Q4."
+            explanation: "Georgia's receivers have 89% catch rate on targets (season avg: 74%), creating confidence for QB to attempt more passes.",
+            details: "Completion %: 68.2% vs 61.4% season avg. YAC averaging 5.8 yards vs 4.2 typical."
           },
           { 
             name: "defensive_pressure" as const, 
             impact: -0.01,
-            explanation: "Opponent has tightened perimeter defense, making assist passes slightly more difficult to execute.",
-            details: "Defensive pressure rating: 7.2/10 (season avg: 5.8). Contested pass rate up 15% in last 4 minutes."
+            explanation: "Alabama's pass rush has generated pressure on 28% of dropbacks, slightly limiting downfield opportunities.",
+            details: "Pressure rate: 28% vs 24% season avg. Quick game (≤2.5s) up 22% to combat rush."
           }
         ],
       },
-      points: {
-        prop: "PTS_over_25.5_player456",
+      rushing_yards: {
+        prop: "RUSH_YDS_over_125.5_player456",
         p_fair: 0.72,
         fair_price: 0.611,
         market_price: 0.52,
@@ -69,37 +69,37 @@ export const demoService = {
           { 
             name: "pace" as const, 
             impact: 0.08,
-            explanation: "Up-tempo game creates more scoring opportunities. Current pace of 106.1 possessions is 7% above season average, directly increasing shot volume.",
-            details: "Pace: 106.1 vs 99.1 avg. Shot attempts per game: 18.3 vs 17.1 projected."
+            explanation: "Fast-paced SEC game with 78.1 plays/game creates more rushing opportunities. Game script favoring ground game with Georgia leading.",
+            details: "Pace: 78.1 vs 71.1 avg. Rush attempts: 32 vs 28 projected. Time of possession: 18:42 (2nd half)"
           },
           { 
             name: "minutes" as const, 
             impact: 0.06,
-            explanation: "Player is seeing extended run due to hot shooting (67% FG in Q3). Coach riding the hot hand with 3.2 extra minutes vs projection.",
-            details: "Actual: 32.1 min vs 28.9 projected. Usage rate: 28.3% (season: 24.1%)"
+            explanation: "RB seeing increased carries due to effective ground game (5.8 YPC). Coach leaning on run game with 8 extra carries vs projection.",
+            details: "Actual: 23 carries vs 15 projected. Snap share: 76% (season: 58%). Goal line touches: 4 vs 2 avg"
           },
           { 
             name: "usage" as const, 
             impact: 0.04,
-            explanation: "Offensive load increased due to teammate foul trouble. Player taking 4.2 more shots per 36 minutes than season average.",
-            details: "FGA/36: 19.1 vs 14.9 season avg. Touch rate: 42.3% vs 35.8% baseline."
+            explanation: "Offensive load shifted to ground game due to Alabama's strong pass coverage. RB getting 43% of total touches vs 31% season avg.",
+            details: "Touches/drive: 2.8 vs 1.9 season avg. Red zone carries: 75% vs 45% typical."
           },
           { 
             name: "teammate_efficiency" as const, 
             impact: 0.03,
-            explanation: "Excellent ball movement creating open looks. Assist rate up 23% leading to higher-quality shot attempts.",
-            details: "Open shot rate: 68% vs 54% season avg. Catch-and-shoot 3P%: 41.2% vs 35.8%"
+            explanation: "O-line creating excellent running lanes with 85% positive rush rate. Blocking efficiency up 18% vs season average.",
+            details: "Yards before contact: 4.2 vs 2.8 avg. Missed tackles forced: 6 vs 3.1 season avg."
           },
           { 
             name: "hot_hand" as const, 
             impact: 0.02,
-            explanation: "Player is in a shooting rhythm with 67% FG over last 8 minutes. Hot hand effect increases confidence and shot selection.",
-            details: "Last 8 min: 67% FG vs 45% season avg. 3P streak: 4/5 in Q3. Shot quality rating: 8.3/10"
+            explanation: "RB in rhythm with 6.8 YPC over last 3 drives. Hot hand effect and defensive fatigue increasing efficiency.",
+            details: "Last 3 drives: 6.8 YPC vs 4.2 season avg. 4 runs of 10+ yards in 2nd half. Juke rate: 67%"
           }
         ],
       },
-      rebounds: {
-        prop: "REB_over_10.5_player789",
+      receptions: {
+        prop: "REC_over_6.5_player789",
         p_fair: 0.61,
         fair_price: 0.492,
         market_price: 0.58,
@@ -112,38 +112,38 @@ export const demoService = {
           { 
             name: "pace" as const, 
             impact: 0.05,
-            explanation: "Slower pace (94.2 possessions) means fewer missed shots and rebound opportunities. Pace down 5% from season average.",
-            details: "Current pace: 94.2 vs 99.1 avg. FG attempts down 8.3% vs projected."
+            explanation: "Higher pace (78.1 plays) creates more passing opportunities for slot receivers. Tempo up 9% from season average favors underneath routes.",
+            details: "Current pace: 78.1 vs 71.1 avg. Pass attempts up 12.3% vs projected. Slot targets: 8 vs 5.2 typical."
           },
           { 
             name: "minutes" as const, 
             impact: -0.02,
-            explanation: "Player seeing reduced minutes due to foul trouble and opponent going small-ball. 2.8 minutes below projection.",
-            details: "Actual: 25.3 min vs 28.1 projected. Foul rate: 6.8/36 min vs 4.2 season avg."
+            explanation: "WR seeing reduced snaps due to Georgia's heavy 2-TE sets and Alabama's aggressive run defense. 8 fewer snaps than projected.",
+            details: "Actual: 52 snaps vs 60 projected. 2-WR sets: 42% vs 65% season avg. 12 personnel usage up 28%."
           },
           { 
             name: "teammate_efficiency" as const, 
             impact: -0.03,
-            explanation: "Team shooting 58.3% FG (well above 46.1% season avg), meaning fewer rebound opportunities from missed shots.",
-            details: "Team FG%: 58.3% vs 46.1% avg. Missed shots down 22% vs typical game."
+            explanation: "Running game averaging 6.2 YPC (well above 4.1 season avg), meaning fewer passing downs and reception opportunities.",
+            details: "Rush success rate: 72% vs 58% avg. 3rd down conversion via run: 67% vs 31% typical."
           },
           { 
             name: "defensive_pressure" as const, 
             impact: -0.01,
-            explanation: "Opponent playing small-ball lineup, reducing traditional rebounding opportunities and forcing player to perimeter.",
-            details: "Opponent average height: 6'5\" vs 6'8\" typical. Perimeter touches up 34%."
+            explanation: "Alabama's coverage focusing on underneath routes, limiting this WR's primary target area and forcing deeper routes.",
+            details: "Slot coverage: 2-high safety 78% vs 52% typical. Targets ≤10 yards: 3 vs 7.2 season avg."
           },
           { 
-            name: "foul_trouble" as const, 
+            name: "matchup" as const, 
             impact: -0.02,
-            explanation: "Player in foul trouble (4 fouls) limiting aggressive rebounding and forcing conservative positioning.",
-            details: "Foul rate: 6.8/36 min vs 4.2 season avg. Defensive rebounding down 23% due to foul concerns."
+            explanation: "Facing Alabama's top slot corner who has allowed only 4.1 receptions/game to similar receivers this season.",
+            details: "Matchup rating: 3.2/10. Opponent slot coverage: 67% completion allowed vs 78% WR season avg."
           },
           { 
             name: "game_script" as const, 
             impact: -0.01,
-            explanation: "Blowout game script (team up 18) reducing competitive intensity and rebounding effort.",
-            details: "Score differential: +18 points. Rebounding intensity rating: 6.2/10 vs 8.4 season avg."
+            explanation: "Georgia's ground-control game script (leading 14-7) reducing pass volume and reception opportunities in 2nd half.",
+            details: "2nd half pass rate: 38% vs 58% 1st half. Clock management mode reducing total plays."
           }
         ],
       }
@@ -154,19 +154,19 @@ export const demoService = {
 
   // Generate demo live stream data
   generateDemoStream: () => ({
-    t_sec: 494,
-    score_diff: -3,
-    pace: 103.2,
-    to_rate: 0.18,
-    hot_hand: 0.76,
+    t_sec: 2847, // 3rd Quarter, 7:27 remaining
+    score_diff: 7, // Georgia leading 21-14
+    pace: 78.1,
+    to_rate: 0.12,
+    hot_hand: 0.82,
     starter_on: 1,
     market: [
       {
-        prop: "AST_over_7.5",
-        line: 7.5,
+        prop: "PASS_YDS_over_275.5",
+        line: 275.5,
         odds: 1.82,
-        median_line: 7.0,
-        last_change_ts: 480,
+        median_line: 265.0,
+        last_change_ts: 2820,
       },
     ],
   }),
@@ -174,16 +174,16 @@ export const demoService = {
   // Generate demo radar items
   generateDemoRadar: () => [
     {
-      prop: "PRA_over_42.5_player1",
+      prop: "RUSH_YDS_over_125.5_player1",
       delta_vs_median: 1.5,
       stale_min: 4,
-      label: "Player X PRA 42.5 o",
+      label: "Georgia RB Rush Yds 125.5 o",
     },
     {
-      prop: "AST_over_7.5_player2",
+      prop: "PASS_YDS_over_275.5_player2",
       delta_vs_median: 1.0,
       stale_min: 3,
-      label: "Player Y AST 7.5 o",
+      label: "Alabama QB Pass Yds 275.5 o",
     },
   ],
 
@@ -199,10 +199,10 @@ export const demoService = {
       // Active bets for today
       {
         id: "bet_1",
-        prop: "PRA",
-        player: "Nikola Jokic",
-        market: "Points + Rebounds + Assists",
-        line: 42.5,
+        prop: "RUSH_YDS",
+        player: "Kendall Milton",
+        market: "Rushing Yards",
+        line: 125.5,
         betType: "over",
         odds: 1.85,
         stake: 25,
@@ -210,26 +210,26 @@ export const demoService = {
         status: "live",
         placedAt: today.toISOString(),
         gameInfo: {
-          homeTeam: "Denver Nuggets",
-          awayTeam: "Los Angeles Lakers",
-          gameTime: "8:00 PM ET",
-          currentScore: "DEN 98 - LAL 94",
-          quarter: "Q4",
-          timeRemaining: "3:42"
+          homeTeam: "Georgia Bulldogs",
+          awayTeam: "Alabama Crimson Tide",
+          gameTime: "3:30 PM ET",
+          currentScore: "UGA 21 - ALA 14",
+          quarter: "Q3",
+          timeRemaining: "7:27"
         },
         currentValue: 32.50,
         liveStats: {
-          current: 38,
-          projected: 43.2,
+          current: 94,
+          projected: 132.8,
           confidence: 0.78
         }
       },
       {
         id: "bet_2",
-        prop: "AST",
-        player: "LeBron James",
-        market: "Assists",
-        line: 7.5,
+        prop: "PASS_YDS",
+        player: "Jalen Milroe",
+        market: "Passing Yards",
+        line: 275.5,
         betType: "under",
         odds: 1.95,
         stake: 20,
@@ -237,26 +237,26 @@ export const demoService = {
         status: "live",
         placedAt: today.toISOString(),
         gameInfo: {
-          homeTeam: "Denver Nuggets",
-          awayTeam: "Los Angeles Lakers",
-          gameTime: "8:00 PM ET",
-          currentScore: "DEN 98 - LAL 94",
-          quarter: "Q4",
-          timeRemaining: "3:42"
+          homeTeam: "Georgia Bulldogs",
+          awayTeam: "Alabama Crimson Tide",
+          gameTime: "3:30 PM ET",
+          currentScore: "UGA 21 - ALA 14",
+          quarter: "Q3",
+          timeRemaining: "7:27"
         },
         currentValue: 18.50,
         liveStats: {
-          current: 6,
-          projected: 7.1,
+          current: 198,
+          projected: 267.3,
           confidence: 0.82
         }
       },
       {
         id: "bet_3",
-        prop: "PTS",
-        player: "Stephen Curry",
-        market: "Points",
-        line: 25.5,
+        prop: "REC",
+        player: "Arian Smith",
+        market: "Receptions",
+        line: 4.5,
         betType: "over",
         odds: 1.90,
         stake: 30,
@@ -264,9 +264,9 @@ export const demoService = {
         status: "pending",
         placedAt: new Date(today.getTime() + 2 * 60 * 60 * 1000).toISOString(),
         gameInfo: {
-          homeTeam: "Golden State Warriors",
-          awayTeam: "Phoenix Suns",
-          gameTime: "10:30 PM ET",
+          homeTeam: "Georgia Bulldogs",
+          awayTeam: "Alabama Crimson Tide",
+          gameTime: "3:30 PM ET",
           currentScore: undefined,
           quarter: undefined,
           timeRemaining: undefined
@@ -275,10 +275,10 @@ export const demoService = {
       // Yesterday's settled bets
       {
         id: "bet_4",
-        prop: "REB",
-        player: "Anthony Davis",
-        market: "Rebounds",
-        line: 12.5,
+        prop: "RUSH_YDS",
+        player: "Justice Haynes",
+        market: "Rushing Yards",
+        line: 85.5,
         betType: "over",
         odds: 1.88,
         stake: 25,
@@ -287,18 +287,18 @@ export const demoService = {
         placedAt: yesterday.toISOString(),
         settledAt: new Date(yesterday.getTime() + 3 * 60 * 60 * 1000).toISOString(),
         gameInfo: {
-          homeTeam: "Los Angeles Lakers",
-          awayTeam: "Sacramento Kings",
-          gameTime: "10:00 PM ET",
-          currentScore: "LAL 112 - SAC 108"
+          homeTeam: "Georgia Bulldogs",
+          awayTeam: "Auburn Tigers",
+          gameTime: "7:00 PM ET",
+          currentScore: "UGA 31 - AUB 13"
         }
       },
       {
         id: "bet_5",
-        prop: "3PM",
-        player: "Klay Thompson",
-        market: "3-Pointers Made",
-        line: 3.5,
+        prop: "PASS_TD",
+        player: "Carson Beck",
+        market: "Passing Touchdowns",
+        line: 1.5,
         betType: "under",
         odds: 1.92,
         stake: 20,
@@ -307,19 +307,19 @@ export const demoService = {
         placedAt: yesterday.toISOString(),
         settledAt: new Date(yesterday.getTime() + 3 * 60 * 60 * 1000).toISOString(),
         gameInfo: {
-          homeTeam: "Golden State Warriors",
-          awayTeam: "Portland Trail Blazers",
-          gameTime: "10:30 PM ET",
-          currentScore: "GSW 125 - POR 119"
+          homeTeam: "Georgia Bulldogs",
+          awayTeam: "Auburn Tigers",
+          gameTime: "7:00 PM ET",
+          currentScore: "UGA 31 - AUB 13"
         }
       },
       // Older bets
       {
         id: "bet_6",
-        prop: "AST",
-        player: "Luka Doncic",
-        market: "Assists",
-        line: 8.5,
+        prop: "REC",
+        player: "Ryan Williams",
+        market: "Receptions",
+        line: 5.5,
         betType: "over",
         odds: 1.83,
         stake: 35,
@@ -328,18 +328,18 @@ export const demoService = {
         placedAt: twoDaysAgo.toISOString(),
         settledAt: new Date(twoDaysAgo.getTime() + 3 * 60 * 60 * 1000).toISOString(),
         gameInfo: {
-          homeTeam: "Dallas Mavericks",
-          awayTeam: "Houston Rockets",
-          gameTime: "8:30 PM ET",
-          currentScore: "DAL 118 - HOU 110"
+          homeTeam: "Alabama Crimson Tide",
+          awayTeam: "Tennessee Volunteers",
+          gameTime: "7:00 PM ET",
+          currentScore: "ALA 34 - TEN 20"
         }
       },
       {
         id: "bet_7",
-        prop: "PTS",
-        player: "Giannis Antetokounmpo",
-        market: "Points",
-        line: 30.5,
+        prop: "RUSH_YDS",
+        player: "Jam Miller",
+        market: "Rushing Yards",
+        line: 95.5,
         betType: "under",
         odds: 1.89,
         stake: 40,
@@ -348,18 +348,18 @@ export const demoService = {
         placedAt: twoDaysAgo.toISOString(),
         settledAt: new Date(twoDaysAgo.getTime() + 3 * 60 * 60 * 1000).toISOString(),
         gameInfo: {
-          homeTeam: "Milwaukee Bucks",
-          awayTeam: "Miami Heat",
-          gameTime: "8:00 PM ET",
-          currentScore: "MIL 105 - MIA 98"
+          homeTeam: "Alabama Crimson Tide",
+          awayTeam: "Tennessee Volunteers",
+          gameTime: "7:00 PM ET",
+          currentScore: "ALA 34 - TEN 20"
         }
       },
       {
         id: "bet_8",
-        prop: "REB",
-        player: "Joel Embiid",
-        market: "Rebounds",
-        line: 10.5,
+        prop: "PASS_YDS",
+        player: "Nico Iamaleava",
+        market: "Passing Yards",
+        line: 225.5,
         betType: "over",
         odds: 1.85,
         stake: 30,
@@ -368,10 +368,10 @@ export const demoService = {
         placedAt: weekAgo.toISOString(),
         settledAt: new Date(weekAgo.getTime() + 3 * 60 * 60 * 1000).toISOString(),
         gameInfo: {
-          homeTeam: "Philadelphia 76ers",
-          awayTeam: "Boston Celtics",
-          gameTime: "7:30 PM ET",
-          currentScore: "PHI 102 - BOS 108"
+          homeTeam: "Alabama Crimson Tide",
+          awayTeam: "Tennessee Volunteers",
+          gameTime: "7:00 PM ET",
+          currentScore: "ALA 34 - TEN 20"
         }
       }
     ]

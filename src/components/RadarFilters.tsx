@@ -13,8 +13,8 @@ interface RadarFiltersProps {
   onDeltaSignChange: (sign: "both" | "positive" | "negative") => void
 }
 
-const PROP_TYPES = ["AST", "PRA", "REB", "PTS", "STL", "BLK"]
-// We now group delta values by sign: positive, negative (and "both" when neither is selected)
+const PROP_TYPES = ["PASS_YDS", "RUSH_YDS", "REC", "PASS_TD", "RUSH_TD", "REC_YDS"]
+const DELTA_OPTIONS = [0, 0.5, 1.0, 1.5, 2.0]
 
 const RadarFilters = ({
   selectedSport,
@@ -30,8 +30,8 @@ const RadarFilters = ({
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Sport</Text>
         <Button
-          title="NBA (Demo)"
-          onPress={() => onSportChange("NBA")}
+          title="NCAAF (Demo)"
+          onPress={() => onSportChange("NCAAF")}
           variant="outline"
           size="sm"
           style={styles.sportButton}
