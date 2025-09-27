@@ -11,8 +11,7 @@ interface RadarFiltersProps {
   onDeltaSignChange: (sign: "both" | "positive" | "negative") => void
 }
 
-const PROP_TYPES = ["PASS_YDS", "RUSH_YDS", "REC", "PASS_TD", "RUSH_TD", "REC_YDS"]
-const DELTA_OPTIONS = [0, 0.5, 1.0, 1.5, 2.0]
+const PROP_TYPES = ["PASS YDS", "RUSH YDS", "REC", "PASS TD", "RUSH TD", "REC YDS"]
 
 const RadarFilters = ({
   selectedPropTypes,
