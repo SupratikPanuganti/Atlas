@@ -101,6 +101,5 @@ const styles = StyleSheet.create({
   },
   betsList: {
     gap: 0,
-    paddingBottom: 16,
   },
 })
