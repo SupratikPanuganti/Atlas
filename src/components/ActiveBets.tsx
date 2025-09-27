@@ -74,6 +74,7 @@ const styles = StyleSheet.create({
     fontSize: typography["2xl"],
     fontWeight: "600",
     flex: 1,
+    color: colors.text,
   },
   count: {
     fontSize: typography.xs,
