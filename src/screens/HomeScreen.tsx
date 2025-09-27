@@ -28,6 +28,7 @@ import type { CompositeNavigationProp } from "@react-navigation/native"
 import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs"
 import type { StackNavigationProp } from "@react-navigation/stack"
 import type { MainTabParamList, RootStackParamList } from "../types/navigation"
+import { FadeInView, SlideInView, PressableCard } from "../components/animations"
 
 type HomeScreenNavigationProp = CompositeNavigationProp<
   BottomTabNavigationProp<MainTabParamList, 'Home'>,
@@ -70,47 +71,58 @@ export default function HomeScreen() {
         {/* Header */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>
-              Welcome back, {user?.name || "Trader"}!
-            </Text>
-            <Text style={styles.subtitle}>
-              Betting Dashboard
-            </Text>
+            <SlideInView delay={0} direction="up" duration={800}>
+              <Text style={styles.greeting}>
+                Welcome back, {user?.name || "Trader"}!
+              </Text>
+            </SlideInView>
+            <FadeInView delay={400} duration={600}>
+              <Text style={styles.subtitle}>
+                Betting Dashboard
+              </Text>
+            </FadeInView>
           </View>
-          <TouchableOpacity onPress={() => navigation.navigate("Settings")} style={styles.settingsButton}>
+          <PressableCard
+            onPress={() => navigation.navigate("Settings")}
+            style={styles.settingsButton}
+          >
             <User size={24} color={colors.text} />
-          </TouchableOpacity>
+          </PressableCard>
         </View>
 
         {/* Betting Statistics */}
         {bettingStats && (
-          <View style={styles.statsContainer}>
-            <BettingStatsCards stats={bettingStats} />
-          </View>
+          <FadeInView delay={600} duration={800}>
+            <View style={styles.statsContainer}>
+              <BettingStatsCards stats={bettingStats} />
+            </View>
+          </FadeInView>
         )}
 
         {/* Tabs */}
-        <View style={styles.tabsContainer}>
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'active' && styles.activeTab]}
-            onPress={() => setActiveTab('active')}
-          >
-            <Play size={20} color={activeTab === 'active' ? colors.primary : colors.muted} />
-            <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]}>
-              Active Bets
-            </Text>
-          </TouchableOpacity>
-          
-          <TouchableOpacity
-            style={[styles.tab, activeTab === 'history' && styles.activeTab]}
-            onPress={() => setActiveTab('history')}
-          >
-            <History size={20} color={activeTab === 'history' ? colors.primary : colors.muted} />
-            <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]}>
-              Bet History
-            </Text>
-          </TouchableOpacity>
-        </View>
+        <SlideInView delay={800} direction="up" duration={600}>
+          <View style={styles.tabsContainer}>
+            <PressableCard
+              style={[styles.tab, activeTab === 'active' && styles.activeTab]}
+              onPress={() => setActiveTab('active')}
+            >
+              <Play size={20} color={activeTab === 'active' ? colors.primary : colors.muted} />
+              <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]}>
+                Active Bets
+              </Text>
+            </PressableCard>
+            
+            <PressableCard
+              style={[styles.tab, activeTab === 'history' && styles.activeTab]}
+              onPress={() => setActiveTab('history')}
+            >
+              <History size={20} color={activeTab === 'history' ? colors.primary : colors.muted} />
+              <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]}>
+                Bet History
+              </Text>
+            </PressableCard>
+          </View>
+        </SlideInView>
 
         {/* Tab Content */}
         <View style={styles.tabContent}>

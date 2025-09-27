@@ -9,6 +9,7 @@ import { BetItem } from "./BetItem"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 import type { Bet } from "../types"
+import { FadeInView } from "./animations"
 
 interface ActiveBetsProps {
   bets: Bet[]
@@ -45,13 +46,14 @@ export function ActiveBets({ bets, onViewBet }: ActiveBetsProps) {
       </View>
       
       <View style={styles.betsList}>
-        {activeBets.map((bet) => (
-          <BetItem
-            key={bet.id}
-            bet={bet}
-            showCurrentValue={true}
-            onViewBet={onViewBet}
-          />
+        {activeBets.map((bet, index) => (
+          <FadeInView key={bet.id} delay={index * 100} duration={600}>
+            <BetItem
+              bet={bet}
+              showCurrentValue={true}
+              onViewBet={onViewBet}
+            />
+          </FadeInView>
         ))}
       </View>
     </Card>
