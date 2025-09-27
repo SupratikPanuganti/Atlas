@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useRef } from "react"
+import React, { useRef, useState, useEffect } from "react"
 import { View, Text, StyleSheet, Pressable, Animated, Dimensions } from "react-native"
-import { TrendingUp } from "lucide-react-native"
+import { TrendingUp, ChevronLeft, ChevronRight } from "lucide-react-native"
 import { Card } from "./ui/Card"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
@@ -66,6 +66,51 @@ export function ShadcnLineChart({
   // animated scales per point so each point can scale on press
   const scalesRef = useRef<Animated.Value[]>([])
 
+  // internal selection index for arrow navigation (controlled optionally by selectedPoint)
+  const [internalIndex, setInternalIndex] = useState<number>(0)
+
+  useEffect(() => {
+    if (selectedPoint) {
+      const idx = allData.findIndex(p => p === selectedPoint || p.time === selectedPoint.time)
+      if (idx >= 0) setInternalIndex(idx)
+    }
+  }, [selectedPoint?.time])
+
+  // keep track of previous index so we can animate it back down
+  const prevIndexRef = useRef<number>(-1)
+
+  // ensure scales exist for each point up front
+  useEffect(() => {
+    if (scalesRef.current.length < allData.length) {
+      scalesRef.current = allData.map((_, i) => scalesRef.current[i] || new Animated.Value(1))
+    }
+  }, [allData.length])
+
+  // animate selected point up and previous point back to normal when internalIndex changes
+  useEffect(() => {
+    const prev = prevIndexRef.current
+    if (prev >= 0 && scalesRef.current[prev]) {
+      Animated.spring(scalesRef.current[prev], { toValue: 1, useNativeDriver: true, speed: 20, bounciness: 8 }).start()
+    }
+
+    if (scalesRef.current[internalIndex]) {
+      Animated.spring(scalesRef.current[internalIndex], { toValue: 1.45, useNativeDriver: true, speed: 20, bounciness: 10 }).start()
+    } else {
+      scalesRef.current[internalIndex] = new Animated.Value(1.45)
+    }
+
+    prevIndexRef.current = internalIndex
+  }, [internalIndex])
+
+  // helper to move selection to a given index and notify parent
+  const moveTo = (newIndex: number) => {
+    const clamped = Math.max(0, Math.min(allData.length - 1, newIndex))
+    setInternalIndex(clamped)
+    const target = allData[clamped]
+    onPointPress?.(target)
+  }
+
+
   const getPointColor = (point: ChartPoint, index: number) => {
     // Base point (x=0) should be gray
     if (index === 0) return colors.neutral
@@ -104,6 +149,11 @@ export function ShadcnLineChart({
     const b = bigint & 255
     return `rgba(${r}, ${g}, ${b}, ${alpha})`
   }
+
+  // compute insight box color based on selection (force neutral for base point)
+  const selectedIndexForBox = selectedPoint ? allData.findIndex(p => p === selectedPoint || p.time === selectedPoint.time) : -1
+  const isBaseForBox = selectedIndexForBox === 0 || selectedPoint?.time === 'Start'
+  const boxColor = isBaseForBox ? colors.neutral : (selectedPoint ? getPointColor(selectedPoint, selectedIndexForBox) : colors.neutral)
 
   const renderChartLine = () => {
     const quarters = ['Q1', 'Q2', 'Q3', 'Q4']
@@ -242,6 +292,8 @@ export function ShadcnLineChart({
             )
           })}
 
+          {/* (Arrows moved to insight box below) */}
+
           {/* Data points - clickable (no lines) */}
           {points.map(({ x, y, point }, index) => {
             if (!scalesRef.current[index]) scalesRef.current[index] = new Animated.Value(1)
@@ -271,10 +323,10 @@ export function ShadcnLineChart({
                   justifyContent: 'center',
                   backgroundColor: 'transparent'
                 }}
-                onPress={() => onPointPress?.(point)}
+                onPress={() => { setInternalIndex(index); onPointPress?.(point) }}
                 onPressIn={onPressIn}
                 onPressOut={onPressOut}
-                hitSlop={{ top: hit, bottom: hit, left: hit, right: hit }}
+                // intentionally removed hitSlop per request; touchSize still defines pressable area
                 accessibilityRole="button"
                 accessible
                 accessibilityLabel={point.time + (point.ev !== undefined ? ` EV ${(point.ev * 100).toFixed(1)}%` : '')}
@@ -325,13 +377,54 @@ export function ShadcnLineChart({
         <View style={[
           styles.insightBox,
           {
-            borderColor: getPointColor(selectedPoint, allData.indexOf(selectedPoint)),
-            backgroundColor: getPointColor(selectedPoint, allData.indexOf(selectedPoint)) + '10'
+            borderColor: boxColor,
+            backgroundColor: boxColor + '10',
+            paddingHorizontal: 48 // leave room for arrows at edges
           }
         ]}>
+          {/* left arrow */}
+          <Pressable
+            onPress={() => moveTo(internalIndex - 1)}
+            disabled={internalIndex <= 0}
+            style={{
+              position: 'absolute',
+              left: 8,
+              top: 12,
+              width: 36,
+              height: 36,
+              borderRadius: 18,
+              backgroundColor: '#000000',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            accessibilityLabel="Previous data point"
+          >
+            <ChevronLeft size={18} color={'#ffffff'} />
+          </Pressable>
+
+          {/* right arrow */}
+          <Pressable
+            onPress={() => moveTo(internalIndex + 1)}
+            disabled={internalIndex >= allData.length - 1}
+            style={{
+              position: 'absolute',
+              right: 8,
+              top: 12,
+              width: 36,
+              height: 36,
+              borderRadius: 18,
+              backgroundColor: '#000000',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+            accessibilityLabel="Next data point"
+          >
+            <ChevronRight size={18} color={'#ffffff'} />
+          </Pressable>
+
           <Text style={[
             styles.insightTitle,
-            { color: getPointColor(selectedPoint, allData.indexOf(selectedPoint)) }
+            { color: (allData.findIndex(p => p === selectedPoint || p.time === selectedPoint.time) === 0) ? colors.neutral : getPointColor(selectedPoint, allData.indexOf(selectedPoint)), textAlign: 'center' }
           ]}>
             {selectedPoint.time === "Start" ? 'Base Point' :
              selectedPoint.gameEvent && (
@@ -346,24 +439,24 @@ export function ShadcnLineChart({
              selectedPoint.type === 'peak' ? 'Peak Opportunity' : 
              selectedPoint.type === 'trough' ? 'Trough Opportunity' : 'Normal Point'}
           </Text>
-          <Text style={styles.insightText}>
+          <Text style={[styles.insightText, { textAlign: 'center' }] }>
             {selectedPoint.ev !== undefined ? 
               `EV: ${(selectedPoint.ev * 100).toFixed(1)}% | Confidence: ${((selectedPoint.confidence || 0) * 100).toFixed(0)}%` :
               `${selectedPoint.percentage.toFixed(1)}% at ${selectedPoint.time}`
             }
           </Text>
           {selectedPoint.currentTotal !== undefined && selectedPoint.targetLine !== undefined && (
-            <Text style={styles.statsText}>
+            <Text style={[styles.statsText, { textAlign: 'center' }] }>
               Current: {selectedPoint.currentTotal} | Target: {selectedPoint.targetLine} | 
               Need: {(selectedPoint.targetLine - selectedPoint.currentTotal).toFixed(1)}
             </Text>
           )}
           {selectedPoint.factors && selectedPoint.factors.length > 0 && (
-            <Text style={styles.factorsText}>
+            <Text style={[styles.factorsText, { textAlign: 'center' }] }>
               Key factors: {selectedPoint.factors.join(', ')}
             </Text>
           )}
-          <Text style={styles.eventText}>
+          <Text style={[styles.eventText, { textAlign: 'center' }]}>
             {selectedPoint.gameEvent}
           </Text>
         </View>

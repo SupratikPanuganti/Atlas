@@ -307,7 +307,7 @@ export default function LiveScreen() {
 
         {/* View Conversation */}
         <TouchableOpacity 
-          style={styles.transparencyTab}
+          style={[styles.transparencyTab, styles.conversationButton]}
           onPress={() => navigation.navigate("Main", {
             screen: 'Chats',
             params: { targetPropId: lineData?.propId || lineId, ensureCreate: true }
@@ -341,6 +341,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 16,
+    paddingBottom: 16,
   },
   propNameContainer: {
     marginBottom: 16,
@@ -360,7 +361,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 20,
-    marginVertical: 16,
+  marginVertical: 16,
+  marginBottom: 20,
     borderWidth: 1,
     borderColor: colors.primary + "20",
   },
@@ -370,4 +372,8 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginLeft: 8,
   },
+  conversationButton: {
+    marginBottom: 96, 
+    paddingBottom: 12,
+  }
 })
