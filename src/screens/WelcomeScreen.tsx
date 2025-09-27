@@ -31,7 +31,7 @@ const features = [
   },
   {
     icon: Radar,
-    title: "Stale Line Detection",
+    title: "Today's Line Detection",
     description: "Identify mispriced lines before the market corrects them",
     color: "#FF6B6B",
   },

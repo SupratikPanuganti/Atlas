@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import type { PricingData, LiveStreamData, RadarItem, Bet, BettingStats, BettingDashboard } from "../types"
+import type { PricingData, LiveStreamData, RadarItem, Bet, BettingStats, BettingDashboard, H2HLine, H2HMatch, H2HUser, GeminiResponse } from "../types"
 
 interface AppState {
   // Authentication
@@ -37,6 +37,12 @@ interface AppState {
   // UI-marked favorites (starred stale lines)
   starredPropIds: string[]
 
+  // H2H data
+  h2hLines: H2HLine[]
+  h2hMatches: H2HMatch[]
+  h2hUser: H2HUser | null
+  userCredits: number
+
   // Actions
   login: (email: string, password: string) => Promise<void>
   signup: (email: string, password: string, name: string) => Promise<void>
@@ -59,6 +65,16 @@ interface AppState {
   // Create bet from a radar line
   addBetFromRadar: (item: RadarItem) => Bet
   starLine: (propId: string) => void
+
+  // H2H actions
+  setH2hLines: (lines: H2HLine[]) => void
+  addH2hLine: (line: H2HLine) => void
+  updateH2hLine: (lineId: string, updates: Partial<H2HLine>) => void
+  matchH2hLine: (lineId: string, opponentId: string) => void
+  settleH2hLine: (lineId: string, finalValue: number) => void
+  setUserCredits: (credits: number) => void
+  getGeminiAnalysis: (player: string, propType: string, customLine: number) => Promise<GeminiResponse>
+  findMatchingOpponents: (line: H2HLine) => H2HLine[]
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -77,6 +93,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   bettingStats: null,
   bettingDashboard: null,
   starredPropIds: [],
+  h2hLines: [],
+  h2hMatches: [],
+  h2hUser: null,
+  userCredits: 1500,
 
   // Actions
   login: async (email: string, password: string) => {
@@ -295,4 +315,126 @@ export const useAppStore = create<AppState>((set, get) => ({
       ? state.starredPropIds
       : [...state.starredPropIds, propId]
   })),
+
+  // H2H actions
+  setH2hLines: (lines) => set({ h2hLines: lines }),
+  
+  addH2hLine: (line) => set((state) => ({ 
+    h2hLines: [line, ...state.h2hLines],
+    userCredits: state.userCredits - line.stakeCredits
+  })),
+  
+  updateH2hLine: (lineId, updates) => set((state) => ({
+    h2hLines: state.h2hLines.map(line => 
+      line.id === lineId ? { ...line, ...updates } : line
+    )
+  })),
+  
+  matchH2hLine: (lineId, opponentId) => {
+    const state = get()
+    const line = state.h2hLines.find(l => l.id === lineId)
+    if (!line || line.status !== 'open') return
+
+    const matchId = `match_${Date.now()}`
+    const match: H2HMatch = {
+      id: matchId,
+      lineId,
+      creatorId: line.creatorId,
+      opponentId,
+      creatorSide: line.side,
+      opponentSide: line.side === 'over' ? 'under' : 'over',
+      stakeCredits: line.stakeCredits,
+      status: 'matched',
+      createdAt: new Date().toISOString(),
+    }
+
+    set((state) => ({
+      h2hLines: state.h2hLines.map(l => 
+        l.id === lineId 
+          ? { 
+              ...l, 
+              status: 'matched' as const,
+              matchedWith: opponentId,
+              matchedAt: new Date().toISOString()
+            }
+          : l
+      ),
+      h2hMatches: [...state.h2hMatches, match],
+      userCredits: state.userCredits - line.stakeCredits // Opponent stakes credits
+    }))
+  },
+  
+  settleH2hLine: (lineId, finalValue) => {
+    const state = get()
+    const line = state.h2hLines.find(l => l.id === lineId)
+    const match = state.h2hMatches.find(m => m.lineId === lineId)
+    
+    if (!line || !match || line.status !== 'live') return
+
+    // Determine winner based on line and final value
+    const lineHit = line.side === 'over' ? finalValue > line.customLine : finalValue < line.customLine
+    const winner = lineHit ? 'creator' : 'opponent'
+    const winnerIsCurrentUser = (winner === 'creator' && line.creatorId === state.user?.id) || 
+                               (winner === 'opponent' && match.opponentId === state.user?.id)
+
+    const winnings = winnerIsCurrentUser ? line.stakeCredits * 2 : 0
+
+    set((state) => ({
+      h2hLines: state.h2hLines.map(l => 
+        l.id === lineId 
+          ? { 
+              ...l, 
+              status: 'settled' as const,
+              result: {
+                finalValue,
+                winner,
+                settledAt: new Date().toISOString(),
+                geminiRecap: `Final result: ${finalValue}. ${winner === 'creator' ? 'Line creator' : 'Opponent'} wins!`
+              }
+            }
+          : l
+      ),
+      h2hMatches: state.h2hMatches.map(m =>
+        m.lineId === lineId
+          ? { ...m, status: 'settled' as const, winner, settledAt: new Date().toISOString() }
+          : m
+      ),
+      userCredits: state.userCredits + winnings
+    }))
+  },
+  
+  setUserCredits: (credits) => set({ userCredits: credits }),
+  
+  getGeminiAnalysis: async (player, propType, customLine) => {
+    // Simulate Gemini API call
+    return new Promise<GeminiResponse>((resolve) => {
+      setTimeout(() => {
+        const fairValue = customLine - (Math.random() * 3 - 1.5) // Random fair value around custom line
+        const confidence = 0.7 + Math.random() * 0.25 // Random confidence 70-95%
+        
+        resolve({
+          fairValue: parseFloat(fairValue.toFixed(1)),
+          explanation: `Based on ${player}'s recent performance and matchup analysis, fair value for ${propType} is around ${fairValue.toFixed(1)}`,
+          confidence: parseFloat(confidence.toFixed(2)),
+          suggestedLine: parseFloat((customLine - 0.5).toFixed(1)),
+          marketComparison: customLine > fairValue ? 'Your line is above fair value' : 'Your line is below fair value',
+          riskAssessment: customLine > fairValue + 1 ? 'High risk - consider lowering line' : 'Moderate risk - good value'
+        })
+      }, 1000 + Math.random() * 1000) // 1-2 second delay
+    })
+  },
+  
+  findMatchingOpponents: (line) => {
+    const state = get()
+    // Find opposite side lines for the same game/player/prop
+    return state.h2hLines.filter(l => 
+      l.id !== line.id &&
+      l.status === 'open' &&
+      l.game.gameId === line.game.gameId &&
+      l.player === line.player &&
+      l.propType === line.propType &&
+      l.side !== line.side &&
+      Math.abs(l.customLine - line.customLine) <= 1.0 // Within 1 point
+    )
+  },
 }))

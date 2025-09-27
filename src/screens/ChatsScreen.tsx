@@ -466,40 +466,54 @@ export default function ChatsScreen() {
         />
       </View>
 
-      {/* Start Conversation Modal */}
+      {/* Start Conversation Modal (overlay) */}
       <Modal
         visible={showStartConversation}
         animationType="slide"
-        presentationStyle="pageSheet"
+        transparent={true}
       >
-        <SafeAreaView style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Start a Conversation</Text>
-            <TouchableOpacity onPress={() => setShowStartConversation(false)}>
-              <Text style={styles.modalCloseButton}>Cancel</Text>
-            </TouchableOpacity>
-          </View>
-          
-          <Text style={styles.modalSubtitle}>
-            Choose a line that doesn't have a conversation yet:
-          </Text>
-          
-          <FlatList
-            data={availableLines}
-            renderItem={renderAvailableLineItem}
-            keyExtractor={(item) => item.propId}
-            style={styles.availableLinesList}
-            ListEmptyComponent={
-              <View style={styles.emptyState}>
-                <MessageCircle size={48} color={colors.muted} />
-                <Text style={styles.emptyStateText}>No available lines</Text>
-                <Text style={styles.emptyStateSubtext}>
-                  All lines currently have active conversations
+        <TouchableOpacity 
+          style={styles.modalBackdrop}
+          activeOpacity={1}
+          onPress={() => setShowStartConversation(false)}
+        >
+          <TouchableOpacity 
+            style={styles.modalContainer}
+            activeOpacity={1}
+            onPress={(e) => e.stopPropagation()}
+          >
+            <SafeAreaView style={{flex: 1}}>
+              <View style={styles.startModalContent}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Start a Conversation</Text>
+                  <TouchableOpacity onPress={() => setShowStartConversation(false)}>
+                    <Text style={styles.modalCloseButton}>Cancel</Text>
+                  </TouchableOpacity>
+                </View>
+                
+                <Text style={styles.modalSubtitle}>
+                  Choose a line that doesn't have a conversation yet:
                 </Text>
+                
+                <FlatList
+                  data={availableLines}
+                  renderItem={renderAvailableLineItem}
+                  keyExtractor={(item) => item.propId}
+                  style={styles.availableLinesList}
+                  ListEmptyComponent={
+                    <View style={styles.emptyState}>
+                      <MessageCircle size={48} color={colors.muted} />
+                      <Text style={styles.emptyStateText}>No available lines</Text>
+                      <Text style={styles.emptyStateSubtext}>
+                        All lines currently have active conversations
+                      </Text>
+                    </View>
+                  }
+                />
               </View>
-            }
-          />
-        </SafeAreaView>
+            </SafeAreaView>
+          </TouchableOpacity>
+        </TouchableOpacity>
       </Modal>
 
       {/* Chat Modal */}
@@ -784,6 +798,10 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 10,
   },
+  startModalContent: {
+    flex: 1,
+    padding: 16,
+  },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -796,11 +814,12 @@ const styles = StyleSheet.create({
     fontSize: typography.lg,
     fontWeight: typography.semibold,
     color: colors.text,
+    marginBottom: 4,
   },
   modalSubtitle: {
     fontSize: typography.sm,
     color: colors.textSecondary,
-    marginTop: 4,
+    marginTop: 8,
   },
   chatContainer: {
     flex: 1,
@@ -814,6 +833,7 @@ const styles = StyleSheet.create({
   availableLinesList: {
     flex: 1,
     paddingHorizontal: 16,
+    marginTop: 12,
   },
   availableLineItem: {
     flexDirection: 'row',
@@ -903,6 +923,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary + '30',
     marginTop: 8,
+    marginBottom: 12,
   },
   viewAnalysisText: {
     color: colors.primary,

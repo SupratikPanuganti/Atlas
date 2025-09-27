@@ -21,4 +21,17 @@ export const typography = {
   medium: "500" as const,
   semibold: "600" as const,
   bold: "700" as const,
+
+  // Typography styles
+  h1: 32,
+  h2: 28,
+  h3: 24,
+  h4: 20,
+  h5: 18,
+  h6: 16,
+  body: 16,
+  caption: 12,
+  small: 10,
+  label: 14,
+  button: 16,
 } as const
