@@ -796,11 +796,12 @@ const styles = StyleSheet.create({
     fontSize: typography.lg,
     fontWeight: typography.semibold,
     color: colors.text,
+    marginBottom: 4,
   },
   modalSubtitle: {
     fontSize: typography.sm,
     color: colors.textSecondary,
-    marginTop: 4,
+    marginTop: 8,
   },
   chatContainer: {
     flex: 1,
@@ -814,6 +815,7 @@ const styles = StyleSheet.create({
   availableLinesList: {
     flex: 1,
     paddingHorizontal: 16,
+    marginTop: 12,
   },
   availableLineItem: {
     flexDirection: 'row',
@@ -903,6 +905,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary + '30',
     marginTop: 8,
+    marginBottom: 12,
   },
   viewAnalysisText: {
     color: colors.primary,
