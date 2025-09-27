@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { ScrollView, StyleSheet, TouchableOpacity, Text, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useNavigation, useRoute } from "@react-navigation/native"
@@ -25,6 +25,7 @@ import { useAppStore } from "../store/useAppStore"
 import { demoService } from "../services/demoData"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
+import { FadeInView, SlideInView } from "../components/animations"
 
 type LiveScreenRouteProp = RouteProp<RootStackParamList, 'LivePricing'>
 
@@ -242,24 +243,30 @@ export default function LiveScreen() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         
         {/* Prop Name at Top */}
-        <View style={styles.propNameContainer}>
-          <Text style={styles.propName}>{formatPropName(enhancedDemoPricing.propId)}</Text>
-        </View>
+        <SlideInView delay={0} direction="down" duration={600}>
+          <View style={styles.propNameContainer}>
+            <Text style={styles.propName}>{formatPropName(enhancedDemoPricing.propId)}</Text>
+          </View>
+        </SlideInView>
 
         {/* AI Report */}
-        <AIReport 
-          propName={formatPropName(enhancedDemoPricing.propId)}
-          report={aiReport}
-        />
+        <FadeInView delay={300} duration={800}>
+          <AIReport 
+            propName={formatPropName(enhancedDemoPricing.propId)}
+            report={aiReport}
+          />
+        </FadeInView>
 
         {/* Percentage Chart */}
-        <ShadcnLineChart 
-          data={chartData}
-          onPointPress={setSelectedChartPoint}
-          selectedPoint={selectedChartPoint}
-          title="Percentage Odds vs Time"
-          description="Click points for insights"
-        />
+        <FadeInView delay={600} duration={800}>
+          <ShadcnLineChart 
+            data={chartData}
+            onPointPress={setSelectedChartPoint}
+            selectedPoint={selectedChartPoint}
+            title="Percentage Odds vs Time"
+            description="Click points for insights"
+          />
+        </FadeInView>
 
         {/* Transparency Tab at Bottom */}
         <TouchableOpacity 

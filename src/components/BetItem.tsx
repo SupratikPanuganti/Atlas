@@ -10,6 +10,8 @@ import {
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 import type { Bet } from "../types"
+import { PressableCard } from "./animations/PressableCard"
+import { AnimatedProgressBar } from "./animations/AnimatedProgressBar"
 
 interface BetItemProps {
   bet: Bet
@@ -76,10 +78,9 @@ export function BetItem({ bet, showCurrentValue = false, showDate = false, onVie
   }
 
   return (
-    <TouchableOpacity
+    <PressableCard
       style={styles.betItem}
       onPress={() => onViewBet?.(bet)}
-      activeOpacity={0.7}
     >
       <View style={styles.betHeader}>
         <View style={styles.betInfo}>
@@ -136,17 +137,12 @@ export function BetItem({ bet, showCurrentValue = false, showDate = false, onVie
               <Text style={styles.liveStatLabel}>Current: {bet.liveStats.current}</Text>
               <Text style={styles.liveStatLabel}>Projected: {bet.liveStats.projected}</Text>
             </View>
-            <View style={styles.progressBar}>
-              <View 
-                style={[
-                  styles.progressFill,
-                  { 
-                    width: `${Math.min(100, (bet.liveStats.current / bet.line) * 100)}%`,
-                    backgroundColor: bet.liveStats.current >= bet.line ? colors.positive : colors.warning
-                  }
-                ]} 
-              />
-            </View>
+            <AnimatedProgressBar
+              progress={Math.min(1, bet.liveStats.current / bet.line)}
+              height={6}
+              color={bet.liveStats.current >= bet.line ? colors.positive : colors.warning}
+              backgroundColor={colors.border}
+            />
           </View>
         )}
 
@@ -172,7 +168,7 @@ export function BetItem({ bet, showCurrentValue = false, showDate = false, onVie
           <Eye size={16} color={colors.primary} />
         )}
       </View>
-    </TouchableOpacity>
+    </PressableCard>
   )
 }
 

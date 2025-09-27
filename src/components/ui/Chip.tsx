@@ -2,6 +2,7 @@ import React from "react"
 import { TouchableOpacity, Text, StyleSheet, View, type ViewStyle, type TextStyle } from "react-native"
 import { colors } from "../../theme/colors"
 import { typography } from "../../theme/typography"
+import { PressableCard } from "../animations/PressableCard"
 
 interface ChipProps {
   label: string
@@ -13,16 +14,22 @@ interface ChipProps {
 }
 
 export function Chip({ label, onPress, variant = "default", style, textStyle, icon }: ChipProps) {
-  const Component = onPress ? TouchableOpacity : React.Fragment
-  const touchableProps = onPress ? { onPress, activeOpacity: 0.7 } : {}
+  if (onPress) {
+    return (
+      <PressableCard onPress={onPress}>
+        <View style={[styles.chip, styles[variant], style]}>
+          {icon}
+          <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>{label}</Text>
+        </View>
+      </PressableCard>
+    )
+  }
 
   return (
-    <Component {...touchableProps}>
-      <View style={[styles.chip, styles[variant], style]}>
-        {icon}
-        <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>{label}</Text>
-      </View>
-    </Component>
+    <View style={[styles.chip, styles[variant], style]}>
+      {icon}
+      <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>{label}</Text>
+    </View>
   )
 }
 

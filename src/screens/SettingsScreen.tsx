@@ -12,6 +12,7 @@ import { useAppStore } from "../store/useAppStore"
 import { useNavigation } from "@react-navigation/native"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
+import { FadeInView, SlideInView } from "../components/animations"
 
 export default function SettingsScreen() {
   const { mispricingThreshold, minConfidence, updateSettings, showAlertBanner, logout, user } =
@@ -47,7 +48,8 @@ export default function SettingsScreen() {
     <SafeAreaView style={styles.container} edges={[]}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* User Profile Section */}
-        <Card style={styles.section}>
+        <SlideInView delay={0} direction="up" duration={600}>
+          <Card style={styles.section}>
           <View style={styles.sectionHeader}>
             <Info size={20} color={colors.primary} />
             <Text style={styles.sectionTitle}>Profile</Text>
@@ -71,9 +73,11 @@ export default function SettingsScreen() {
             style={styles.logoutButton}
           />
         </Card>
+        </SlideInView>
 
         {/* Demo Section */}
-        <Card style={styles.section}>
+        <FadeInView delay={300} duration={600}>
+          <Card style={styles.section}>
           <View style={styles.sectionHeader}>
             <Play size={20} color={colors.primary} />
             <Text style={styles.sectionTitle}>Demo</Text>
@@ -105,9 +109,11 @@ export default function SettingsScreen() {
             style={styles.demoButton}
           />
         </Card>
+        </FadeInView>
 
         {/* Alert Settings */}
-        <Card style={styles.section}>
+        <FadeInView delay={600} duration={600}>
+          <Card style={styles.section}>
           <View style={styles.sectionHeader}>
             <Bell size={20} color={colors.primary} />
             <Text style={styles.sectionTitle}>Alert Settings</Text>
@@ -168,9 +174,11 @@ export default function SettingsScreen() {
             <Text style={styles.disclaimerText}>This app is for educational purposes only. Not financial advice.</Text>
           </View>
         </Card>
+        </FadeInView>
 
         {/* About Section */}
-        <Card style={styles.section}>
+        <FadeInView delay={900} duration={600}>
+          <Card style={styles.section}>
           <View style={styles.sectionHeader}>
             <Info size={20} color={colors.primary} />
             <Text style={styles.sectionTitle}>About</Text>
@@ -196,6 +204,7 @@ export default function SettingsScreen() {
             <Text style={styles.linkText}>View on GitHub</Text>
           </TouchableOpacity>
         </Card>
+        </FadeInView>
       </ScrollView>
     </SafeAreaView>
   )
