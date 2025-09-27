@@ -156,12 +156,49 @@ export default function ChatsScreen() {
   // If navigated with a targetPropId, open that conversation if present
   useEffect(() => {
     const target = route.params?.targetPropId
+    const ensureCreate = route.params?.ensureCreate
     if (!target) return
     const conv = conversations.find(c => c.propId === target)
     if (conv) {
       setSelectedConversation(conv)
+    } else if (ensureCreate) {
+      // Prompt to create
+      Alert.alert(
+        'No conversation yet',
+        'Would you like to start a conversation for this line?',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Start', style: 'default', onPress: () => {
+            // Create a minimal conversation stub from propId
+            const parts = target.split('_')
+            const propType = parts[0]
+            const line = parseFloat(parts[2]) || 0
+            const playerId = parts[3] || 'player'
+            const nameMap: Record<string, string> = {
+              beck: 'Carson Beck', milroe: 'Jalen Milroe', milton: 'Kendall Milton', smith: 'Arian Smith', williams: 'Ryan Williams', haynes: 'Justice Haynes'
+            }
+            const player = nameMap[playerId] || playerId
+            const marketMap: Record<string, string> = { PASS_YDS: 'Passing Yards', RUSH_YDS: 'Rushing Yards', REC: 'Receptions', PASS_TD: 'Passing Touchdowns', RUSH_TD: 'Rushing Touchdowns', REC_YDS: 'Receiving Yards' }
+            const betType = (parts[1] as 'over' | 'under') || 'over'
+            const newConv: LineConversation = {
+              id: `conv_${Date.now()}`,
+              propId: target,
+              player,
+              market: marketMap[propType] || propType,
+              line,
+              betType,
+              participants: 1,
+              isTrending: false,
+              createdAt: new Date().toISOString(),
+              messages: []
+            }
+            setConversations(prev => [newConv, ...prev])
+            setSelectedConversation(newConv)
+          } }
+        ]
+      )
     }
-  }, [route.params?.targetPropId, conversations])
+  }, [route.params?.targetPropId, route.params?.ensureCreate, conversations])
 
 
   // Demo data for available lines without conversations
@@ -642,6 +679,7 @@ const styles = StyleSheet.create({
     color: colors.background,
     marginLeft: 8,
   },
+  // viewAnalysis styles are defined later in this file (single definition)
   conversationsList: {
     flex: 1,
   },
@@ -858,7 +896,8 @@ const styles = StyleSheet.create({
   viewAnalysisButton: {
     backgroundColor: colors.card,
     marginHorizontal: 16,
-    paddingVertical: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     borderRadius: 10,
     alignItems: 'center',
     borderWidth: 1,

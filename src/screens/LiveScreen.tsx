@@ -310,7 +310,7 @@ export default function LiveScreen() {
           style={styles.transparencyTab}
           onPress={() => navigation.navigate("Main", {
             screen: 'Chats',
-            params: { targetPropId: lineData?.propId || lineId }
+            params: { targetPropId: lineData?.propId || lineId, ensureCreate: true }
           })}
         >
           <BarChart3 size={20} color={colors.primary} />
