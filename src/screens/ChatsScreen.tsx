@@ -397,7 +397,6 @@ export default function ChatsScreen() {
           renderItem={renderConversationItem}
           keyExtractor={(item) => item.id}
           style={styles.conversationsList}
-          contentContainerStyle={styles.conversationsContent}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyState}>
@@ -469,22 +468,25 @@ export default function ChatsScreen() {
               </TouchableOpacity>
             </View>
 
-            <FlatList
-              data={selectedConversation.messages}
-              renderItem={renderChatMessage}
-              keyExtractor={(item) => item.id}
-              style={styles.chatMessages}
-              showsVerticalScrollIndicator={false}
-              ListEmptyComponent={
-                <View style={styles.emptyState}>
-                  <MessageCircle size={48} color={colors.muted} />
-                  <Text style={styles.emptyStateText}>No messages yet</Text>
-                  <Text style={styles.emptyStateSubtext}>
-                    Be the first to share your thoughts on this line!
-                  </Text>
-                </View>
-              }
-            />
+            <View style={styles.chatContainer}>
+              <FlatList
+                data={selectedConversation.messages}
+                renderItem={renderChatMessage}
+                keyExtractor={(item) => item.id}
+                style={styles.chatMessages}
+                contentContainerStyle={styles.chatMessagesContent}
+                showsVerticalScrollIndicator={false}
+                ListEmptyComponent={
+                  <View style={styles.emptyState}>
+                    <MessageCircle size={48} color={colors.muted} />
+                    <Text style={styles.emptyStateText}>No messages yet</Text>
+                    <Text style={styles.emptyStateSubtext}>
+                      Be the first to share your thoughts on this line!
+                    </Text>
+                  </View>
+                }
+              />
+            </View>
 
             <View style={styles.messageInputContainer}>
               <TextInput
@@ -599,10 +601,6 @@ const styles = StyleSheet.create({
   conversationsList: {
     flex: 1,
   },
-  conversationsContent: {
-    paddingTop: 8,
-    paddingBottom: 20,
-  },
   conversationItem: {
     backgroundColor: colors.card,
     borderRadius: 12,
@@ -705,8 +703,10 @@ const styles = StyleSheet.create({
     fontSize: typography.sm,
     color: colors.textSecondary,
     marginTop: 4,
-    paddingHorizontal: 16,
-    paddingBottom: 16,
+  },
+  chatContainer: {
+    flex: 1,
+    paddingTop: 16,
   },
   modalCloseButton: {
     fontSize: typography.base,
@@ -735,6 +735,10 @@ const styles = StyleSheet.create({
   chatMessages: {
     flex: 1,
     paddingHorizontal: 16,
+  },
+  chatMessagesContent: {
+    paddingBottom: 16,
+    flexGrow: 1,
   },
   messageItem: {
     backgroundColor: colors.card,
