@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
     color: colors.muted,
   },
   betsList: {
-    maxHeight: 300,
+    maxHeight: 500,
     marginTop: 16,
   },
   noResults: {
