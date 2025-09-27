@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList, TouchableOpacity } from "react-native"
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
 import { Clock } from "lucide-react-native"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
@@ -16,16 +16,6 @@ interface MomentFeedProps {
 }
 
 export function MomentFeed({ moments, onMomentPress }: MomentFeedProps) {
-  const renderMoment = ({ item }: { item: MomentItem }) => (
-    <TouchableOpacity style={styles.momentItem} onPress={() => onMomentPress?.(item)} activeOpacity={0.7}>
-      <View style={styles.momentHeader}>
-        <Clock size={14} color={colors.muted} />
-        <Text style={styles.momentTime}>{item.time}</Text>
-      </View>
-      <Text style={styles.momentDescription}>{item.description}</Text>
-    </TouchableOpacity>
-  )
-
   if (moments.length === 0) {
     return (
       <View style={styles.emptyContainer}>
@@ -38,18 +28,23 @@ export function MomentFeed({ moments, onMomentPress }: MomentFeedProps) {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Moment Feed</Text>
-      <FlatList
-        data={moments}
-        renderItem={renderMoment}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        style={styles.list}
-      />
+      {moments.map((item) => (
+        <TouchableOpacity 
+          key={item.id} 
+          style={styles.momentItem} 
+          onPress={() => onMomentPress?.(item)} 
+          activeOpacity={0.7}
+        >
+          <View style={styles.momentHeader}>
+            <Clock size={14} color={colors.muted} />
+            <Text style={styles.momentTime}>{item.time}</Text>
+          </View>
+          <Text style={styles.momentDescription}>{item.description}</Text>
+        </TouchableOpacity>
+      ))}
     </View>
   )
 }
-
-// Added named export for MomentFeed component;
 
 const styles = StyleSheet.create({
   container: {
@@ -60,9 +55,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.semibold,
     color: colors.text,
     marginBottom: 16,
-  },
-  list: {
-    flex: 1,
   },
   momentItem: {
     backgroundColor: colors.card,

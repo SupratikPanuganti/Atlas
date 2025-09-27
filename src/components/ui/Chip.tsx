@@ -1,5 +1,5 @@
 import React from "react"
-import { TouchableOpacity, Text, StyleSheet, type ViewStyle, type TextStyle } from "react-native"
+import { TouchableOpacity, Text, StyleSheet, View, type ViewStyle, type TextStyle } from "react-native"
 import { colors } from "../../theme/colors"
 import { typography } from "../../theme/typography"
 
@@ -18,18 +18,10 @@ export function Chip({ label, onPress, variant = "default", style, textStyle, ic
 
   return (
     <Component {...touchableProps}>
-      <React.Fragment>
-        {React.createElement(
-          onPress ? "div" : "div", // This will be View in RN
-          {
-            style: [styles.chip, styles[variant], style],
-          },
-          <>
-            {icon}
-            <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>{label}</Text>
-          </>,
-        )}
-      </React.Fragment>
+      <View style={[styles.chip, styles[variant], style]}>
+        {icon}
+        <Text style={[styles.text, styles[`${variant}Text`], textStyle]}>{label}</Text>
+      </View>
     </Component>
   )
 }

@@ -1,9 +1,10 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { View, Text, StyleSheet, FlatList, RefreshControl } from "react-native"
+import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Search } from "lucide-react-native"
+import { useNavigation } from "@react-navigation/native"
 import { RadarRow } from "../components/RadarRow"
 import { RadarFilters } from "../components/RadarFilters"
 import { useAppStore } from "../store/useAppStore"
@@ -13,36 +14,49 @@ import { typography } from "../theme/typography"
 
 export default function RadarScreen() {
   const { radarItems } = useAppStore()
+  const navigation = useNavigation()
   const [refreshing, setRefreshing] = useState(false)
   const [selectedSport, setSelectedSport] = useState("NBA")
   const [selectedPropTypes, setSelectedPropTypes] = useState<string[]>(["AST", "PRA", "REB"])
   const [minDelta, setMinDelta] = useState(0.5)
 
-  // Demo data
+  // Demo data - more realistic NBA props
   const demoRadarItems: RadarItem[] = [
     {
-      propId: "PRA_over_42.5_player1",
-      label: "Player X PRA 42.5 o",
+      propId: "PRA_over_42.5_jokic",
+      label: "Nikola Jokic PRA 42.5 o",
       deltaVsMedian: 1.5,
       staleMin: 4,
     },
     {
-      propId: "AST_over_7.5_player2",
-      label: "Player Y AST 7.5 o",
+      propId: "AST_over_7.5_lebron",
+      label: "LeBron James AST 7.5 o",
       deltaVsMedian: 1.0,
       staleMin: 3,
     },
     {
-      propId: "REB_over_12.5_player3",
-      label: "Player Z REB 12.5 o",
+      propId: "REB_over_12.5_embiid",
+      label: "Joel Embiid REB 12.5 o",
       deltaVsMedian: 2.1,
       staleMin: 6,
     },
     {
-      propId: "PTS_over_25.5_player4",
-      label: "Player A PTS 25.5 o",
+      propId: "PTS_over_25.5_curry",
+      label: "Stephen Curry PTS 25.5 o",
       deltaVsMedian: 0.8,
       staleMin: 2,
+    },
+    {
+      propId: "AST_over_9.5_haliburton",
+      label: "Tyrese Haliburton AST 9.5 o",
+      deltaVsMedian: 1.8,
+      staleMin: 5,
+    },
+    {
+      propId: "REB_over_10.5_sabonis",
+      label: "Domantas Sabonis REB 10.5 o",
+      deltaVsMedian: 1.2,
+      staleMin: 3,
     },
   ]
 
@@ -80,7 +94,11 @@ export default function RadarScreen() {
 
   const handleRadarItemPress = (item: RadarItem) => {
     console.log("Radar item pressed:", item)
-    // In real app, this would navigate to price card for that prop
+    // Navigate to Live Pricing screen for this specific line
+    navigation.navigate("LivePricing", {
+      lineId: item.propId,
+      lineData: item
+    })
   }
 
   const renderRadarItem = ({ item }: { item: RadarItem }) => <RadarRow item={item} onPress={handleRadarItemPress} />
@@ -94,7 +112,7 @@ export default function RadarScreen() {
   )
 
   const renderHeader = () => (
-    <View style={styles.header}>
+    <View style={styles.listHeader}>
       <Text style={styles.title}>Stale Line Radar</Text>
       <Text style={styles.subtitle}>
         {filteredItems.length} line{filteredItems.length !== 1 ? "s" : ""} detected
@@ -103,7 +121,7 @@ export default function RadarScreen() {
   )
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={styles.container} edges={[]}>
       <FlatList
         data={filteredItems}
         renderItem={renderRadarItem}
@@ -146,8 +164,9 @@ const styles = StyleSheet.create({
     padding: 16,
     flexGrow: 1,
   },
-  header: {
+  listHeader: {
     marginBottom: 20,
+    paddingTop: 16,
   },
   title: {
     fontSize: typography["2xl"],

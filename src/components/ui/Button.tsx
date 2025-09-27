@@ -1,4 +1,4 @@
-import { TouchableOpacity, Text, StyleSheet, type ViewStyle, type TextStyle } from "react-native"
+import { TouchableOpacity, Text, StyleSheet, type ViewStyle, type TextStyle, ActivityIndicator } from "react-native"
 import { colors } from "../../theme/colors"
 import { typography } from "../../theme/typography"
 
@@ -10,6 +10,7 @@ interface ButtonProps {
   style?: ViewStyle
   textStyle?: TextStyle
   disabled?: boolean
+  loading?: boolean
 }
 
 export function Button({
@@ -20,25 +21,33 @@ export function Button({
   style,
   textStyle,
   disabled = false,
+  loading = false,
 }: ButtonProps) {
   return (
     <TouchableOpacity
-      style={[styles.button, styles[variant], styles[size], disabled && styles.disabled, style]}
+      style={[styles.button, styles[variant], styles[size], (disabled || loading) && styles.disabled, style]}
       onPress={onPress}
-      disabled={disabled}
+      disabled={disabled || loading}
       activeOpacity={0.8}
     >
-      <Text
-        style={[
-          styles.text,
-          styles[`${variant}Text`],
-          styles[`${size}Text`],
-          disabled && styles.disabledText,
-          textStyle,
-        ]}
-      >
-        {title}
-      </Text>
+      {loading ? (
+        <ActivityIndicator 
+          size="small" 
+          color={variant === "outline" ? colors.text : colors.surface} 
+        />
+      ) : (
+        <Text
+          style={[
+            styles.text,
+            styles[`${variant}Text`],
+            styles[`${size}Text`],
+            disabled && styles.disabledText,
+            textStyle,
+          ]}
+        >
+          {title}
+        </Text>
+      )}
     </TouchableOpacity>
   )
 }

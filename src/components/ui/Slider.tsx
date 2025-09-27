@@ -1,8 +1,7 @@
 "use client"
 
 import React from "react"
-import { View, Text, StyleSheet, PanGestureHandler, type PanGestureHandlerGestureEvent } from "react-native"
-import Animated, { useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, runOnJS } from "react-native-reanimated"
+import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
 import { colors } from "../../theme/colors"
 import { typography } from "../../theme/typography"
 
@@ -25,7 +24,6 @@ export function Slider({
   label,
   formatValue = (v) => v.toFixed(2),
 }: SliderProps) {
-  const translateX = useSharedValue(0)
   const sliderWidth = 280
 
   // Convert value to position
@@ -40,34 +38,14 @@ export function Slider({
     return Math.round(rawValue / step) * step
   }
 
-  React.useEffect(() => {
-    translateX.value = valueToPosition(value)
-  }, [value])
+  const handleTrackPress = (event: any) => {
+    const { locationX } = event.nativeEvent
+    const newValue = positionToValue(locationX)
+    onValueChange(newValue)
+  }
 
-  const gestureHandler = useAnimatedGestureHandler<PanGestureHandlerGestureEvent>({
-    onStart: (_, context) => {
-      context.startX = translateX.value
-    },
-    onActive: (event, context) => {
-      const newX = Math.max(0, Math.min(sliderWidth, context.startX + event.translationX))
-      translateX.value = newX
-
-      const newValue = positionToValue(newX)
-      runOnJS(onValueChange)(newValue)
-    },
-  })
-
-  const thumbStyle = useAnimatedStyle(() => {
-    return {
-      transform: [{ translateX: translateX.value }],
-    }
-  })
-
-  const trackFillStyle = useAnimatedStyle(() => {
-    return {
-      width: translateX.value,
-    }
-  })
+  const currentPosition = valueToPosition(value)
+  const trackFillWidth = currentPosition
 
   return (
     <View style={styles.container}>
@@ -79,13 +57,11 @@ export function Slider({
       )}
 
       <View style={styles.sliderContainer}>
-        <View style={styles.track}>
-          <Animated.View style={[styles.trackFill, trackFillStyle]} />
-        </View>
+        <TouchableOpacity style={styles.track} onPress={handleTrackPress} activeOpacity={1}>
+          <View style={[styles.trackFill, { width: trackFillWidth }]} />
+        </TouchableOpacity>
 
-        <PanGestureHandler onGestureEvent={gestureHandler}>
-          <Animated.View style={[styles.thumb, thumbStyle]} />
-        </PanGestureHandler>
+        <View style={[styles.thumb, { left: currentPosition - 10 }]} />
       </View>
 
       <View style={styles.rangeLabels}>
@@ -140,7 +116,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.primary,
     borderRadius: 10,
     top: 10,
-    left: 0,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,

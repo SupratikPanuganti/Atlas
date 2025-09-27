@@ -1,0 +1,28 @@
+import type { NavigatorScreenParams } from '@react-navigation/native'
+
+export type RootStackParamList = {
+  Auth: undefined
+  Main: NavigatorScreenParams<MainTabParamList>
+  LivePricing: { lineId: string; lineData: any }
+  Transparency: { lineId: string; lineData: any }
+  WatchMode: { momentId: string; momentData: any }
+  Settings: undefined
+}
+
+export type MainTabParamList = {
+  Home: undefined
+  Radar: undefined
+  Watch: undefined
+}
+
+export type AuthStackParamList = {
+  Welcome: undefined
+  Login: undefined
+  Signup: undefined
+}
+
+declare global {
+  namespace ReactNavigation {
+    interface RootParamList extends RootStackParamList {}
+  }
+}

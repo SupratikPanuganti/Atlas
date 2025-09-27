@@ -1,5 +1,8 @@
 import { ScrollView, StyleSheet, TouchableOpacity, Text } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { useRoute, useNavigation } from "@react-navigation/native"
+import type { RouteProp } from "@react-navigation/native"
+import type { RootStackParamList } from "../types/navigation"
 import { ArrowLeft } from "lucide-react-native"
 import { CalibrationChart } from "../components/CalibrationChart"
 import { MetricsBlock } from "../components/MetricsBlock"
@@ -7,7 +10,14 @@ import { YesterdayBuckets } from "../components/YesterdayBuckets"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 
+type TransparencyScreenRouteProp = RouteProp<RootStackParamList, 'Transparency'>
+
 export default function TransparencyScreen() {
+  const route = useRoute<TransparencyScreenRouteProp>()
+  const navigation = useNavigation()
+  const lineId = route.params?.lineId
+  const lineData = route.params?.lineData
+  
   // Demo calibration data
   const demoBins = [
     { p: "0.55", n: 120, hit_rate: 0.53 },
@@ -33,12 +43,11 @@ export default function TransparencyScreen() {
   ]
 
   const handleBackToCurrent = () => {
-    console.log("Navigate back to current prop")
-    // In real app, this would navigate back to the live screen
+    navigation.goBack()
   }
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={styles.container} edges={[]}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* Header */}
         <TouchableOpacity style={styles.backButton} onPress={handleBackToCurrent}>

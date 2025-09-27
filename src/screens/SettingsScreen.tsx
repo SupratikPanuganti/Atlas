@@ -3,18 +3,20 @@
 import React from "react"
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Bell, Play, Info, Shield, Smartphone, AlertTriangle } from "lucide-react-native"
+import { Bell, Play, Info, Shield, Smartphone, AlertTriangle, LogOut } from "lucide-react-native"
 import { Card } from "../components/ui/Card"
 import { Switch } from "../components/ui/Switch"
 import { Slider } from "../components/ui/Slider"
 import { Button } from "../components/ui/Button"
 import { useAppStore } from "../store/useAppStore"
+import { useNavigation } from "@react-navigation/native"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 
 export default function SettingsScreen() {
-  const { demoMode, mispricingThreshold, minConfidence, toggleDemoMode, updateSettings, showAlertBanner } =
+  const { mispricingThreshold, minConfidence, updateSettings, showAlertBanner, logout, user } =
     useAppStore()
+  const navigation = useNavigation()
 
   const [watermarkEnabled, setWatermarkEnabled] = React.useState(true)
   const [snoozeDuration, setSnoozeDuration] = React.useState(10)
@@ -26,31 +28,78 @@ export default function SettingsScreen() {
     Alert.alert("Demo Alert Triggered", "Check the Live tab to see the demo alert banner!", [{ text: "OK" }])
   }
 
+  const handleLogout = () => {
+    Alert.alert(
+      "Sign Out",
+      "Are you sure you want to sign out?",
+      [
+        { text: "Cancel", style: "cancel" },
+        { text: "Sign Out", style: "destructive", onPress: logout },
+      ]
+    )
+  }
+
   const formatCurrency = (value: number) => `$${value.toFixed(2)}`
   const formatPercent = (value: number) => `${(value * 100).toFixed(0)}%`
   const formatMinutes = (value: number) => `${value}m`
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={styles.container} edges={[]}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        {/* Demo Mode Section */}
+        {/* User Profile Section */}
+        <Card style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Info size={20} color={colors.primary} />
+            <Text style={styles.sectionTitle}>Profile</Text>
+          </View>
+
+          <View style={styles.profileRow}>
+            <Text style={styles.profileLabel}>Name</Text>
+            <Text style={styles.profileValue}>{user?.name || "Demo User"}</Text>
+          </View>
+
+          <View style={styles.profileRow}>
+            <Text style={styles.profileLabel}>Email</Text>
+            <Text style={styles.profileValue}>{user?.email || "demo@edgebeacon.com"}</Text>
+          </View>
+
+          <Button
+            title="Sign Out"
+            onPress={handleLogout}
+            variant="outline"
+            size="sm"
+            style={styles.logoutButton}
+          />
+        </Card>
+
+        {/* Demo Section */}
         <Card style={styles.section}>
           <View style={styles.sectionHeader}>
             <Play size={20} color={colors.primary} />
-            <Text style={styles.sectionTitle}>Demo Mode</Text>
+            <Text style={styles.sectionTitle}>Demo</Text>
           </View>
 
           <View style={styles.settingRow}>
             <View style={styles.settingInfo}>
               <Text style={styles.settingLabel}>Demo Stream</Text>
-              <Text style={styles.settingDescription}>Use simulated data instead of live feed</Text>
+              <Text style={styles.settingDescription}>Currently using simulated data for demonstration</Text>
             </View>
-            <Switch value={demoMode} onValueChange={toggleDemoMode} />
           </View>
 
           <Button
-            title="Play Demo Now"
+            title="Trigger Demo Alert"
             onPress={handlePlayDemo}
+            variant="outline"
+            size="sm"
+            style={styles.demoButton}
+          />
+          
+          <Button
+            title="Test Explain Feature"
+            onPress={() => navigation.navigate("LivePricing", { 
+              lineId: "demo_explain_test", 
+              lineData: { test: true } 
+            })}
             variant="outline"
             size="sm"
             style={styles.demoButton}
@@ -245,5 +294,26 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginLeft: 8,
     fontWeight: typography.medium,
+  },
+  profileRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.muted + "20",
+  },
+  profileLabel: {
+    fontSize: typography.base,
+    color: colors.textSecondary,
+  },
+  profileValue: {
+    fontSize: typography.base,
+    fontWeight: typography.medium,
+    color: colors.text,
+  },
+  logoutButton: {
+    marginTop: 16,
+    alignSelf: "flex-start",
   },
 })

@@ -18,7 +18,6 @@ export function PriceCard({
   band,
   fairOdds,
   onExplain,
-  onSensitivity,
 }: PriceCardProps) {
   const formatCurrency = (value: number) => `$${value.toFixed(2)}`
   const formatPercent = (value: number) => `${(value * 100).toFixed(0)}%`
@@ -53,7 +52,6 @@ export function PriceCard({
       {/* Action Buttons */}
       <View style={styles.buttonContainer}>
         <Button title="Explain" onPress={onExplain} variant="outline" size="sm" style={styles.button} />
-        <Button title="Sensitivity" onPress={onSensitivity} variant="outline" size="sm" style={styles.button} />
       </View>
 
       {/* Watermark */}

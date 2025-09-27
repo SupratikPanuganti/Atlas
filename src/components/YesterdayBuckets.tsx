@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, FlatList } from "react-native"
+import { View, Text, StyleSheet } from "react-native"
 import { BarChart3 } from "lucide-react-native"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
@@ -86,13 +86,13 @@ export function YesterdayBuckets({ buckets }: YesterdayBucketsProps) {
 
       {renderHeader()}
 
-      <FlatList
-        data={buckets}
-        renderItem={renderBucket}
-        keyExtractor={(item) => item.decile.toString()}
-        scrollEnabled={false}
-        style={styles.list}
-      />
+      <View style={styles.list}>
+        {buckets.map((item) => (
+          <View key={item.decile.toString()}>
+            {renderBucket({ item })}
+          </View>
+        ))}
+      </View>
 
       <View style={styles.footer}>
         <Text style={styles.footerText}>

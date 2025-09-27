@@ -1,5 +1,8 @@
-import { View, Text, StyleSheet, FlatList } from "react-native"
+import { View, Text, StyleSheet } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { useRoute } from "@react-navigation/native"
+import type { RouteProp } from "@react-navigation/native"
+import type { RootStackParamList } from "../types/navigation"
 import { MessageCircle, Zap, Users } from "lucide-react-native"
 import { Card } from "../components/ui/Card"
 import { colors } from "../theme/colors"
@@ -12,7 +15,13 @@ interface HighlightItem {
   type: "moment" | "stat" | "play"
 }
 
+type WatchScreenRouteProp = RouteProp<RootStackParamList, 'WatchMode'>
+
 export default function WatchScreen() {
+  const route = useRoute<WatchScreenRouteProp>()
+  const momentId = route.params?.momentId
+  const momentData = route.params?.momentData
+  
   // Demo highlights data
   const highlights: HighlightItem[] = [
     {
@@ -59,7 +68,7 @@ export default function WatchScreen() {
   )
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
+    <SafeAreaView style={styles.container} edges={[]}>
       <View style={styles.content}>
         {/* Header */}
         <View style={styles.header}>
@@ -91,13 +100,9 @@ export default function WatchScreen() {
             <Text style={styles.highlightsTitle}>Moment of the Game</Text>
           </View>
 
-          <FlatList
-            data={highlights}
-            renderItem={renderHighlight}
-            keyExtractor={(item) => item.id}
-            showsVerticalScrollIndicator={false}
-            style={styles.highlightsList}
-          />
+          <View style={styles.highlightsList}>
+            {highlights.map((item) => renderHighlight({ item }))}
+          </View>
         </Card>
       </View>
     </SafeAreaView>

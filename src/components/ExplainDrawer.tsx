@@ -22,7 +22,6 @@ const ExplainDrawer = ({
   brier,
   windows,
   lastUpdate,
-  onCounterfactual,
 }: ExplainDrawerProps) => {
   const slideAnim = React.useRef(new Animated.Value(300)).current
 
@@ -70,38 +69,36 @@ const ExplainDrawer = ({
             {/* Driver Chips */}
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Top Drivers</Text>
+              <Text style={styles.explanationText}>
+                These factors are currently pushing the price higher than market expectations:
+              </Text>
               <View style={styles.driversContainer}>
                 {drivers.slice(0, 3).map((driver, index) => (
                   <Chip
                     key={driver.name}
                     label={`${driver.name.charAt(0).toUpperCase() + driver.name.slice(1)} ${formatImpact(driver.impact)}`}
                     variant={driver.impact > 0 ? "positive" : "negative"}
-                    onPress={() => onCounterfactual(`${driver.name}_${driver.impact > 0 ? "-10" : "+10"}`)}
                   />
+                ))}
+              </View>
+              
+              {/* Driver Explanations */}
+              <View style={styles.driverExplanations}>
+                {drivers.slice(0, 3).map((driver, index) => (
+                  <View key={driver.name} style={styles.driverExplanationContainer}>
+                    <Text style={styles.driverExplanation}>
+                      <Text style={styles.bold}>{driver.name.charAt(0).toUpperCase() + driver.name.slice(1).replace('_', ' ')}:</Text> {driver.explanation || "No explanation available."}
+                    </Text>
+                    {driver.details && (
+                      <Text style={styles.driverDetails}>
+                        {driver.details}
+                      </Text>
+                    )}
+                  </View>
                 ))}
               </View>
             </View>
 
-            {/* Counterfactual Toggles */}
-            <View style={styles.section}>
-              <Text style={styles.sectionTitle}>What if scenarios</Text>
-              <View style={styles.toggleContainer}>
-                <Button
-                  title="Pace -10%"
-                  onPress={() => onCounterfactual("pace_-10")}
-                  variant="outline"
-                  size="sm"
-                  style={styles.toggleButton}
-                />
-                <Button
-                  title="Pace +10%"
-                  onPress={() => onCounterfactual("pace_+10")}
-                  variant="outline"
-                  size="sm"
-                  style={styles.toggleButton}
-                />
-              </View>
-            </View>
 
             {/* Assumptions */}
             <View style={styles.section}>
@@ -177,13 +174,6 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 8,
   },
-  toggleContainer: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  toggleButton: {
-    flex: 1,
-  },
   assumptionText: {
     fontSize: typography.sm,
     color: colors.textSecondary,
@@ -198,6 +188,38 @@ const styles = StyleSheet.create({
   brierText: {
     fontSize: typography.sm,
     color: colors.textSecondary,
+  },
+  explanationText: {
+    fontSize: typography.sm,
+    color: colors.textSecondary,
+    marginBottom: 12,
+    lineHeight: 18,
+  },
+  driverExplanations: {
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.muted + "20",
+  },
+  driverExplanationContainer: {
+    marginBottom: 12,
+  },
+  driverExplanation: {
+    fontSize: typography.sm,
+    color: colors.textSecondary,
+    marginBottom: 4,
+    lineHeight: 18,
+  },
+  driverDetails: {
+    fontSize: typography.xs,
+    color: colors.muted,
+    fontStyle: "italic",
+    marginLeft: 12,
+    lineHeight: 16,
+  },
+  bold: {
+    fontWeight: typography.semibold,
+    color: colors.text,
   },
 })
 

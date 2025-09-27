@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "Edge Beacon",
+    "slug": "edge-beacon",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./public/placeholder-logo.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./public/placeholder-logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B0E13"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./public/placeholder-logo.png",
+        "backgroundColor": "#0B0E13"
+      }
+    },
+    "web": {
+      "favicon": "./public/placeholder-logo.png"
+    }
+  }
+}
