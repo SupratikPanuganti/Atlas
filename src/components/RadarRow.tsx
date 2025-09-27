@@ -41,10 +41,17 @@ export function RadarRow({ item, onPress, forceSign = "both" }: RadarRowProps) {
 
         {/* Delta vs Median */}
         <View style={styles.deltaContainer}>
-          <Text style={[styles.deltaValue, { color: getColorForDisplay(item.deltaVsMedian) }]}>
-            {item.deltaVsMedian > 0 ? "+" : ""}
-            {item.deltaVsMedian.toFixed(1)}
-          </Text>
+          {/* Display delta relative to 1.0 (x -> x-1) */}
+          {(() => {
+            const deltaDisplay = item.deltaVsMedian - 1
+            const sign = deltaDisplay > 0 ? "+" : ""
+            return (
+              <Text style={[styles.deltaValue, { color: getColorForDisplay(item.deltaVsMedian) }]}> 
+                {sign}
+                {deltaDisplay.toFixed(1)}
+              </Text>
+            )
+          })()}
           <Text style={styles.deltaLabel}>vs median</Text>
         </View>
 

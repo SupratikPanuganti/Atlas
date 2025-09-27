@@ -94,7 +94,6 @@ export default function LiveScreen() {
 
   // Format prop name for display
   const formatPropName = (propId: string) => {
-    // Extract prop type, line, and player from propId like "AST_over_7.5_player123"
     const parts = propId.split('_')
     if (parts.length >= 4) {
       const propType = parts[0] // AST, PTS, REB, etc.
@@ -119,12 +118,12 @@ export default function LiveScreen() {
       
       // Format the prop type for display
       const propTypeMap: { [key: string]: string } = {
-        'PASS_YDS': 'Pass Yards',
-        'RUSH_YDS': 'Rush Yards',
+        'PASS YDS': 'Pass Yards',
+        'RUSH YDS': 'Rush Yards',
         'REC': 'Receptions',
-        'PASS_TD': 'Pass TDs',
-        'RUSH_TD': 'Rush TDs',
-        'REC_YDS': 'Rec Yards'
+        'PASS TD': 'Pass TDs',
+        'RUSH TD': 'Rush TDs',
+        'REC YDS': 'Rec Yards'
       }
       
       const displayPropType = propTypeMap[propType] || propType
@@ -271,6 +270,7 @@ export default function LiveScreen() {
           selectedPoint={selectedChartPoint}
           title="Expected Value vs Time"
           description="Green = Good bet, Red = Avoid, Yellow = Neutral"
+          touchSize={100}
         />
         
         {/* Transparency Tab at Bottom */}
