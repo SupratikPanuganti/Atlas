@@ -17,6 +17,11 @@ import { ShadcnLineChart } from "../components/ShadcnLineChart"
 interface ChartPoint {
   time: string
   percentage: number
+  ev?: number  // Expected Value
+  confidence?: number  // Confidence level (0-1)
+  factors?: string[]  // Key factors driving this recommendation
+  currentTotal?: number  // Current total for the prop (PRA, points, assists, etc.)
+  targetLine?: number  // The line they need to hit (e.g., 42.5 for PRA)
   insight?: string
   type: 'peak' | 'trough' | 'normal'
   gameEvent?: string
@@ -160,28 +165,28 @@ export default function LiveScreen() {
   const generateChartData = (propType: string, playerName: string): ChartPoint[] => {
     const baseData: { [key: string]: ChartPoint[] } = {
       'PRA': [
-        { time: "Q1 12:00", percentage: 68, type: 'peak', insight: "Opening line at 68% based on Jokić's season average of 45.2 PRA", gameEvent: "Game starts" },
-        { time: "Q1 8:30", percentage: 72, type: 'peak', insight: "Odds spike to 72% after Jokić gets 6 PRA in first 3 minutes", gameEvent: "6 PRA in 3 min" },
-        { time: "Q1 4:15", percentage: 65, type: 'normal', insight: "Odds drop to 65% as Jokić sits with 8 PRA through Q1", gameEvent: "Subbed out - 8 PRA" },
-        { time: "Q2 10:00", percentage: 58, type: 'trough', insight: "Odds fall to 58% - Jokić needs 34.5 more PRA in 3 quarters", gameEvent: "Bench rotation" },
-        { time: "Q2 6:45", percentage: 52, type: 'trough', insight: "Odds drop to 52% - Jokić cold with only 2 PRA in 4 minutes", gameEvent: "0-3 from field" },
-        { time: "Q2 2:30", percentage: 61, type: 'normal', insight: "Odds rise to 61% - Jokić heating up with 4 PRA in 2 minutes", gameEvent: "Layup + rebound" },
-        { time: "Q3 8:20", percentage: 55, type: 'normal', insight: "Odds at 55% - Jokić needs 28 PRA to hit over 42.5", gameEvent: "Assist + rebound" },
-        { time: "Q3 4:10", percentage: 48, type: 'trough', insight: "Odds drop to 48% - Jokić in foul trouble, limited minutes", gameEvent: "3rd foul" },
-        { time: "Q4 9:15", percentage: 62, type: 'normal', insight: "Odds rise to 62% - Jokić needs 24 PRA in final 9 minutes", gameEvent: "Made 3-pointer" },
-        { time: "Q4 5:30", percentage: 58, type: 'normal', insight: "Current odds 58% - Jokić at 38 PRA, needs 4.5 more", gameEvent: "Recent assist" }
+        { time: "Q1 12:00", percentage: 68, ev: 0.12, confidence: 0.85, factors: ["Opening line", "Season average"], currentTotal: 0, targetLine: 42.5, type: 'peak', insight: "Strong opening value with 12% edge", gameEvent: "Game starts" },
+        { time: "Q1 8:30", percentage: 72, ev: 0.18, confidence: 0.92, factors: ["Hot start", "Pace spike"], currentTotal: 6, targetLine: 42.5, type: 'peak', insight: "Excellent value - 18% edge after hot start", gameEvent: "6 PRA in 3 min" },
+        { time: "Q1 4:15", percentage: 65, ev: 0.08, confidence: 0.45, factors: ["Bench rotation"], currentTotal: 8, targetLine: 42.5, type: 'normal', insight: "Reduced value due to rotation", gameEvent: "Subbed out - 8 PRA" },
+        { time: "Q2 10:00", percentage: 58, ev: -0.05, confidence: 0.78, factors: ["Time pressure", "Bench minutes"], currentTotal: 8, targetLine: 42.5, type: 'trough', insight: "Negative EV - avoid betting", gameEvent: "Bench rotation" },
+        { time: "Q2 6:45", percentage: 52, ev: -0.12, confidence: 0.82, factors: ["Cold streak", "Low efficiency"], currentTotal: 10, targetLine: 42.5, type: 'trough', insight: "Poor value - cold shooting", gameEvent: "0-3 from field" },
+        { time: "Q2 2:30", percentage: 61, ev: 0.06, confidence: 0.65, factors: ["Momentum shift"], currentTotal: 14, targetLine: 42.5, type: 'normal', insight: "Moderate value - heating up", gameEvent: "Layup + rebound" },
+        { time: "Q3 8:20", percentage: 55, ev: 0.02, confidence: 0.58, factors: ["Foul trouble risk"], currentTotal: 18, targetLine: 42.5, type: 'normal', insight: "Neutral value - monitor closely", gameEvent: "Assist + rebound" },
+        { time: "Q3 4:10", percentage: 48, ev: -0.15, confidence: 0.88, factors: ["Foul trouble", "Limited minutes"], currentTotal: 20, targetLine: 42.5, type: 'trough', insight: "Avoid - foul trouble limiting upside", gameEvent: "3rd foul" },
+        { time: "Q4 9:15", percentage: 62, ev: 0.15, confidence: 0.91, factors: ["Crunch time", "High usage"], currentTotal: 30, targetLine: 42.5, type: 'peak', insight: "Great value - crunch time opportunity", gameEvent: "Made 3-pointer" },
+        { time: "Q4 5:30", percentage: 58, ev: 0.08, confidence: 0.72, factors: ["Final push"], currentTotal: 38, targetLine: 42.5, type: 'normal', insight: "Good value - final minutes", gameEvent: "Recent assist" }
       ],
       'AST': [
-        { time: "Q1 12:00", percentage: 65, type: 'peak', insight: "Opening line for assists", gameEvent: "Game starts" },
-        { time: "Q1 9:45", percentage: 72, type: 'peak', insight: "Great ball movement", gameEvent: "2 assists in 2 min" },
-        { time: "Q1 6:20", percentage: 68, type: 'normal', insight: "Steady assist rate", gameEvent: "Another assist" },
-        { time: "Q2 11:00", percentage: 55, type: 'trough', insight: "Bench rotation affects flow", gameEvent: "Subbed out" },
-        { time: "Q2 7:30", percentage: 48, type: 'trough', insight: "Cold shooting by teammates", gameEvent: "Teammates 0-4" },
-        { time: "Q2 3:45", percentage: 58, type: 'normal', insight: "Getting back in rhythm", gameEvent: "Assist on 3-pointer" },
-        { time: "Q3 8:00", percentage: 52, type: 'normal', insight: "Moderate assist rate", gameEvent: "1 assist in 4 min" },
-        { time: "Q3 4:30", percentage: 45, type: 'trough', insight: "Defensive pressure on passes", gameEvent: "2 turnovers" },
-        { time: "Q4 8:45", percentage: 62, type: 'normal', insight: "Crunch time ball movement", gameEvent: "Assist on layup" },
-        { time: "Q4 4:20", percentage: 58, type: 'normal', insight: "Current fair value", gameEvent: "Recent assist" }
+        { time: "Q1 12:00", percentage: 65, ev: 0.10, confidence: 0.80, factors: ["Opening line"], currentTotal: 0, targetLine: 7.5, type: 'peak', insight: "Good opening value", gameEvent: "Game starts" },
+        { time: "Q1 9:45", percentage: 72, ev: 0.15, confidence: 0.90, factors: ["Hot start"], currentTotal: 2, targetLine: 7.5, type: 'peak', insight: "Excellent value - hot start", gameEvent: "2 assists in 2 min" },
+        { time: "Q1 6:20", percentage: 68, ev: 0.12, confidence: 0.85, factors: ["Steady rate"], currentTotal: 3, targetLine: 7.5, type: 'normal', insight: "Good value - steady rate", gameEvent: "Another assist" },
+        { time: "Q2 11:00", percentage: 55, ev: -0.05, confidence: 0.70, factors: ["Bench rotation"], currentTotal: 3, targetLine: 7.5, type: 'trough', insight: "Reduced value - rotation", gameEvent: "Subbed out" },
+        { time: "Q2 7:30", percentage: 48, ev: -0.12, confidence: 0.75, factors: ["Cold teammates"], currentTotal: 3, targetLine: 7.5, type: 'trough', insight: "Poor value - cold teammates", gameEvent: "Teammates 0-4" },
+        { time: "Q2 3:45", percentage: 58, ev: 0.05, confidence: 0.65, factors: ["Momentum"], currentTotal: 4, targetLine: 7.5, type: 'normal', insight: "Moderate value - heating up", gameEvent: "Assist on 3-pointer" },
+        { time: "Q3 8:00", percentage: 52, ev: 0.02, confidence: 0.60, factors: ["Steady play"], currentTotal: 5, targetLine: 7.5, type: 'normal', insight: "Neutral value", gameEvent: "1 assist in 4 min" },
+        { time: "Q3 4:30", percentage: 45, ev: -0.08, confidence: 0.80, factors: ["Defensive pressure"], currentTotal: 5, targetLine: 7.5, type: 'trough', insight: "Avoid - defensive pressure", gameEvent: "2 turnovers" },
+        { time: "Q4 8:45", percentage: 62, ev: 0.08, confidence: 0.75, factors: ["Crunch time"], currentTotal: 6, targetLine: 7.5, type: 'normal', insight: "Good value - crunch time", gameEvent: "Assist on layup" },
+        { time: "Q4 4:20", percentage: 58, ev: 0.05, confidence: 0.70, factors: ["Final push"], currentTotal: 7, targetLine: 7.5, type: 'normal', insight: "Moderate value - final push", gameEvent: "Recent assist" }
       ],
       'PTS': [
         { time: "Q1 12:00", percentage: 72, type: 'peak', insight: "Opening line for points", gameEvent: "Game starts" },
@@ -257,17 +262,15 @@ export default function LiveScreen() {
           />
         </FadeInView>
 
-        {/* Percentage Chart */}
-        <FadeInView delay={600} duration={800}>
-          <ShadcnLineChart 
-            data={chartData}
-            onPointPress={setSelectedChartPoint}
-            selectedPoint={selectedChartPoint}
-            title="Percentage Odds vs Time"
-            description="Click points for insights"
-          />
-        </FadeInView>
-
+        {/* Expected Value Chart */}
+        <ShadcnLineChart 
+          data={chartData}
+          onPointPress={setSelectedChartPoint}
+          selectedPoint={selectedChartPoint}
+          title="Expected Value vs Time"
+          description="Green = Good bet, Red = Avoid, Yellow = Neutral"
+        />
+        
         {/* Transparency Tab at Bottom */}
         <TouchableOpacity 
           style={styles.transparencyTab}
