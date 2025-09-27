@@ -252,9 +252,14 @@ export const useAppStore = create<AppState>((set, get) => ({
 
     const playerName = nameMap[playerId] || playerId.replace("player", "Player ")
 
-    // Prevent duplicates by matching on core fields
+    // If a matching real bet already exists, just star it and return it
     const existing = state.bets.find(b => b.prop === prop && b.betType === betType && b.line === line && b.player === playerName)
     if (existing) {
+      set((s) => ({
+        starredPropIds: s.starredPropIds.includes(item.propId)
+          ? s.starredPropIds
+          : [...s.starredPropIds, item.propId],
+      }))
       return existing
     }
 

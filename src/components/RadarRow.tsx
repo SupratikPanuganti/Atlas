@@ -12,7 +12,7 @@ interface RadarRowProps {
 }
 
 export function RadarRow({ item, onPress, forceSign = "both" }: RadarRowProps) {
-  const { addBetFromRadar, starredPropIds, starLine } = useAppStore()
+  const { addBetFromRadar, starredPropIds } = useAppStore()
   const getDeltaColor = (delta: number) => {
     if (delta > 1) return colors.positive
     if (delta === 1) return colors.danger
@@ -66,9 +66,9 @@ export function RadarRow({ item, onPress, forceSign = "both" }: RadarRowProps) {
             style={styles.favoriteButton}
           >
             {starredPropIds.includes(item.propId) ? (
-              <StarFilled size={18} color={colors.primary} />
+              <Star size={18} color={colors.primary} fill={colors.primary} />
             ) : (
-              <Star size={18} color={colors.primary} />
+              <Star size={18} color={colors.muted} />
             )}
           </TouchableOpacity>
           <ChevronRight size={20} color={colors.muted} />
