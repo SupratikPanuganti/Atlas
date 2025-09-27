@@ -45,3 +45,4 @@ console.log('   - @supabase get_table_schema tableName');
 console.log('   - @supabase get_table_sample tableName');
 console.log('   - @supabase get_betting_stats');
 
+
