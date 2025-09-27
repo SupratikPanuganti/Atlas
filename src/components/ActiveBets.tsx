@@ -50,7 +50,8 @@ export function ActiveBets({ bets, onViewBet }: ActiveBetsProps) {
           <FadeInView key={bet.id} delay={index * 100} duration={600}>
             <BetItem
               bet={bet}
-              showCurrentValue={true}
+              variant="active"
+              showCurrentValue={false}
               onViewBet={onViewBet}
             />
           </FadeInView>

@@ -44,6 +44,8 @@ export default function LiveScreen() {
   // Get route parameters if available
   const lineId = route.params?.lineId
   const lineData = route.params?.lineData
+  const stake = route.params?.stake
+  const potential = route.params?.potential
 
   // Demo data
   const demoPricing = {
@@ -255,6 +257,27 @@ export default function LiveScreen() {
           </View>
         </SlideInView>
 
+        {/* Stake/Potential summary */}
+        {(stake !== undefined || potential !== undefined) && (
+          <FadeInView delay={200} duration={600}>
+            <View style={{
+              backgroundColor: colors.card,
+              borderRadius: 12,
+              padding: 12,
+              marginBottom: 12,
+              borderWidth: 1,
+              borderColor: colors.muted + '30'
+            }}>
+              <Text style={{ color: colors.text, fontSize: typography.base, fontWeight: typography.semibold }}>
+                Stake: {stake !== undefined ? `$${stake.toFixed(2)}` : '-'}
+              </Text>
+              <Text style={{ color: colors.textSecondary, fontSize: typography.sm, marginTop: 4 }}>
+                Potential: {potential !== undefined ? `$${potential.toFixed(2)}` : '-'}
+              </Text>
+            </View>
+          </FadeInView>
+        )}
+
         {/* AI Report */}
         <FadeInView delay={300} duration={800}>
           <AIReport 
@@ -280,6 +303,18 @@ export default function LiveScreen() {
         >
           <BarChart3 size={20} color={colors.primary} />
           <Text style={styles.transparencyTabText}>View Transparency</Text>
+        </TouchableOpacity>
+
+        {/* View Conversation */}
+        <TouchableOpacity 
+          style={styles.transparencyTab}
+          onPress={() => navigation.navigate("Main", {
+            screen: 'Chats',
+            params: { targetPropId: lineData?.propId || lineId, ensureCreate: true }
+          })}
+        >
+          <BarChart3 size={20} color={colors.primary} />
+          <Text style={styles.transparencyTabText}>View Conversation</Text>
         </TouchableOpacity>
       </ScrollView>
 

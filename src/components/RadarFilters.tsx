@@ -5,10 +5,8 @@ import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 
 interface RadarFiltersProps {
-  selectedSport: string
   selectedPropTypes: string[]
   selectedDeltaSign: "both" | "positive" | "negative"
-  onSportChange: (sport: string) => void
   onPropTypeToggle: (propType: string) => void
   onDeltaSignChange: (sign: "both" | "positive" | "negative") => void
 }
@@ -16,27 +14,13 @@ interface RadarFiltersProps {
 const PROP_TYPES = ["PASS YDS", "RUSH YDS", "REC", "PASS TD", "RUSH TD", "REC YDS"]
 
 const RadarFilters = ({
-  selectedSport,
   selectedPropTypes,
-  onSportChange,
   onPropTypeToggle,
   selectedDeltaSign,
   onDeltaSignChange,
 }: RadarFiltersProps) => {
   return (
     <View style={styles.container}>
-      {/* Sport Filter (Fixed for demo) */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Sport</Text>
-        <Button
-          title="NCAAF (Demo)"
-          onPress={() => onSportChange("NCAAF")}
-          variant="outline"
-          size="sm"
-          style={styles.sportButton}
-        />
-      </View>
-
       {/* Prop Type Filter */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Prop Types</Text>

@@ -89,12 +89,7 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
       </View>
       
       {/* Filters */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={styles.filtersContainer}
-        contentContainerStyle={styles.filtersContent}
-      >
+      <View style={styles.filtersContainer}>
         {filters.map((filter, index) => (
           <FadeInView key={filter.key} delay={index * 50} duration={400}>
             <Chip
@@ -104,7 +99,7 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
             />
           </FadeInView>
         ))}
-      </ScrollView>
+      </View>
 
       {/* Bet List */}
       <ScrollView 
@@ -161,15 +156,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   filtersContainer: {
-    maxHeight: 50,
-    marginTop: 16,
-  },
-  filtersContent: {
-    paddingHorizontal: 16,
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
+    paddingHorizontal: 16,
+    marginTop: 16,
   },
   filterChip: {
     marginRight: 8,
+    marginBottom: 8,
   },
   emptyState: {
     alignItems: "center",

@@ -34,6 +34,9 @@ interface AppState {
   bettingStats: BettingStats | null
   bettingDashboard: BettingDashboard | null
 
+  // UI-marked favorites (starred stale lines)
+  starredPropIds: string[]
+
   // Actions
   login: (email: string, password: string) => Promise<void>
   signup: (email: string, password: string, name: string) => Promise<void>
@@ -53,6 +56,9 @@ interface AppState {
   setBettingStats: (stats: BettingStats) => void
   setBettingDashboard: (dashboard: BettingDashboard) => void
   calculateBettingStats: () => BettingStats
+  // Create bet from a radar line
+  addBetFromRadar: (item: RadarItem) => Bet
+  starLine: (propId: string) => void
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -70,6 +76,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   bets: [],
   bettingStats: null,
   bettingDashboard: null,
+  starredPropIds: [],
 
   // Actions
   login: async (email: string, password: string) => {
@@ -219,4 +226,73 @@ export const useAppStore = create<AppState>((set, get) => ({
       }
     }
   },
+
+  // Convert a RadarItem (stale line) into a pending Bet and add to Active Bets
+  addBetFromRadar: (item) => {
+    const state = get()
+
+    // Parse propId: e.g., "PASS_YDS_over_275.5_beck"
+    const parts = item.propId.split("_")
+    const prop = (parts[0] || "PROP") as Bet["prop"]
+    const betType = ((parts[1] || "over") as "over" | "under")
+    const line = parseFloat(parts[2]) || 0
+    const playerId = parts[3] || "player123"
+
+    const nameMap: Record<string, string> = {
+      beck: "Carson Beck",
+      milroe: "Jalen Milroe",
+      milton: "Kendall Milton",
+      smith: "Arian Smith",
+      williams: "Ryan Williams",
+      haynes: "Justice Haynes",
+      player123: "Carson Beck",
+      player456: "Kendall Milton",
+      player789: "Arian Smith",
+    }
+
+    const playerName = nameMap[playerId] || playerId.replace("player", "Player ")
+
+    // If a matching real bet already exists, just star it and return it
+    const existing = state.bets.find(b => b.prop === prop && b.betType === betType && b.line === line && b.player === playerName)
+    if (existing) {
+      set((s) => ({
+        starredPropIds: s.starredPropIds.includes(item.propId)
+          ? s.starredPropIds
+          : [...s.starredPropIds, item.propId],
+      }))
+      return existing
+    }
+
+    const newBet: Bet = {
+      id: `line_${Date.now()}`,
+      prop,
+      player: playerName,
+      market: prop === "REC" ? "Receptions" : prop === "PASS_YDS" ? "Passing Yards" : prop === "RUSH_YDS" ? "Rushing Yards" : prop,
+      line,
+      betType,
+      odds: 1.88,
+      stake: 0,
+      potentialWin: 0,
+      status: "pending",
+      placedAt: new Date().toISOString(),
+      gameInfo: {
+        homeTeam: "Georgia Bulldogs",
+        awayTeam: "Alabama Crimson Tide",
+        gameTime: "Today",
+      },
+    }
+
+    set((state) => ({ 
+      bets: [newBet, ...state.bets],
+      starredPropIds: state.starredPropIds.includes(item.propId)
+        ? state.starredPropIds
+        : [...state.starredPropIds, item.propId]
+    }))
+    return newBet
+  },
+  starLine: (propId) => set((state) => ({
+    starredPropIds: state.starredPropIds.includes(propId)
+      ? state.starredPropIds
+      : [...state.starredPropIds, propId]
+  })),
 }))

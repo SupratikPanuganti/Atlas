@@ -18,9 +18,10 @@ interface BetItemProps {
   showCurrentValue?: boolean
   showDate?: boolean
   onViewBet?: (bet: Bet) => void
+  variant?: 'active' | 'history'
 }
 
-export function BetItem({ bet, showCurrentValue = false, showDate = false, onViewBet }: BetItemProps) {
+export function BetItem({ bet, showCurrentValue = false, showDate = false, onViewBet, variant = 'history' }: BetItemProps) {
   const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`
   
   const getBetStatusIcon = (status: string) => {
@@ -89,40 +90,16 @@ export function BetItem({ bet, showCurrentValue = false, showDate = false, onVie
             {bet.prop} {bet.line} {bet.betType === 'over' ? 'O' : 'U'}
           </Text>
         </View>
-        <View style={styles.betStatus}>
-          {getBetStatusIcon(bet.status)}
+        <View style={styles.headerRight}>
+          <View style={styles.betStatus}>
+            {getBetStatusIcon(bet.status)}
+          </View>
+          <Text style={styles.stakeText}>${bet.stake.toFixed(2)}</Text>
         </View>
       </View>
 
       <View style={styles.betDetails}>
         <View style={styles.betStats}>
-          <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Stake</Text>
-            <Text style={styles.statValue}>{formatCurrency(bet.stake)}</Text>
-          </View>
-          
-          {showCurrentValue && bet.currentValue ? (
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Current</Text>
-              <Text style={styles.statValue}>{formatCurrency(bet.currentValue)}</Text>
-            </View>
-          ) : (
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>
-                {bet.status === 'won' || bet.status === 'lost' ? 'Profit' : 'Potential'}
-              </Text>
-              <Text style={[
-                styles.statValue,
-                { color: getBetStatusColor(bet.status) }
-              ]}>
-                {bet.status === 'won' || bet.status === 'lost' 
-                  ? formatCurrency(calculateProfit(bet))
-                  : formatCurrency(bet.potentialWin)
-                }
-              </Text>
-            </View>
-          )}
-
           {showDate && (
             <View style={styles.statItem}>
               <Text style={styles.statLabel}>Date</Text>
@@ -131,7 +108,7 @@ export function BetItem({ bet, showCurrentValue = false, showDate = false, onVie
           )}
         </View>
 
-        {bet.status === 'live' && bet.liveStats && (
+        {bet.liveStats && (
           <View style={styles.liveStats}>
             <View style={styles.liveStat}>
               <Text style={styles.liveStatLabel}>Current: {bet.liveStats.current}</Text>
@@ -161,9 +138,7 @@ export function BetItem({ bet, showCurrentValue = false, showDate = false, onVie
 
       <View style={styles.betActions}>
         {getTrendIcon(bet.betType)}
-        <Text style={styles.betTypeText}>
-          {bet.betType.toUpperCase()} {bet.odds.toFixed(2)}
-        </Text>
+        <Text style={styles.betTypeText}>OVER {bet.odds.toFixed(2)}</Text>
         {onViewBet && (
           <Eye size={16} color={colors.primary} />
         )}
@@ -240,8 +215,9 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   liveStatLabel: {
-    fontSize: typography.xs,
+    fontSize: typography.base,
     color: colors.text,
+    fontWeight: "600",
   },
   progressBar: {
     height: 4,
@@ -279,5 +255,14 @@ const styles = StyleSheet.create({
     fontSize: typography.xs,
     color: colors.muted,
     fontWeight: "500",
+  },
+  headerRight: {
+    alignItems: "flex-end",
+  },
+  stakeText: {
+    marginTop: 6,
+    fontSize: typography.base,
+    color: colors.text,
+    fontWeight: "600",
   },
 })

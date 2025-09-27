@@ -4,7 +4,7 @@ import React from "react"
 import { NavigationContainer } from "@react-navigation/native"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { createStackNavigator } from "@react-navigation/stack"
-import { Radar, Settings, Home, Eye } from "lucide-react-native"
+import { Radar, Settings, Home, MessageCircle } from "lucide-react-native"
 import type { MainTabParamList, RootStackParamList } from "../types/navigation"
 
 import { useAppStore } from "../store/useAppStore"
@@ -16,7 +16,7 @@ import HomeScreen from "../screens/HomeScreen"
 import LiveScreen from "../screens/LiveScreen"
 import RadarScreen from "../screens/RadarScreen"
 import TransparencyScreen from "../screens/TransparencyScreen"
-import WatchScreen from "../screens/WatchScreen"
+import ChatsScreen from "../screens/ChatsScreen"
 import SettingsScreen from "../screens/SettingsScreen"
 
 const Tab = createBottomTabNavigator<MainTabParamList>()
@@ -37,8 +37,8 @@ function MainTabNavigator() {
             case "Radar":
               IconComponent = Radar
               break
-            case "Watch":
-              IconComponent = Eye
+            case "Chats":
+              IconComponent = MessageCircle
               break
             default:
               IconComponent = Home
@@ -73,9 +73,9 @@ function MainTabNavigator() {
         options={{ title: "Stale Lines" }}
       />
       <Tab.Screen 
-        name="Watch" 
-        component={WatchScreen}
-        options={{ title: "Watch" }}
+        name="Chats" 
+        component={ChatsScreen}
+        options={{ title: "Chats" }}
       />
     </Tab.Navigator>
   )
@@ -121,8 +121,8 @@ function RootStackNavigator() {
           />
           <Stack.Screen 
             name="WatchMode" 
-            component={WatchScreen}
-            options={{ title: "Watch Mode" }}
+            component={ChatsScreen}
+            options={{ title: "Chat Mode" }}
           />
           <Stack.Screen 
             name="Settings" 
