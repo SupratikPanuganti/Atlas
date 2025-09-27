@@ -117,7 +117,7 @@ function RootStackNavigator() {
           <Stack.Screen 
             name="Transparency" 
             component={TransparencyScreen}
-            options={{ title: "Transparency" }}
+            options={{ headerShown: false }}
           />
           <Stack.Screen 
             name="WatchMode" 
