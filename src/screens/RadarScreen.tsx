@@ -18,6 +18,7 @@ export default function RadarScreen() {
   const [refreshing, setRefreshing] = useState(false)
   const [selectedSport, setSelectedSport] = useState("NCAAF")
   const [selectedPropTypes, setSelectedPropTypes] = useState<string[]>(["PASS_YDS", "RUSH_YDS", "REC"])
+  const [selectedDeltaSign, setSelectedDeltaSign] = useState<"both" | "positive" | "negative">("both")
   const [minDelta, setMinDelta] = useState(0.5)
 
   // Demo data - Georgia vs Alabama NCAA Football props
