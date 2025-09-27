@@ -79,7 +79,7 @@ export default function HomeScreen() {
             </SlideInView>
             <FadeInView delay={400} duration={600}>
               <Text style={styles.subtitle}>
-                Betting Dashboard
+                Dashboard
               </Text>
             </FadeInView>
           </View>
@@ -130,13 +130,11 @@ export default function HomeScreen() {
         </SlideInView>
 
         {/* Tab Content */}
-        <View style={styles.tabContent}>
-          {activeTab === 'active' ? (
-            <ActiveBets bets={bets} onViewBet={handleViewBet} />
-          ) : (
-            <BetHistory bets={bets} onViewBet={handleViewBet} />
-          )}
-        </View>
+        {activeTab === 'active' ? (
+          <ActiveBets bets={bets} onViewBet={handleViewBet} />
+        ) : (
+          <BetHistory bets={bets} onViewBet={handleViewBet} />
+        )}
 
 
         {/* Bottom Spacing */}
@@ -222,10 +220,6 @@ const styles = StyleSheet.create({
   activeTabText: {
     color: colors.primary,
     fontWeight: typography.semibold,
-  },
-  tabContent: {
-    paddingHorizontal: 16,
-    marginBottom: 20,
   },
   bottomSpacing: {
     height: 100,

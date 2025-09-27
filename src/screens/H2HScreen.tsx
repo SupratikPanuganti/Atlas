@@ -34,7 +34,6 @@ export default function H2HScreen() {
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [refreshing, setRefreshing] = useState(false)
   const [filter, setFilter] = useState<'all' | 'open' | 'matched' | 'live'>('all')
-  const [showEducationalBanner, setShowEducationalBanner] = useState(true)
 
   useEffect(() => {
     loadH2HLines()
@@ -128,21 +127,6 @@ export default function H2HScreen() {
           </View>
         </View>
         
-        {/* Educational Banner */}
-        {showEducationalBanner && (
-          <View style={styles.educationalBanner}>
-            <AlertTriangle size={16} color={colors.warning} />
-            <Text style={styles.bannerText}>
-              Educational - Not Betting Advice • Credits Only
-            </Text>
-            <TouchableOpacity
-              onPress={() => setShowEducationalBanner(false)}
-              style={styles.bannerClose}
-            >
-              <Text style={styles.bannerCloseText}>×</Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </View>
 
       {/* Filter Tabs */}
@@ -166,8 +150,8 @@ export default function H2HScreen() {
             }}
           >
             <Text style={[
+              typography.caption,
               {
-                fontSize: typography.caption,
                 color: filter === filterOption ? colors.background : colors.text,
                 fontWeight: filter === filterOption ? '600' : '400',
                 textTransform: 'capitalize',
@@ -195,7 +179,7 @@ export default function H2HScreen() {
           }}
         >
           <Plus size={20} color="#000000" />
-          <Text style={[{ fontSize: typography.button, color: '#000000' }]}>
+          <Text style={[typography.button, { color: '#000000' }]}>
             Create Line
           </Text>
         </TouchableOpacity>
@@ -218,10 +202,10 @@ export default function H2HScreen() {
                 backgroundColor: colors.card,
               }}>
                 <Users size={48} color={colors.muted} />
-                <Text style={[{ fontSize: typography.h3, color: colors.text, marginTop: 16, textAlign: 'center' }]}>
+                <Text style={[typography.h3, { color: colors.text, marginTop: 16, textAlign: 'center' }]}>
                   No lines yet
                 </Text>
-                <Text style={[{ fontSize: typography.body, color: colors.muted, marginTop: 8, textAlign: 'center' }]}>
+                <Text style={[typography.body, { color: colors.muted, marginTop: 8, textAlign: 'center' }]}>
                   {filter === 'all' 
                     ? 'Create your first custom prop line to get started'
                     : `No ${filter} lines found`
@@ -354,9 +338,9 @@ function CreateLineModal({
           borderBottomWidth: 1,
           borderBottomColor: colors.border,
         }}>
-          <Text style={[{ fontSize: typography.h3, color: colors.text }]}>Create Line</Text>
+          <Text style={[typography.h3, { color: colors.text }]}>Create Line</Text>
           <TouchableOpacity onPress={onClose}>
-            <Text style={[{ fontSize: typography.button, color: colors.primary }]}>Cancel</Text>
+            <Text style={[typography.button, { color: colors.primary }]}>Cancel</Text>
           </TouchableOpacity>
         </View>
 
@@ -364,7 +348,7 @@ function CreateLineModal({
           <View style={{ gap: 24 }}>
             {/* Sport Selection */}
             <View>
-              <Text style={[{ fontSize: typography.label, color: colors.text, marginBottom: 8 }]}>Sport</Text>
+              <Text style={[typography.label, { color: colors.text, marginBottom: 8 }]}>Sport</Text>
               <View style={{ flexDirection: 'row', gap: 8 }}>
                 {(['basketball', 'football'] as const).map((sportOption) => (
                   <TouchableOpacity
@@ -380,8 +364,8 @@ function CreateLineModal({
                     }}
                   >
                     <Text style={[
+                      typography.button,
                       {
-                        fontSize: typography.button,
                         color: sport === sportOption ? colors.background : colors.text,
                         textAlign: 'center',
                         textTransform: 'capitalize',
@@ -396,7 +380,7 @@ function CreateLineModal({
 
             {/* Player Name */}
             <View>
-              <Text style={[{ fontSize: typography.label, color: colors.text, marginBottom: 8 }]}>Player Name</Text>
+              <Text style={[typography.label, { color: colors.text, marginBottom: 8 }]}>Player Name</Text>
               <TextInput
                 value={player}
                 onChangeText={setPlayer}
@@ -416,7 +400,7 @@ function CreateLineModal({
 
             {/* Prop Type */}
             <View>
-              <Text style={[{ fontSize: typography.label, color: colors.text, marginBottom: 8 }]}>Prop Type</Text>
+              <Text style={[typography.label, { color: colors.text, marginBottom: 8 }]}>Prop Type</Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {getAvailableProps(sport).map((prop) => (
                   <TouchableOpacity
@@ -431,8 +415,8 @@ function CreateLineModal({
                     }}
                   >
                     <Text style={[
+                      typography.caption,
                       {
-                        fontSize: typography.caption,
                         color: propType === prop ? colors.background : colors.text,
                         fontWeight: propType === prop ? '600' : '400',
                       }
@@ -446,7 +430,7 @@ function CreateLineModal({
 
             {/* Custom Line */}
             <View>
-              <Text style={[{ fontSize: typography.label, color: colors.text, marginBottom: 8 }]}>Your Line</Text>
+              <Text style={[typography.label, { color: colors.text, marginBottom: 8 }]}>Your Line</Text>
               <View style={{ flexDirection: 'row', gap: 8, alignItems: 'center' }}>
                 <View style={{ flexDirection: 'row', gap: 4 }}>
                   {(['over', 'under'] as const).map((sideOption) => (
@@ -462,8 +446,8 @@ function CreateLineModal({
                       }}
                     >
                       <Text style={[
+                        typography.caption,
                         {
-                          fontSize: typography.caption,
                           color: side === sideOption ? colors.background : colors.text,
                           textTransform: 'uppercase',
                         }
@@ -496,7 +480,7 @@ function CreateLineModal({
 
             {/* Stake Credits */}
             <View>
-              <Text style={[{ fontSize: typography.label, color: colors.text, marginBottom: 8 }]}>
+              <Text style={[typography.label, { color: colors.text, marginBottom: 8 }]}>
                 Stake Credits (Available: {userCredits})
               </Text>
               <TextInput
@@ -526,7 +510,7 @@ function CreateLineModal({
                 borderColor: colors.border,
                 borderWidth: 1,
               }}>
-                <Text style={[{ fontSize: typography.caption, color: colors.muted }]}>
+                <Text style={[typography.caption, { color: colors.muted }]}>
                   🤖 Analyzing with AI...
                 </Text>
               </View>
@@ -540,17 +524,17 @@ function CreateLineModal({
                 borderColor: colors.border,
                 borderWidth: 1,
               }}>
-                <Text style={[{ fontSize: typography.caption, color: colors.muted, marginBottom: 8 }]}>
+                <Text style={[typography.caption, { color: colors.muted, marginBottom: 8 }]}>
                   🤖 AI Analysis
                 </Text>
-                <Text style={[{ fontSize: typography.small, color: colors.text, marginBottom: 8 }]}>
+                <Text style={[typography.small, { color: colors.text, marginBottom: 8 }]}>
                   {geminiAnalysis.explanation}
                 </Text>
-                <Text style={[{ fontSize: typography.small, color: colors.warning }]}>
+                <Text style={[typography.small, { color: colors.warning }]}>
                   💡 {geminiAnalysis.riskAssessment}
                 </Text>
                 {geminiAnalysis.suggestedLine && (
-                  <Text style={[{ fontSize: typography.small, color: colors.primary, marginTop: 4 }]}>
+                  <Text style={[typography.small, { color: colors.primary, marginTop: 4 }]}>
                     Suggested: {side.toUpperCase()} {geminiAnalysis.suggestedLine}
                   </Text>
                 )}
@@ -637,51 +621,25 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   title: {
-    fontSize: typography["2xl"],
-    fontWeight: typography.bold,
+    ...typography.h3,
     color: colors.text,
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: typography.base,
+    ...typography.body,
     color: colors.textSecondary,
   },
   creditsContainer: {
     alignItems: 'flex-end',
   },
   creditsText: {
-    fontSize: typography["2xl"],
-    fontWeight: typography.bold,
+    ...typography.h3,
     color: colors.primary,
   },
   creditsLabel: {
-    fontSize: typography.caption,
+    ...typography.caption,
     color: colors.textSecondary,
     marginTop: 2,
-  },
-  educationalBanner: {
-    backgroundColor: colors.warning + '20',
-    borderColor: colors.warning,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  bannerText: {
-    fontSize: typography.caption,
-    color: colors.warning,
-    marginLeft: 8,
-    flex: 1,
-  },
-  bannerClose: {
-    marginLeft: 8,
-    padding: 4,
-  },
-  bannerCloseText: {
-    fontSize: 16,
-    color: colors.warning,
   },
 })
 

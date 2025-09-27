@@ -3,9 +3,8 @@
 import React from "react"
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Bell, Play, Info, Shield, Smartphone, AlertTriangle, LogOut } from "lucide-react-native"
+import { Bell, Play, Info, Smartphone } from "lucide-react-native"
 import { Card } from "../components/ui/Card"
-import { Switch } from "../components/ui/Switch"
 import { Slider } from "../components/ui/Slider"
 import { Button } from "../components/ui/Button"
 import { useAppStore } from "../store/useAppStore"
@@ -19,7 +18,6 @@ export default function SettingsScreen() {
     useAppStore()
   const navigation = useNavigation()
 
-  const [watermarkEnabled, setWatermarkEnabled] = React.useState(true)
   const [snoozeDuration, setSnoozeDuration] = React.useState(10)
 
   const handlePlayDemo = () => {
@@ -150,30 +148,6 @@ export default function SettingsScreen() {
           />
         </Card>
 
-        {/* Legal & Watermark */}
-        <Card style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Shield size={20} color={colors.primary} />
-            <Text style={styles.sectionTitle}>Legal</Text>
-          </View>
-
-          <View style={styles.settingRow}>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Educational Watermark</Text>
-              <Text style={styles.settingDescription}>Always show "Educational use only" disclaimer</Text>
-            </View>
-            <Switch
-              value={watermarkEnabled}
-              onValueChange={setWatermarkEnabled}
-              disabled={true} // Always on per requirements
-            />
-          </View>
-
-          <View style={styles.disclaimer}>
-            <AlertTriangle size={16} color={colors.primary} />
-            <Text style={styles.disclaimerText}>This app is for educational purposes only. Not financial advice.</Text>
-          </View>
-        </Card>
         </FadeInView>
 
         {/* About Section */}
@@ -259,21 +233,6 @@ const styles = StyleSheet.create({
   demoButton: {
     marginTop: 12,
     alignSelf: "flex-start",
-  },
-  disclaimer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    backgroundColor: colors.surface,
-    borderRadius: 8,
-    padding: 12,
-    marginTop: 16,
-  },
-  disclaimerText: {
-    fontSize: typography.sm,
-    color: colors.textSecondary,
-    marginLeft: 8,
-    flex: 1,
-    lineHeight: 18,
   },
   aboutRow: {
     flexDirection: "row",

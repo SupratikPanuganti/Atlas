@@ -23,15 +23,103 @@ export const typography = {
   bold: "700" as const,
 
   // Typography styles
-  h1: 32,
-  h2: 28,
-  h3: 24,
-  h4: 20,
-  h5: 18,
-  h6: 16,
-  body: 16,
-  caption: 12,
-  small: 10,
-  label: 14,
-  button: 16,
+  h1: {
+    fontSize: 32,
+    fontWeight: "700" as const,
+    fontFamily: Platform.select({
+      ios: "SF Pro Display",
+      android: "Inter",
+      default: "Inter",
+    }),
+  },
+  h2: {
+    fontSize: 28,
+    fontWeight: "700" as const,
+    fontFamily: Platform.select({
+      ios: "SF Pro Display",
+      android: "Inter",
+      default: "Inter",
+    }),
+  },
+  h3: {
+    fontSize: 24,
+    fontWeight: "600" as const,
+    fontFamily: Platform.select({
+      ios: "SF Pro Display",
+      android: "Inter",
+      default: "Inter",
+    }),
+  },
+  h4: {
+    fontSize: 20,
+    fontWeight: "600" as const,
+    fontFamily: Platform.select({
+      ios: "SF Pro Display",
+      android: "Inter",
+      default: "Inter",
+    }),
+  },
+  h5: {
+    fontSize: 18,
+    fontWeight: "600" as const,
+    fontFamily: Platform.select({
+      ios: "SF Pro Display",
+      android: "Inter",
+      default: "Inter",
+    }),
+  },
+  h6: {
+    fontSize: 16,
+    fontWeight: "600" as const,
+    fontFamily: Platform.select({
+      ios: "SF Pro Display",
+      android: "Inter",
+      default: "Inter",
+    }),
+  },
+  body: {
+    fontSize: 16,
+    fontWeight: "400" as const,
+    fontFamily: Platform.select({
+      ios: "SF Pro Display",
+      android: "Inter",
+      default: "Inter",
+    }),
+  },
+  caption: {
+    fontSize: 12,
+    fontWeight: "400" as const,
+    fontFamily: Platform.select({
+      ios: "SF Pro Display",
+      android: "Inter",
+      default: "Inter",
+    }),
+  },
+  small: {
+    fontSize: 10,
+    fontWeight: "400" as const,
+    fontFamily: Platform.select({
+      ios: "SF Pro Display",
+      android: "Inter",
+      default: "Inter",
+    }),
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "500" as const,
+    fontFamily: Platform.select({
+      ios: "SF Pro Display",
+      android: "Inter",
+      default: "Inter",
+    }),
+  },
+  button: {
+    fontSize: 16,
+    fontWeight: "600" as const,
+    fontFamily: Platform.select({
+      ios: "SF Pro Display",
+      android: "Inter",
+      default: "Inter",
+    }),
+  },
 } as const

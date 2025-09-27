@@ -11,7 +11,7 @@ import { useState } from "react"
 
 export default function TransparencyScreen() {
   const navigation = useNavigation()
-  const [selectedCalibrationPoint, setSelectedCalibrationPoint] = useState(null)
+  const [selectedCalibrationPoint, setSelectedCalibrationPoint] = useState<any>(null)
   const [showEducationalTips, setShowEducationalTips] = useState(false)
   
   const handleBackToLivePricing = () => {
@@ -147,7 +147,7 @@ export default function TransparencyScreen() {
         {/* Calibration Chart */}
         <CalibrationChart 
           bins={enhancedDemoBins} 
-          onPointPress={setSelectedCalibrationPoint}
+          onPointPress={(bin, index) => setSelectedCalibrationPoint(bin)}
           selectedPoint={selectedCalibrationPoint}
         />
 
