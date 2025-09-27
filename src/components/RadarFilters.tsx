@@ -1,14 +1,11 @@
 import { View, Text, StyleSheet } from "react-native"
-import { Button } from "./ui/Button"
 import { Chip } from "./ui/Chip"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 
 interface RadarFiltersProps {
-  selectedSport: string
   selectedPropTypes: string[]
   selectedDeltaSign: "both" | "positive" | "negative"
-  onSportChange: (sport: string) => void
   onPropTypeToggle: (propType: string) => void
   onDeltaSignChange: (sign: "both" | "positive" | "negative") => void
 }
@@ -17,27 +14,13 @@ const PROP_TYPES = ["PASS_YDS", "RUSH_YDS", "REC", "PASS_TD", "RUSH_TD", "REC_YD
 const DELTA_OPTIONS = [0, 0.5, 1.0, 1.5, 2.0]
 
 const RadarFilters = ({
-  selectedSport,
   selectedPropTypes,
-  onSportChange,
   onPropTypeToggle,
   selectedDeltaSign,
   onDeltaSignChange,
 }: RadarFiltersProps) => {
   return (
     <View style={styles.container}>
-      {/* Sport Filter (Fixed for demo) */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Sport</Text>
-        <Button
-          title="NCAAF (Demo)"
-          onPress={() => onSportChange("NCAAF")}
-          variant="outline"
-          size="sm"
-          style={styles.sportButton}
-        />
-      </View>
-
       {/* Prop Type Filter */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Prop Types</Text>

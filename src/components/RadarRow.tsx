@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
-import { ChevronRight, Clock, Star } from "lucide-react-native"
+import { ChevronRight, Clock, Star, Star as StarFilled } from "lucide-react-native"
 import type { RadarItem } from "../types"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
@@ -12,7 +12,7 @@ interface RadarRowProps {
 }
 
 export function RadarRow({ item, onPress, forceSign = "both" }: RadarRowProps) {
-  const { addBetFromRadar } = useAppStore()
+  const { addBetFromRadar, starredPropIds, starLine } = useAppStore()
   const getDeltaColor = (delta: number) => {
     if (delta > 1) return colors.positive
     if (delta === 1) return colors.danger
@@ -60,10 +60,16 @@ export function RadarRow({ item, onPress, forceSign = "both" }: RadarRowProps) {
         <View style={styles.actions}>
           <TouchableOpacity
             accessibilityLabel="Add to Active Bets"
-            onPress={() => addBetFromRadar(item)}
+            onPress={() => {
+              addBetFromRadar(item)
+            }}
             style={styles.favoriteButton}
           >
-            <Star size={18} color={colors.primary} />
+            {starredPropIds.includes(item.propId) ? (
+              <StarFilled size={18} color={colors.primary} />
+            ) : (
+              <Star size={18} color={colors.primary} />
+            )}
           </TouchableOpacity>
           <ChevronRight size={20} color={colors.muted} />
         </View>

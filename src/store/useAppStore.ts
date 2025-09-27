@@ -34,6 +34,9 @@ interface AppState {
   bettingStats: BettingStats | null
   bettingDashboard: BettingDashboard | null
 
+  // UI-marked favorites (starred stale lines)
+  starredPropIds: string[]
+
   // Actions
   login: (email: string, password: string) => Promise<void>
   signup: (email: string, password: string, name: string) => Promise<void>
@@ -55,6 +58,7 @@ interface AppState {
   calculateBettingStats: () => BettingStats
   // Create bet from a radar line
   addBetFromRadar: (item: RadarItem) => Bet
+  starLine: (propId: string) => void
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -72,6 +76,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   bets: [],
   bettingStats: null,
   bettingDashboard: null,
+  starredPropIds: [],
 
   // Actions
   login: async (email: string, password: string) => {
@@ -272,7 +277,17 @@ export const useAppStore = create<AppState>((set, get) => ({
       },
     }
 
-    set((state) => ({ bets: [newBet, ...state.bets] }))
+    set((state) => ({ 
+      bets: [newBet, ...state.bets],
+      starredPropIds: state.starredPropIds.includes(item.propId)
+        ? state.starredPropIds
+        : [...state.starredPropIds, item.propId]
+    }))
     return newBet
   },
+  starLine: (propId) => set((state) => ({
+    starredPropIds: state.starredPropIds.includes(propId)
+      ? state.starredPropIds
+      : [...state.starredPropIds, propId]
+  })),
 }))

@@ -128,9 +128,14 @@ export default function RadarScreen() {
   const renderHeader = () => (
     <View style={styles.listHeader}>
       <Text style={styles.title}>Stale Line Radar</Text>
-      <Text style={styles.subtitle}>
-        {filteredItems.length} line{filteredItems.length !== 1 ? "s" : ""} detected
-      </Text>
+      <View style={styles.headerRight}>
+        <Text style={styles.subtitle}>
+          {filteredItems.length} line{filteredItems.length !== 1 ? "s" : ""} detected
+        </Text>
+        <TouchableOpacity style={styles.sportDropdown} activeOpacity={0.8}>
+          <Text style={styles.sportDropdownText}>{selectedSport === 'NCAAF' ? 'NCAA' : 'NFL'}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   )
 
@@ -144,10 +149,8 @@ export default function RadarScreen() {
           <>
             {renderHeader()}
             <RadarFilters
-              selectedSport={selectedSport}
               selectedPropTypes={selectedPropTypes}
               selectedDeltaSign={selectedDeltaSign}
-              onSportChange={setSelectedSport}
               onPropTypeToggle={handlePropTypeToggle}
               onDeltaSignChange={setSelectedDeltaSign}
             />
@@ -205,6 +208,25 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: typography.base,
     color: colors.textSecondary,
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  sportDropdown: {
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.muted,
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+  },
+  sportDropdownText: {
+    fontSize: typography.sm,
+    color: colors.muted,
+    fontWeight: typography.medium,
   },
   emptyContainer: {
     flex: 1,
