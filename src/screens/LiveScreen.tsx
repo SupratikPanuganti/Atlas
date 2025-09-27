@@ -304,6 +304,18 @@ export default function LiveScreen() {
           <BarChart3 size={20} color={colors.primary} />
           <Text style={styles.transparencyTabText}>View Transparency</Text>
         </TouchableOpacity>
+
+        {/* View Conversation */}
+        <TouchableOpacity 
+          style={styles.transparencyTab}
+          onPress={() => navigation.navigate("Main", {
+            screen: 'Chats',
+            params: { targetPropId: lineData?.propId || lineId }
+          })}
+        >
+          <BarChart3 size={20} color={colors.primary} />
+          <Text style={styles.transparencyTabText}>View Conversation</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       {/* Explain Drawer */}

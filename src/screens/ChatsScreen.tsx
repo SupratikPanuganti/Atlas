@@ -11,6 +11,9 @@ import {
   Alert
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
+import { useNavigation, useRoute } from "@react-navigation/native"
+import type { RouteProp } from "@react-navigation/native"
+import type { MainTabParamList } from "../types/navigation"
 import { Search, MessageCircle, Plus, TrendingUp, Users, Send } from "lucide-react-native"
 import { Card } from "../components/ui/Card"
 import { colors } from "../theme/colors"
@@ -48,7 +51,11 @@ interface PropLine {
   hasConversation: boolean
 }
 
+type ChatsRouteProp = RouteProp<MainTabParamList, 'Chats'>
+
 export default function ChatsScreen() {
+  const navigation = useNavigation()
+  const route = useRoute<ChatsRouteProp>()
   const [activeTab, setActiveTab] = useState<'trending' | 'other'>('trending')
   const [searchQuery, setSearchQuery] = useState('')
   const [showStartConversation, setShowStartConversation] = useState(false)
@@ -146,6 +153,16 @@ export default function ChatsScreen() {
       }
     }
   ])
+  // If navigated with a targetPropId, open that conversation if present
+  useEffect(() => {
+    const target = route.params?.targetPropId
+    if (!target) return
+    const conv = conversations.find(c => c.propId === target)
+    if (conv) {
+      setSelectedConversation(conv)
+    }
+  }, [route.params?.targetPropId, conversations])
+
 
   // Demo data for available lines without conversations
   const [availableLines, setAvailableLines] = useState<PropLine[]>([
@@ -498,6 +515,21 @@ export default function ChatsScreen() {
               />
             </View>
 
+            <TouchableOpacity
+              style={styles.viewAnalysisButton}
+              onPress={() => {
+                setSelectedConversation(null)
+                // Navigate to LivePricing with relaxed typing for RN
+                // @ts-ignore
+                navigation.navigate('LivePricing', {
+                  lineId: selectedConversation.propId,
+                  lineData: { propId: selectedConversation.propId },
+                })
+              }}
+            >
+              <Text style={styles.viewAnalysisText}>View Analysis</Text>
+            </TouchableOpacity>
+
             <View style={styles.messageInputContainer}>
               <TextInput
                 style={styles.messageInput}
@@ -822,5 +854,20 @@ const styles = StyleSheet.create({
   },
   sendButtonDisabled: {
     backgroundColor: colors.muted,
+  },
+  viewAnalysisButton: {
+    backgroundColor: colors.card,
+    marginHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.primary + '30',
+    marginTop: 8,
+  },
+  viewAnalysisText: {
+    color: colors.primary,
+    fontSize: typography.base,
+    fontWeight: typography.semibold,
   },
 })
