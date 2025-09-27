@@ -189,7 +189,7 @@ export function ShadcnLineChart({
           </Text>
           <Text style={styles.insightText}>
             {selectedPoint.ev !== undefined ? 
-              `EV: ${(selectedPoint.ev * 100).toFixed(1)}% | Confidence: ${(selectedPoint.confidence * 100).toFixed(0)}%` :
+              `EV: ${(selectedPoint.ev * 100).toFixed(1)}% | Confidence: ${((selectedPoint.confidence || 0) * 100).toFixed(0)}%` :
               `${selectedPoint.percentage.toFixed(1)}% at ${selectedPoint.time}`
             }
           </Text>
