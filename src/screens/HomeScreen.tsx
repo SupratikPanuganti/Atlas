@@ -61,8 +61,11 @@ export default function HomeScreen() {
   }, [setBets, setBettingStats])
 
   const handleViewBet = (bet: any) => {
-    // Navigate to bet details or live screen
-    console.log("View bet:", bet.id)
+    const propId = `${bet.prop}_${bet.betType === 'over' ? 'over' : 'under'}_${bet.line}_${(bet.player || 'player').toLowerCase().split(' ')[1] || 'player123'}`
+    navigation.navigate('LivePricing', {
+      lineId: propId,
+      lineData: { propId }
+    })
   }
 
   return (

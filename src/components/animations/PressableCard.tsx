@@ -4,12 +4,15 @@ import { TouchableOpacity, TouchableOpacityProps, Animated } from 'react-native'
 interface PressableCardProps extends TouchableOpacityProps {
   children: React.ReactNode;
   style?: any;
+  // When true, the inner touchable will expand to fill its container
+  fill?: boolean;
 }
 
 export const PressableCard: React.FC<PressableCardProps> = ({
   children,
   style,
   onPress,
+  fill = false,
   ...props
 }) => {
   const [scaleAnim] = useState(new Animated.Value(1));
@@ -35,7 +38,7 @@ export const PressableCard: React.FC<PressableCardProps> = ({
   return (
     <Animated.View style={[style, { transform: [{ scale: scaleAnim }] }]}>
       <TouchableOpacity
-        style={{ flex: 1 }}
+        style={fill ? { flex: 1 } : undefined}
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}

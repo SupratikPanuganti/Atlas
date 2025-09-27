@@ -1,8 +1,9 @@
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native"
-import { ChevronRight, Clock } from "lucide-react-native"
+import { ChevronRight, Clock, Star } from "lucide-react-native"
 import type { RadarItem } from "../types"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
+import { useAppStore } from "../store/useAppStore"
 
 interface RadarRowProps {
   item: RadarItem
@@ -11,6 +12,7 @@ interface RadarRowProps {
 }
 
 export function RadarRow({ item, onPress, forceSign = "both" }: RadarRowProps) {
+  const { addBetFromRadar } = useAppStore()
   const getDeltaColor = (delta: number) => {
     if (delta > 1) return colors.positive
     if (delta === 1) return colors.danger
@@ -54,8 +56,17 @@ export function RadarRow({ item, onPress, forceSign = "both" }: RadarRowProps) {
           <Text style={[styles.staleValue, { color: getStaleColor(item.staleMin) }]}>{item.staleMin}m</Text>
         </View>
 
-        {/* Arrow */}
-        <ChevronRight size={20} color={colors.muted} />
+        {/* Actions */}
+        <View style={styles.actions}>
+          <TouchableOpacity
+            accessibilityLabel="Add to Active Bets"
+            onPress={() => addBetFromRadar(item)}
+            style={styles.favoriteButton}
+          >
+            <Star size={18} color={colors.primary} />
+          </TouchableOpacity>
+          <ChevronRight size={20} color={colors.muted} />
+        </View>
       </View>
     </TouchableOpacity>
   )
@@ -106,6 +117,16 @@ const styles = StyleSheet.create({
     fontWeight: typography.medium,
     marginLeft: 4,
     fontVariant: ["tabular-nums"],
+  },
+  actions: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  favoriteButton: {
+    padding: 6,
+    borderRadius: 8,
+    backgroundColor: colors.primary + "12",
   },
 })
 

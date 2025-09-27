@@ -53,6 +53,8 @@ interface AppState {
   setBettingStats: (stats: BettingStats) => void
   setBettingDashboard: (dashboard: BettingDashboard) => void
   calculateBettingStats: () => BettingStats
+  // Create bet from a radar line
+  addBetFromRadar: (item: RadarItem) => Bet
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -218,5 +220,59 @@ export const useAppStore = create<AppState>((set, get) => ({
         thisMonth: calculateDailyStats(thisMonthBets)
       }
     }
+  },
+
+  // Convert a RadarItem (stale line) into a pending Bet and add to Active Bets
+  addBetFromRadar: (item) => {
+    const state = get()
+
+    // Parse propId: e.g., "PASS_YDS_over_275.5_beck"
+    const parts = item.propId.split("_")
+    const prop = (parts[0] || "PROP") as Bet["prop"]
+    const betType = ((parts[1] || "over") as "over" | "under")
+    const line = parseFloat(parts[2]) || 0
+    const playerId = parts[3] || "player123"
+
+    const nameMap: Record<string, string> = {
+      beck: "Carson Beck",
+      milroe: "Jalen Milroe",
+      milton: "Kendall Milton",
+      smith: "Arian Smith",
+      williams: "Ryan Williams",
+      haynes: "Justice Haynes",
+      player123: "Carson Beck",
+      player456: "Kendall Milton",
+      player789: "Arian Smith",
+    }
+
+    const playerName = nameMap[playerId] || playerId.replace("player", "Player ")
+
+    // Prevent duplicates by matching on core fields
+    const existing = state.bets.find(b => b.prop === prop && b.betType === betType && b.line === line && b.player === playerName)
+    if (existing) {
+      return existing
+    }
+
+    const newBet: Bet = {
+      id: `line_${Date.now()}`,
+      prop,
+      player: playerName,
+      market: prop === "REC" ? "Receptions" : prop === "PASS_YDS" ? "Passing Yards" : prop === "RUSH_YDS" ? "Rushing Yards" : prop,
+      line,
+      betType,
+      odds: 1.88,
+      stake: 0,
+      potentialWin: 0,
+      status: "pending",
+      placedAt: new Date().toISOString(),
+      gameInfo: {
+        homeTeam: "Georgia Bulldogs",
+        awayTeam: "Alabama Crimson Tide",
+        gameTime: "Today",
+      },
+    }
+
+    set((state) => ({ bets: [newBet, ...state.bets] }))
+    return newBet
   },
 }))
