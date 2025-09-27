@@ -7,22 +7,22 @@ import { typography } from "../theme/typography"
 interface RadarFiltersProps {
   selectedSport: string
   selectedPropTypes: string[]
-  minDelta: number
+  selectedDeltaSign: "both" | "positive" | "negative"
   onSportChange: (sport: string) => void
   onPropTypeToggle: (propType: string) => void
-  onMinDeltaChange: (delta: number) => void
+  onDeltaSignChange: (sign: "both" | "positive" | "negative") => void
 }
 
 const PROP_TYPES = ["AST", "PRA", "REB", "PTS", "STL", "BLK"]
-const DELTA_OPTIONS = [0, 0.5, 1.0, 1.5, 2.0]
+// We now group delta values by sign: positive, negative (and "both" when neither is selected)
 
 const RadarFilters = ({
   selectedSport,
   selectedPropTypes,
-  minDelta,
   onSportChange,
   onPropTypeToggle,
-  onMinDeltaChange,
+  selectedDeltaSign,
+  onDeltaSignChange,
 }: RadarFiltersProps) => {
   return (
     <View style={styles.container}>
@@ -53,20 +53,33 @@ const RadarFilters = ({
         </View>
       </View>
 
-      {/* Min Delta Filter */}
+      {/* Delta Sign Filter (grouped) */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Min Δ vs Median</Text>
+        <Text style={styles.sectionTitle}>Δ vs Median</Text>
         <View style={styles.deltaContainer}>
-          {DELTA_OPTIONS.map((delta) => (
-            <Button
-              key={delta}
-              title={delta === 0 ? "Any" : `+${delta}`}
-              onPress={() => onMinDeltaChange(delta)}
-              variant={minDelta === delta ? "primary" : "outline"}
-              size="sm"
-              style={styles.deltaButton}
-            />
-          ))}
+          <Button
+            title="-"
+            onPress={() => onDeltaSignChange(selectedDeltaSign === "negative" ? "both" : "negative")}
+            variant={selectedDeltaSign === "negative" ? "primary" : "outline"}
+            size="sm"
+            style={
+              selectedDeltaSign === "negative"
+                ? { ...styles.deltaButton, backgroundColor: colors.danger }
+                : styles.deltaButton
+            }
+            textStyle={selectedDeltaSign === "negative" ? { color: colors.surface } : undefined}
+          />
+
+          <Button
+            title="+"
+            onPress={() => onDeltaSignChange(selectedDeltaSign === "positive" ? "both" : "positive")}
+            variant={selectedDeltaSign === "positive" ? "primary" : "outline"}
+            size="sm"
+            style={styles.deltaButton}
+          />
+          
+
+          
         </View>
       </View>
     </View>
