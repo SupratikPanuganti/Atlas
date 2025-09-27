@@ -4,7 +4,7 @@ import React from "react"
 import { NavigationContainer } from "@react-navigation/native"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { createStackNavigator } from "@react-navigation/stack"
-import { Radar, Settings, Home, MessageCircle } from "lucide-react-native"
+import { Radar, Settings, Home, MessageCircle, Users } from "lucide-react-native"
 import type { MainTabParamList, RootStackParamList } from "../types/navigation"
 
 import { useAppStore } from "../store/useAppStore"
@@ -15,6 +15,7 @@ import WelcomeScreen from "../screens/WelcomeScreen"
 import HomeScreen from "../screens/HomeScreen"
 import LiveScreen from "../screens/LiveScreen"
 import RadarScreen from "../screens/RadarScreen"
+import H2HScreen from "../screens/H2HScreen"
 import TransparencyScreen from "../screens/TransparencyScreen"
 import ChatsScreen from "../screens/ChatsScreen"
 import SettingsScreen from "../screens/SettingsScreen"
@@ -36,6 +37,9 @@ function MainTabNavigator() {
               break
             case "Radar":
               IconComponent = Radar
+              break
+            case "H2H":
+              IconComponent = Users
               break
             case "Chats":
               IconComponent = MessageCircle
@@ -70,7 +74,12 @@ function MainTabNavigator() {
       <Tab.Screen 
         name="Radar" 
         component={RadarScreen}
-        options={{ title: "Stale Lines" }}
+        options={{ title: "Today's Line" }}
+      />
+      <Tab.Screen 
+        name="H2H" 
+        component={H2HScreen}
+        options={{ headerShown: false }}
       />
       <Tab.Screen 
         name="Chats" 

@@ -15,7 +15,7 @@ EdgeBeacon is a mobile-first analytics platform that empowers sports bettors wit
 ### Key Features
 
 - **🔥 Live Pricing Engine**: Real-time fair value calculations using advanced statistical models
-- **📡 Stale Line Detection**: Identify mispriced lines before the market corrects them  
+- **📡 Today's Line Detection**: Identify mispriced lines before the market corrects them  
 - **📊 Transparency First**: View calibration curves, Brier scores, and model performance metrics
 - **💰 Betting Dashboard**: Comprehensive bet tracking with profit/loss analytics
 - **🎮 Demo Mode**: Full-featured demo with realistic NBA player props
@@ -29,7 +29,7 @@ src/
 ├── screens/           # Main application screens
 │   ├── HomeScreen.tsx      # Betting dashboard with stats
 │   ├── LiveScreen.tsx      # Real-time pricing engine
-│   ├── RadarScreen.tsx     # Stale line detection
+│   ├── RadarScreen.tsx     # Today's line detection
 │   ├── TransparencyScreen.tsx # Model performance metrics
 │   ├── WatchScreen.tsx     # Watchlist management
 │   └── SettingsScreen.tsx  # User preferences
@@ -121,7 +121,7 @@ DATABASE_URL=your_supabase_connection_string
 - **Interactive Charts**: Visual representation of pricing trends
 - **Alert System**: Notifications for significant mispricing opportunities
 
-### 📡 Radar (Stale Line Detection)
+### 📡 Radar (Today's Line Detection)
 - **Market Scanning**: Continuous monitoring of betting lines
 - **Mispricing Alerts**: Real-time notifications for arbitrage opportunities
 - **Filtering & Sorting**: Customizable views by sport, player, or margin

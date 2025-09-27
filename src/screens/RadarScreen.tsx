@@ -120,14 +120,14 @@ export default function RadarScreen() {
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <Search size={48} color={colors.muted} />
-      <Text style={styles.emptyTitle}>No stale lines now</Text>
+      <Text style={styles.emptyTitle}>No lines detected today</Text>
       <Text style={styles.emptySubtitle}>We'll ping you if one lags behind the market</Text>
     </View>
   )
 
   const renderHeader = () => (
     <View style={styles.listHeader}>
-      <Text style={styles.title}>Stale Line Radar</Text>
+      <Text style={styles.title}>Today's Line Radar</Text>
       <View style={styles.headerRight}>
         <Text style={styles.subtitle}>
           {filteredItems.length} line{filteredItems.length !== 1 ? "s" : ""} detected

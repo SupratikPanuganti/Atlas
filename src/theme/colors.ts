@@ -18,6 +18,8 @@ export const colors = {
   warning: "#FFB800",
 
   // Semantic colors
+  success: "#7CFFB2",
+  destructive: "#FF647C",
   positive: "#7CFFB2",
   negative: "#FF647C",
   neutral: "#9AA3AF",

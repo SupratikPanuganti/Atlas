@@ -12,6 +12,7 @@ export type RootStackParamList = {
 export type MainTabParamList = {
   Home: undefined
   Radar: undefined
+  H2H: undefined
   Chats: { targetPropId?: string; ensureCreate?: boolean } | undefined
 }
 

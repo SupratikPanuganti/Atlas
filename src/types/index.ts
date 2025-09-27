@@ -139,3 +139,85 @@ export interface BettingDashboard {
   recentBets: Bet[]
   todayBets: Bet[]
 }
+
+// H2H (Head-to-Head) Types
+export interface H2HLine {
+  id: string
+  creatorId: string
+  sport: 'basketball' | 'football' | 'baseball' | 'soccer'
+  game: {
+    homeTeam: string
+    awayTeam: string
+    gameTime: string
+    gameId: string
+  }
+  player: string
+  propType: 'points' | 'assists' | 'rebounds' | 'passing_yards' | 'rushing_yards' | 'receptions' | 'goals' | 'saves'
+  customLine: number
+  side: 'over' | 'under'
+  stakeCredits: number
+  payoutMultiplier: number
+  marketLine?: number
+  fairValue?: number
+  geminiAnalysis?: {
+    fairValueExplanation: string
+    suggestedAdjustment?: string
+    matchLikelihood: number
+  }
+  status: 'open' | 'matched' | 'live' | 'settled' | 'cancelled'
+  createdAt: string
+  expiresAt: string
+  matchedWith?: string // opponent user ID
+  matchedAt?: string
+  gameStarted?: boolean
+  liveData?: {
+    currentValue: number
+    timeRemaining: string
+    gameStatus: string
+    lastUpdate: string
+  }
+  result?: {
+    finalValue: number
+    winner: 'creator' | 'opponent'
+    settledAt: string
+    geminiRecap?: string
+  }
+}
+
+export interface H2HMatch {
+  id: string
+  lineId: string
+  creatorId: string
+  opponentId: string
+  creatorSide: 'over' | 'under'
+  opponentSide: 'over' | 'under'
+  stakeCredits: number
+  status: 'matched' | 'live' | 'settled'
+  createdAt: string
+  settledAt?: string
+  winner?: 'creator' | 'opponent'
+}
+
+export interface H2HUser {
+  id: string
+  username: string
+  avatar?: string
+  credits: number
+  stats: {
+    totalMatches: number
+    wins: number
+    winRate: number
+    avgStake: number
+    totalCreditsWon: number
+    totalCreditsLost: number
+  }
+}
+
+export interface GeminiResponse {
+  fairValue: number
+  explanation: string
+  confidence: number
+  suggestedLine?: number
+  marketComparison?: string
+  riskAssessment?: string
+}
