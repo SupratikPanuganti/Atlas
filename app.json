@@ -4,6 +4,7 @@
     "slug": "edge-beacon",
     "version": "1.0.0",
     "orientation": "portrait",
+    "sdkVersion": "54.0.0",
     "icon": "./public/placeholder-logo.png",
     "userInterfaceStyle": "dark",
     "splash": {

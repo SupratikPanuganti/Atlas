@@ -67,9 +67,11 @@ export function BettingStatsCards({ stats }: BettingStatsCardsProps) {
     </Card>
   )
 
+  const totalWins = stats.totalBets > 0 ? Math.round(stats.totalBets * (stats.winRate / 100)) : 0;
+
   return (
     <View style={styles.container}>
-      {/* Main Stats Row */}
+      {/* Main Stats Row - Only 2 Cards */}
       <View style={styles.mainStatsRow}>
         <StatCard
           title="Total Profit"
@@ -81,35 +83,17 @@ export function BettingStatsCards({ stats }: BettingStatsCardsProps) {
         />
         
         <StatCard
-          title="Win Rate"
-          value={formatPercentage(stats.winRate)}
-          subtitle={`${stats.currentStreak.count} ${stats.currentStreak.type}s`}
-          icon={<Target size={20} color={colors.primary} />}
+          title="Total Wins"
+          value={totalWins.toString()}
+          subtitle={`${formatPercentage(stats.winRate)} win rate`}
+          icon={<Trophy size={20} color={colors.positive} />}
+          color={colors.positive}
           trend={stats.currentStreak.type === 'win' ? 
             <Trophy size={16} color={colors.positive} /> : 
             <TrendingDown size={16} color={colors.danger} />
           }
         />
       </View>
-
-      {/* Secondary Stats Row */}
-      <View style={styles.secondaryStatsRow}>
-        <StatCard
-          title="Total Staked"
-          value={formatCurrency(stats.totalStaked)}
-          subtitle={`Avg: $${stats.avgStake.toFixed(0)}`}
-          icon={<BarChart3 size={20} color={colors.primary} />}
-        />
-        
-        <StatCard
-          title="Best Win"
-          value={formatCurrency(stats.bestWin)}
-          subtitle={`Worst: ${formatCurrency(stats.worstLoss)}`}
-          icon={<Trophy size={20} color={colors.positive} />}
-          color={colors.positive}
-        />
-      </View>
-
     </View>
   )
 }
@@ -119,10 +103,6 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   mainStatsRow: {
-    flexDirection: "row",
-    gap: 12,
-  },
-  secondaryStatsRow: {
     flexDirection: "row",
     gap: 12,
   },

@@ -105,7 +105,11 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
       </ScrollView>
 
       {/* Bet List */}
-      <View style={styles.betsList}>
+      <ScrollView 
+        style={styles.betsList}
+        showsVerticalScrollIndicator={false}
+        nestedScrollEnabled={true}
+      >
         {filteredBets.map((bet) => (
           <BetItem
             key={bet.id}
@@ -114,7 +118,7 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
             onViewBet={onViewBet}
           />
         ))}
-      </View>
+      </ScrollView>
 
       {filteredBets.length === 0 && (
         <View style={styles.noResults}>
@@ -142,6 +146,7 @@ const styles = StyleSheet.create({
     fontSize: typography["2xl"],
     fontWeight: "600",
     flex: 1,
+    color: colors.text,
   },
   count: {
     fontSize: typography.xs,
@@ -154,6 +159,7 @@ const styles = StyleSheet.create({
   },
   filtersContainer: {
     maxHeight: 50,
+    marginTop: 16,
   },
   filtersContent: {
     paddingHorizontal: 16,
@@ -177,7 +183,8 @@ const styles = StyleSheet.create({
     color: colors.muted,
   },
   betsList: {
-    maxHeight: 400,
+    maxHeight: 500,
+    marginTop: 16,
   },
   noResults: {
     alignItems: "center",

@@ -11,7 +11,7 @@ import {
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { 
-  Settings,
+  User,
   Play,
   History
 } from "lucide-react-native"
@@ -78,7 +78,7 @@ export default function HomeScreen() {
             </Text>
           </View>
           <TouchableOpacity onPress={() => navigation.navigate("Settings")} style={styles.settingsButton}>
-            <Settings size={24} color={colors.text} />
+            <User size={24} color={colors.text} />
           </TouchableOpacity>
         </View>
 
