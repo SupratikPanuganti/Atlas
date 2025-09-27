@@ -397,6 +397,7 @@ export default function ChatsScreen() {
           renderItem={renderConversationItem}
           keyExtractor={(item) => item.id}
           style={styles.conversationsList}
+          contentContainerStyle={styles.conversationsContent}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
             <View style={styles.emptyState}>
@@ -597,6 +598,10 @@ const styles = StyleSheet.create({
   },
   conversationsList: {
     flex: 1,
+  },
+  conversationsContent: {
+    paddingTop: 8,
+    paddingBottom: 20,
   },
   conversationItem: {
     backgroundColor: colors.card,
