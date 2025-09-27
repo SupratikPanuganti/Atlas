@@ -115,6 +115,11 @@ export default function H2HScreen() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }}>
+      {/* Page Header */}
+      <View style={styles.pageHeader}>
+        <Text style={styles.pageTitle}>H2H</Text>
+      </View>
+      
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerTop}>
@@ -627,6 +632,19 @@ function getStatusIcon(status: H2HLine['status']) {
 
 
 const styles = StyleSheet.create({
+  pageHeader: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    alignItems: 'center',
+  },
+  pageTitle: {
+    fontSize: typography.lg,
+    fontWeight: typography.bold,
+    color: colors.text,
+  },
   header: {
     padding: 16,
     marginBottom: 8,
@@ -650,7 +668,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   creditsText: {
-    fontSize: typography["2xl"],
+    fontSize: typography.lg,
     fontWeight: typography.bold,
     color: colors.primary,
   },
