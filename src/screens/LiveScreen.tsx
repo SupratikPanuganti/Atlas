@@ -12,7 +12,15 @@ import { AlertBanner } from "../components/AlertBanner"
 import { ExplainDrawer } from "../components/ExplainDrawer"
 import { MomentFeed } from "../components/MomentFeed"
 import { AIReport } from "../components/AIReport"
-import { PercentageChart } from "../components/PercentageChart"
+import { ShadcnLineChart } from "../components/ShadcnLineChart"
+
+interface ChartPoint {
+  time: string
+  percentage: number
+  insight?: string
+  type: 'peak' | 'trough' | 'normal'
+  gameEvent?: string
+}
 import { useAppStore } from "../store/useAppStore"
 import { demoService } from "../services/demoData"
 import { colors } from "../theme/colors"
@@ -25,7 +33,7 @@ export default function LiveScreen() {
   const navigation = useNavigation()
   const route = useRoute<LiveScreenRouteProp>()
   const [showExplain, setShowExplain] = useState(false)
-  const [selectedChartPoint, setSelectedChartPoint] = useState(null)
+  const [selectedChartPoint, setSelectedChartPoint] = useState<ChartPoint | null>(null)
   
   // Get route parameters if available
   const lineId = route.params?.lineId
@@ -123,20 +131,20 @@ export default function LiveScreen() {
   const generateAIReport = (propType: string) => {
     const reports = {
       'PRA': {
-        reasoning: "Our model calculates 55.8% fair value for PRA based on live game dynamics. Key factors: current pace of 103.2 possessions (+4% vs season avg), player usage rate at 28.3% (+4.2% vs baseline), and opponent's defensive pressure rating of 7.2/10 affecting all three categories.",
-        confidence: "High confidence (0.78) based on 210 similar PRA situations. Model accounts for pace acceleration, hot hand effect (67% FG in Q3), and defensive matchup adjustments across points, rebounds, and assists."
+        liveReasoning: "Current pace at 103.2 possessions (+4% vs season avg), player usage rate 28.3% (+4.2% vs baseline), hot hand effect with 67% FG in Q3.",
+        historicalReasoning: "Player hits PRA over 42.5 in 68% of similar matchups. Opponent allows +12% PRA vs season average. Last 5 games: 4/5 overs."
       },
       'AST': {
-        reasoning: "Our model calculates 55.8% fair value for assists based on live game dynamics. Key factors: current pace of 103.2 possessions (+4% vs season avg), teammate shooting efficiency at 58.3% (+12% vs season avg), and opponent's perimeter defense creating both challenges and opportunities.",
-        confidence: "High confidence (0.78) based on 210 similar assist situations. Model accounts for pace acceleration, teammate efficiency, and defensive pressure on passing lanes."
+        liveReasoning: "Teammate shooting efficiency at 58.3% (+12% vs season avg), current pace 103.2 possessions, defensive pressure on passing lanes moderate.",
+        historicalReasoning: "Player averages 8.2 assists vs this opponent. Team assists +15% in last 3 games. Opponent allows 7th most assists in league."
       },
       'PTS': {
-        reasoning: "Our model calculates 55.8% fair value for points based on live game dynamics. Key factors: current pace of 103.2 possessions (+4% vs season avg), player usage rate at 28.3% (+4.2% vs baseline), and hot hand effect with 67% FG over last 8 minutes.",
-        confidence: "High confidence (0.78) based on 210 similar scoring situations. Model accounts for pace acceleration, usage rate, hot hand effect, and defensive matchup adjustments."
+        liveReasoning: "Hot hand effect with 67% FG over last 8 minutes, usage rate 28.3% (+4.2% vs baseline), current pace 103.2 possessions.",
+        historicalReasoning: "Player scores 25+ in 72% of home games. Opponent allows 4th most points to guards. Last 5 meetings: 4/5 overs."
       },
       'REB': {
-        reasoning: "Our model calculates 55.8% fair value for rebounds based on live game dynamics. Key factors: current pace of 103.2 possessions (+4% vs season avg), team shooting efficiency affecting missed shots, and opponent's rebounding tendencies creating opportunities.",
-        confidence: "High confidence (0.78) based on 210 similar rebounding situations. Model accounts for pace acceleration, shooting efficiency, and defensive rebounding pressure."
+        liveReasoning: "Team shooting efficiency creating missed shot opportunities, current pace 103.2 possessions, opponent rebounding pressure moderate.",
+        historicalReasoning: "Player averages 11.8 rebounds vs this opponent. Team rebounds +8% in last 3 games. Opponent allows 6th most rebounds."
       }
     }
     
@@ -148,19 +156,19 @@ export default function LiveScreen() {
   const aiReport = generateAIReport(propType)
 
   // Generate realistic chart data based on prop type and player
-  const generateChartData = (propType: string, playerName: string) => {
-    const baseData = {
+  const generateChartData = (propType: string, playerName: string): ChartPoint[] => {
+    const baseData: { [key: string]: ChartPoint[] } = {
       'PRA': [
-        { time: "Q1 12:00", percentage: 68, type: 'peak', insight: "Opening line based on season averages", gameEvent: "Game starts" },
-        { time: "Q1 8:30", percentage: 72, type: 'peak', insight: "Hot start with early points and assists", gameEvent: "Made 3-pointer + assist" },
-        { time: "Q1 4:15", percentage: 65, type: 'normal', insight: "Slight dip as pace slows", gameEvent: "2 min dry spell" },
-        { time: "Q2 10:00", percentage: 58, type: 'trough', insight: "Bench rotation affects rhythm", gameEvent: "Subbed out" },
-        { time: "Q2 6:45", percentage: 52, type: 'trough', insight: "Cold shooting stretch", gameEvent: "0-3 from field" },
-        { time: "Q2 2:30", percentage: 61, type: 'normal', insight: "Back in rhythm", gameEvent: "Made layup + rebound" },
-        { time: "Q3 8:20", percentage: 55, type: 'normal', insight: "Steady production", gameEvent: "Assist + rebound" },
-        { time: "Q3 4:10", percentage: 48, type: 'trough', insight: "Foul trouble limiting aggression", gameEvent: "3rd foul" },
-        { time: "Q4 9:15", percentage: 62, type: 'normal', insight: "Crunch time intensity", gameEvent: "Made 3-pointer" },
-        { time: "Q4 5:30", percentage: 58, type: 'normal', insight: "Current fair value", gameEvent: "Recent assist" }
+        { time: "Q1 12:00", percentage: 68, type: 'peak', insight: "Opening line at 68% based on Jokić's season average of 45.2 PRA", gameEvent: "Game starts" },
+        { time: "Q1 8:30", percentage: 72, type: 'peak', insight: "Odds spike to 72% after Jokić gets 6 PRA in first 3 minutes", gameEvent: "6 PRA in 3 min" },
+        { time: "Q1 4:15", percentage: 65, type: 'normal', insight: "Odds drop to 65% as Jokić sits with 8 PRA through Q1", gameEvent: "Subbed out - 8 PRA" },
+        { time: "Q2 10:00", percentage: 58, type: 'trough', insight: "Odds fall to 58% - Jokić needs 34.5 more PRA in 3 quarters", gameEvent: "Bench rotation" },
+        { time: "Q2 6:45", percentage: 52, type: 'trough', insight: "Odds drop to 52% - Jokić cold with only 2 PRA in 4 minutes", gameEvent: "0-3 from field" },
+        { time: "Q2 2:30", percentage: 61, type: 'normal', insight: "Odds rise to 61% - Jokić heating up with 4 PRA in 2 minutes", gameEvent: "Layup + rebound" },
+        { time: "Q3 8:20", percentage: 55, type: 'normal', insight: "Odds at 55% - Jokić needs 28 PRA to hit over 42.5", gameEvent: "Assist + rebound" },
+        { time: "Q3 4:10", percentage: 48, type: 'trough', insight: "Odds drop to 48% - Jokić in foul trouble, limited minutes", gameEvent: "3rd foul" },
+        { time: "Q4 9:15", percentage: 62, type: 'normal', insight: "Odds rise to 62% - Jokić needs 24 PRA in final 9 minutes", gameEvent: "Made 3-pointer" },
+        { time: "Q4 5:30", percentage: 58, type: 'normal', insight: "Current odds 58% - Jokić at 38 PRA, needs 4.5 more", gameEvent: "Recent assist" }
       ],
       'AST': [
         { time: "Q1 12:00", percentage: 65, type: 'peak', insight: "Opening line for assists", gameEvent: "Game starts" },
@@ -245,10 +253,12 @@ export default function LiveScreen() {
         />
 
         {/* Percentage Chart */}
-        <PercentageChart 
+        <ShadcnLineChart 
           data={chartData}
           onPointPress={setSelectedChartPoint}
           selectedPoint={selectedChartPoint}
+          title="Percentage Odds vs Time"
+          description="Click points for insights"
         />
 
         {/* Transparency Tab at Bottom */}

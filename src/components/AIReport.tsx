@@ -7,8 +7,8 @@ import { typography } from "../theme/typography"
 interface AIReportProps {
   propName: string
   report: {
-    reasoning: string
-    confidence: string
+    liveReasoning: string
+    historicalReasoning: string
   }
 }
 
@@ -22,13 +22,13 @@ export function AIReport({ propName, report }: AIReportProps) {
       
       <View style={styles.content}>
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Our Reasoning</Text>
-          <Text style={styles.sectionText}>{report.reasoning}</Text>
+          <Text style={styles.sectionTitle}>Live Reasoning</Text>
+          <Text style={styles.sectionText}>{report.liveReasoning}</Text>
         </View>
         
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Model Confidence</Text>
-          <Text style={styles.sectionText}>{report.confidence}</Text>
+          <Text style={styles.sectionTitle}>Historical Reasoning</Text>
+          <Text style={styles.sectionText}>{report.historicalReasoning}</Text>
         </View>
       </View>
     </Card>
