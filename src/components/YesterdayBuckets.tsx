@@ -188,7 +188,7 @@ const styles = StyleSheet.create({
     fontVariant: ["tabular-nums"],
   },
   list: {
-    maxHeight: 300,
+    // Removed maxHeight to show all deciles
   },
   footer: {
     marginTop: 12,

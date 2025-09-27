@@ -1,8 +1,6 @@
 import { ScrollView, StyleSheet, TouchableOpacity, Text } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { useRoute, useNavigation } from "@react-navigation/native"
-import type { RouteProp } from "@react-navigation/native"
-import type { RootStackParamList } from "../types/navigation"
+import { useNavigation } from "@react-navigation/native"
 import { ArrowLeft } from "lucide-react-native"
 import { CalibrationChart } from "../components/CalibrationChart"
 import { MetricsBlock } from "../components/MetricsBlock"
@@ -10,13 +8,12 @@ import { YesterdayBuckets } from "../components/YesterdayBuckets"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 
-type TransparencyScreenRouteProp = RouteProp<RootStackParamList, 'Transparency'>
-
 export default function TransparencyScreen() {
-  const route = useRoute<TransparencyScreenRouteProp>()
   const navigation = useNavigation()
-  const lineId = route.params?.lineId
-  const lineData = route.params?.lineData
+  
+  const handleBackToLivePricing = () => {
+    navigation.goBack()
+  }
   
   // Demo calibration data
   const demoBins = [
@@ -42,17 +39,14 @@ export default function TransparencyScreen() {
     { decile: 10, predicted_ev: 0.105, realized_ev: 0.108, count: 21 },
   ]
 
-  const handleBackToCurrent = () => {
-    navigation.goBack()
-  }
-
   return (
     <SafeAreaView style={styles.container} edges={[]}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        {/* Header */}
-        <TouchableOpacity style={styles.backButton} onPress={handleBackToCurrent}>
+        
+        {/* Back Button */}
+        <TouchableOpacity style={styles.backButton} onPress={handleBackToLivePricing}>
           <ArrowLeft size={20} color={colors.primary} />
-          <Text style={styles.backText}>Back to current prop</Text>
+          <Text style={styles.backText}>Back to Live Pricing</Text>
         </TouchableOpacity>
 
         {/* Metrics Overview */}
@@ -78,6 +72,8 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 16,
+    paddingTop: 40,
+    paddingBottom: 120,
   },
   backButton: {
     flexDirection: "row",
