@@ -55,7 +55,7 @@ export function BettingStatsCards({ stats }: BettingStatsCardsProps) {
     trend?: React.ReactNode
     delay?: number
   }) => (
-    <FadeInView delay={delay} duration={800}>
+    <FadeInView delay={delay} duration={800} style={styles.statCardWrapper}>
       <PressableCard style={styles.statCard}>
         <View style={styles.statHeader}>
           {icon}
@@ -79,7 +79,7 @@ export function BettingStatsCards({ stats }: BettingStatsCardsProps) {
       {/* Main Stats Row - Only 2 Cards */}
       <View style={styles.mainStatsRow}>
         <StatCard
-          title="Total Profit"
+          title="Total Earnings"
           value={formatCurrency(stats.totalProfit)}
           subtitle={`${stats.totalBets} bets`}
           icon={<DollarSign size={20} color={colors.primary} />}
@@ -87,7 +87,6 @@ export function BettingStatsCards({ stats }: BettingStatsCardsProps) {
           trend={getTrendIcon(stats.totalProfit)}
           delay={0}
         />
-        
         <StatCard
           title="Total Wins"
           value={totalWins.toString()}
@@ -113,10 +112,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     gap: 12,
   },
+  statCardWrapper: {
+    flex: 1,
+  },
   statCard: {
     flex: 1,
     padding: 16,
-    minHeight: 100,
+    minHeight: 120,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    justifyContent: 'space-between',
   },
   statHeader: {
     flexDirection: "row",

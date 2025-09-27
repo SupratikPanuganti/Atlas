@@ -106,20 +106,24 @@ export default function HomeScreen() {
               style={[styles.tab, activeTab === 'active' && styles.activeTab]}
               onPress={() => setActiveTab('active')}
             >
-              <Play size={20} color={activeTab === 'active' ? colors.primary : colors.muted} />
-              <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]}>
-                Active Bets
-              </Text>
+              <View style={styles.tabInner}>
+                <Play size={18} color={activeTab === 'active' ? colors.primary : colors.muted} />
+                <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]} numberOfLines={1}>
+                  Active Bets
+                </Text>
+              </View>
             </PressableCard>
             
             <PressableCard
               style={[styles.tab, activeTab === 'history' && styles.activeTab]}
               onPress={() => setActiveTab('history')}
             >
-              <History size={20} color={activeTab === 'history' ? colors.primary : colors.muted} />
-              <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]}>
-                Bet History
-              </Text>
+              <View style={styles.tabInner}>
+                <History size={18} color={activeTab === 'history' ? colors.primary : colors.muted} />
+                <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]} numberOfLines={1}>
+                  Bet History
+                </Text>
+              </View>
             </PressableCard>
           </View>
         </SlideInView>
@@ -185,16 +189,24 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     borderRadius: 12,
     padding: 4,
+    gap: 6,
+    overflow: "hidden",
   },
   tab: {
     flex: 1,
+    borderRadius: 8,
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  tabInner: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 6,
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    gap: 8,
+    paddingHorizontal: 12,
   },
   activeTab: {
     backgroundColor: colors.primary + "20",
@@ -203,6 +215,8 @@ const styles = StyleSheet.create({
     fontSize: typography.sm,
     fontWeight: typography.medium,
     color: colors.muted,
+    textAlign: "center",
+    flexShrink: 0,
   },
   activeTabText: {
     color: colors.primary,
@@ -210,7 +224,7 @@ const styles = StyleSheet.create({
   },
   tabContent: {
     paddingHorizontal: 16,
-    marginBottom: 24,
+    marginBottom: 20,
   },
   bottomSpacing: {
     height: 100,

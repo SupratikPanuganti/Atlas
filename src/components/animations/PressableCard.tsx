@@ -35,6 +35,7 @@ export const PressableCard: React.FC<PressableCardProps> = ({
   return (
     <Animated.View style={[style, { transform: [{ scale: scaleAnim }] }]}>
       <TouchableOpacity
+        style={{ flex: 1 }}
         onPress={onPress}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
