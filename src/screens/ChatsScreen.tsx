@@ -452,11 +452,21 @@ export default function ChatsScreen() {
       <Modal
         visible={!!selectedConversation}
         animationType="slide"
-        presentationStyle="pageSheet"
+        transparent={true}
       >
         {selectedConversation && (
-          <SafeAreaView style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
+          <TouchableOpacity 
+            style={styles.modalBackdrop}
+            activeOpacity={1}
+            onPress={() => setSelectedConversation(null)}
+          >
+            <TouchableOpacity 
+              style={styles.modalContainer}
+              activeOpacity={1}
+              onPress={(e) => e.stopPropagation()}
+            >
+              <SafeAreaView style={{flex: 1}}>
+                <View style={styles.modalHeader}>
               <View>
                 <Text style={styles.modalTitle}>{selectedConversation.player}</Text>
                 <Text style={styles.modalSubtitle}>
@@ -508,7 +518,9 @@ export default function ChatsScreen() {
                 <Send size={16} color={newMessage.trim() ? colors.background : colors.muted} />
               </TouchableOpacity>
             </View>
-          </SafeAreaView>
+              </SafeAreaView>
+            </TouchableOpacity>
+          </TouchableOpacity>
         )}
       </Modal>
     </SafeAreaView>
@@ -682,9 +694,25 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     lineHeight: 20,
   },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
   modalContainer: {
     flex: 1,
     backgroundColor: colors.surface,
+    marginTop: 50, // Leave space for status bar
+    marginBottom: 83, // Leave space for bottom tab navigation (standard height ~83px)
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: -2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
   },
   modalHeader: {
     flexDirection: 'row',
