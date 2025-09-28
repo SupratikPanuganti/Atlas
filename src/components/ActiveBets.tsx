@@ -4,7 +4,6 @@ import {
   Clock, 
   Play
 } from "lucide-react-native"
-import { Card } from "./ui/Card"
 import { BetItem } from "./BetItem"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
@@ -21,7 +20,7 @@ export function ActiveBets({ bets, onViewBet }: ActiveBetsProps) {
   
   if (activeBets.length === 0) {
     return (
-      <Card style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.header}>
           <Play size={20} color={colors.primary} />
           <Text style={styles.title}>Active Bets</Text>
@@ -32,13 +31,12 @@ export function ActiveBets({ bets, onViewBet }: ActiveBetsProps) {
           <Text style={styles.emptyText}>No active bets</Text>
           <Text style={styles.emptySubtext}>Place your first bet to get started</Text>
         </View>
-      </Card>
+      </View>
     )
   }
 
-
   return (
-    <Card style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <Play size={20} color={colors.primary} />
         <Text style={styles.title}>Active Bets</Text>
@@ -50,27 +48,26 @@ export function ActiveBets({ bets, onViewBet }: ActiveBetsProps) {
           <FadeInView key={bet.id} delay={index * 100} duration={600}>
             <BetItem
               bet={bet}
-              showCurrentValue={true}
               onViewBet={onViewBet}
             />
           </FadeInView>
         ))}
       </View>
-    </Card>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 0,
+    marginBottom: 24,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 8,
   },
   title: {
     fontSize: typography["2xl"],
@@ -91,6 +88,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 32,
     gap: 8,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    marginHorizontal: 16,
   },
   emptyText: {
     fontSize: typography.base,
@@ -102,6 +102,6 @@ const styles = StyleSheet.create({
     color: colors.muted,
   },
   betsList: {
-    gap: 0,
+    gap: 8,
   },
 })

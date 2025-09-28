@@ -4,7 +4,7 @@ import React from "react"
 import { NavigationContainer } from "@react-navigation/native"
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs"
 import { createStackNavigator } from "@react-navigation/stack"
-import { Radar, Settings, Home, Eye } from "lucide-react-native"
+import { Radar, Settings, Home, MessageCircle, Users } from "lucide-react-native"
 import type { MainTabParamList, RootStackParamList } from "../types/navigation"
 
 import { useAppStore } from "../store/useAppStore"
@@ -15,8 +15,9 @@ import WelcomeScreen from "../screens/WelcomeScreen"
 import HomeScreen from "../screens/HomeScreen"
 import LiveScreen from "../screens/LiveScreen"
 import RadarScreen from "../screens/RadarScreen"
+import H2HScreen from "../screens/H2HScreen"
 import TransparencyScreen from "../screens/TransparencyScreen"
-import WatchScreen from "../screens/WatchScreen"
+import ChatsScreen from "../screens/ChatsScreen"
 import SettingsScreen from "../screens/SettingsScreen"
 
 const Tab = createBottomTabNavigator<MainTabParamList>()
@@ -37,8 +38,11 @@ function MainTabNavigator() {
             case "Radar":
               IconComponent = Radar
               break
-            case "Watch":
-              IconComponent = Eye
+            case "H2H":
+              IconComponent = Users
+              break
+            case "Chats":
+              IconComponent = MessageCircle
               break
             default:
               IconComponent = Home
@@ -70,12 +74,17 @@ function MainTabNavigator() {
       <Tab.Screen 
         name="Radar" 
         component={RadarScreen}
-        options={{ title: "Stale Lines" }}
+        options={{ title: "Today's Line" }}
       />
       <Tab.Screen 
-        name="Watch" 
-        component={WatchScreen}
-        options={{ title: "Watch" }}
+        name="H2H" 
+        component={H2HScreen}
+        options={{ headerShown: false }}
+      />
+      <Tab.Screen 
+        name="Chats" 
+        component={ChatsScreen}
+        options={{ title: "Chats" }}
       />
     </Tab.Navigator>
   )
@@ -121,8 +130,8 @@ function RootStackNavigator() {
           />
           <Stack.Screen 
             name="WatchMode" 
-            component={WatchScreen}
-            options={{ title: "Watch Mode" }}
+            component={ChatsScreen}
+            options={{ title: "Chat Mode" }}
           />
           <Stack.Screen 
             name="Settings" 

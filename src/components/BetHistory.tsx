@@ -1,10 +1,9 @@
 import React, { useState } from "react"
-import { View, Text, StyleSheet, ScrollView } from "react-native"
+import { View, Text, StyleSheet } from "react-native"
 import { 
   History, 
   Filter
 } from "lucide-react-native"
-import { Card } from "./ui/Card"
 import { Chip } from "./ui/Chip"
 import { BetItem } from "./BetItem"
 import { colors } from "../theme/colors"
@@ -17,7 +16,7 @@ interface BetHistoryProps {
   onViewBet?: (bet: Bet) => void
 }
 
-type FilterType = 'all' | 'won' | 'lost' | 'thisWeek' | 'thisMonth'
+type FilterType = 'all' | 'won' | 'lost' | 'thisWeek'
 
 export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all')
@@ -28,7 +27,6 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
     const betDate = new Date(bet.placedAt)
     const now = new Date()
     const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay())
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     
     switch (activeFilter) {
       case 'won':
@@ -37,8 +35,6 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
         return bet.status === 'lost'
       case 'thisWeek':
         return betDate >= startOfWeek
-      case 'thisMonth':
-        return betDate >= startOfMonth
       default:
         return true
     }
@@ -55,17 +51,11 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
       const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - now.getDay())
       return betDate >= startOfWeek
     }).length },
-    { key: 'thisMonth', label: 'This Month', count: settledBets.filter(b => {
-      const betDate = new Date(b.placedAt)
-      const now = new Date()
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-      return betDate >= startOfMonth
-    }).length },
   ]
 
   if (settledBets.length === 0) {
     return (
-      <Card style={styles.container}>
+      <View style={styles.container}>
         <View style={styles.header}>
           <History size={20} color={colors.primary} />
           <Text style={styles.title}>Bet History</Text>
@@ -76,12 +66,12 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
           <Text style={styles.emptyText}>No bet history</Text>
           <Text style={styles.emptySubtext}>Your settled bets will appear here</Text>
         </View>
-      </Card>
+      </View>
     )
   }
 
   return (
-    <Card style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.header}>
         <History size={20} color={colors.primary} />
         <Text style={styles.title}>Bet History</Text>
@@ -89,29 +79,26 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
       </View>
       
       {/* Filters */}
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        style={styles.filtersContainer}
-        contentContainerStyle={styles.filtersContent}
-      >
-        {filters.map((filter, index) => (
-          <FadeInView key={filter.key} delay={index * 50} duration={400}>
-            <Chip
-              label={`${filter.label} (${filter.count})`}
-              onPress={() => setActiveFilter(filter.key)}
-              style={styles.filterChip}
-            />
-          </FadeInView>
-        ))}
-      </ScrollView>
+      <View style={styles.filtersContainer}>
+        {filters.map((filter, index) => {
+          const isActive = activeFilter === filter.key
+          return (
+            <FadeInView key={filter.key} delay={index * 50} duration={400}>
+              <Chip
+                label={`${filter.label} (${filter.count})`}
+                onPress={() => setActiveFilter(filter.key)}
+                style={[
+                  styles.filterChip,
+                  isActive ? styles.activeFilterChip : null
+                ]}
+              />
+            </FadeInView>
+          )
+        })}
+      </View>
 
       {/* Bet List */}
-      <ScrollView 
-        style={styles.betsList}
-        showsVerticalScrollIndicator={false}
-        nestedScrollEnabled={true}
-      >
+      <View style={styles.betsList}>
         {filteredBets.map((bet, index) => (
           <FadeInView key={bet.id} delay={index * 100} duration={500}>
             <BetItem
@@ -121,7 +108,7 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
             />
           </FadeInView>
         ))}
-      </ScrollView>
+      </View>
 
       {filteredBets.length === 0 && (
         <View style={styles.noResults}>
@@ -129,21 +116,21 @@ export function BetHistory({ bets, onViewBet }: BetHistoryProps) {
           <Text style={styles.noResultsText}>No bets match this filter</Text>
         </View>
       )}
-    </Card>
+    </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    padding: 0,
+    marginBottom: 24,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginBottom: 8,
   },
   title: {
     fontSize: typography["2xl"],
@@ -161,20 +148,28 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
   filtersContainer: {
-    maxHeight: 50,
-    marginTop: 16,
-  },
-  filtersContent: {
-    paddingHorizontal: 16,
+    flexDirection: "row",
+    flexWrap: "wrap",
     gap: 8,
+    paddingHorizontal: 16,
+    marginBottom: 16,
   },
   filterChip: {
     marginRight: 8,
+    marginBottom: 8,
+  },
+  activeFilterChip: {
+    backgroundColor: colors.primary + '20',
+    borderColor: colors.primary,
+    borderWidth: 1,
   },
   emptyState: {
     alignItems: "center",
     padding: 32,
     gap: 8,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    marginHorizontal: 16,
   },
   emptyText: {
     fontSize: typography.base,
@@ -186,13 +181,15 @@ const styles = StyleSheet.create({
     color: colors.muted,
   },
   betsList: {
-    maxHeight: 500,
-    marginTop: 16,
+    gap: 8,
   },
   noResults: {
     alignItems: "center",
     padding: 32,
     gap: 8,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    marginHorizontal: 16,
   },
   noResultsText: {
     fontSize: typography.base,

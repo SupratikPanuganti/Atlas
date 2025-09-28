@@ -44,6 +44,8 @@ export default function LiveScreen() {
   // Get route parameters if available
   const lineId = route.params?.lineId
   const lineData = route.params?.lineData
+  const stake = route.params?.stake
+  const potential = route.params?.potential
 
   // Demo data
   const demoPricing = {
@@ -94,7 +96,6 @@ export default function LiveScreen() {
 
   // Format prop name for display
   const formatPropName = (propId: string) => {
-    // Extract prop type, line, and player from propId like "AST_over_7.5_player123"
     const parts = propId.split('_')
     if (parts.length >= 4) {
       const propType = parts[0] // AST, PTS, REB, etc.
@@ -119,12 +120,12 @@ export default function LiveScreen() {
       
       // Format the prop type for display
       const propTypeMap: { [key: string]: string } = {
-        'PASS_YDS': 'Pass Yards',
-        'RUSH_YDS': 'Rush Yards',
+        'PASS YDS': 'Pass Yards',
+        'RUSH YDS': 'Rush Yards',
         'REC': 'Receptions',
-        'PASS_TD': 'Pass TDs',
-        'RUSH_TD': 'Rush TDs',
-        'REC_YDS': 'Rec Yards'
+        'PASS TD': 'Pass TDs',
+        'RUSH TD': 'Rush TDs',
+        'REC YDS': 'Rec Yards'
       }
       
       const displayPropType = propTypeMap[propType] || propType
@@ -256,6 +257,27 @@ export default function LiveScreen() {
           </View>
         </SlideInView>
 
+        {/* Stake/Potential summary */}
+        {(stake !== undefined || potential !== undefined) && (
+          <FadeInView delay={200} duration={600}>
+            <View style={{
+              backgroundColor: colors.card,
+              borderRadius: 12,
+              padding: 12,
+              marginBottom: 12,
+              borderWidth: 1,
+              borderColor: colors.muted + '30'
+            }}>
+              <Text style={{ color: colors.text, fontSize: typography.base, fontWeight: typography.semibold }}>
+                Stake: {stake !== undefined ? `$${stake.toFixed(2)}` : '-'}
+              </Text>
+              <Text style={{ color: colors.textSecondary, fontSize: typography.sm, marginTop: 4 }}>
+                Potential: {potential !== undefined ? `$${potential.toFixed(2)}` : '-'}
+              </Text>
+            </View>
+          </FadeInView>
+        )}
+
         {/* AI Report */}
         <FadeInView delay={300} duration={800}>
           <AIReport 
@@ -271,6 +293,7 @@ export default function LiveScreen() {
           selectedPoint={selectedChartPoint}
           title="Expected Value vs Time"
           description="Green = Good bet, Red = Avoid, Yellow = Neutral"
+          touchSize={100}
         />
         
         {/* Transparency Tab at Bottom */}
@@ -280,6 +303,18 @@ export default function LiveScreen() {
         >
           <BarChart3 size={20} color={colors.primary} />
           <Text style={styles.transparencyTabText}>View Transparency</Text>
+        </TouchableOpacity>
+
+        {/* View Conversation */}
+        <TouchableOpacity 
+          style={[styles.transparencyTab, styles.conversationButton]}
+          onPress={() => navigation.navigate("Main", {
+            screen: 'Chats',
+            params: { targetPropId: lineData?.propId || lineId, ensureCreate: true }
+          })}
+        >
+          <BarChart3 size={20} color={colors.primary} />
+          <Text style={styles.transparencyTabText}>View Conversation</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -306,6 +341,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 16,
     paddingTop: 16,
+    paddingBottom: 16,
   },
   propNameContainer: {
     marginBottom: 16,
@@ -325,7 +361,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     paddingVertical: 16,
     paddingHorizontal: 20,
-    marginVertical: 16,
+  marginVertical: 16,
+  marginBottom: 20,
     borderWidth: 1,
     borderColor: colors.primary + "20",
   },
@@ -335,4 +372,8 @@ const styles = StyleSheet.create({
     color: colors.primary,
     marginLeft: 8,
   },
+  conversationButton: {
+    marginBottom: 96, 
+    paddingBottom: 12,
+  }
 })

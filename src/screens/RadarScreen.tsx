@@ -20,6 +20,7 @@ export default function RadarScreen() {
   const [selectedPropTypes, setSelectedPropTypes] = useState<string[]>(["PASS_YDS", "RUSH_YDS", "REC"])
   const [selectedDeltaSign, setSelectedDeltaSign] = useState<"both" | "positive" | "negative">("both")
   const [minDelta, setMinDelta] = useState(0.5)
+  const [linesTab, setLinesTab] = useState<"today" | "suggestions">("today")
 
   // Demo data - Georgia vs Alabama NCAA Football props
 
@@ -63,7 +64,8 @@ export default function RadarScreen() {
   ]
 
   const filteredItems = useMemo(() => {
-    const items = radarItems.length > 0 ? radarItems : demoRadarItems
+    const base = radarItems.length > 0 ? radarItems : demoRadarItems
+    const items = linesTab === "today" ? base : base.filter(i => i.deltaVsMedian >= 1.0)
 
       const filtered = items.filter((item) => {
       // Filter by prop type
@@ -87,7 +89,7 @@ export default function RadarScreen() {
     }
 
     return filtered.sort((a, b) => b.deltaVsMedian - a.deltaVsMedian)
-  }, [radarItems, demoRadarItems, selectedPropTypes, selectedDeltaSign])
+  }, [radarItems, demoRadarItems, selectedPropTypes, selectedDeltaSign, linesTab])
 
   const handleRefresh = async () => {
     setRefreshing(true)
@@ -118,17 +120,22 @@ export default function RadarScreen() {
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <Search size={48} color={colors.muted} />
-      <Text style={styles.emptyTitle}>No stale lines now</Text>
+      <Text style={styles.emptyTitle}>No lines detected today</Text>
       <Text style={styles.emptySubtitle}>We'll ping you if one lags behind the market</Text>
     </View>
   )
 
   const renderHeader = () => (
     <View style={styles.listHeader}>
-      <Text style={styles.title}>Stale Line Radar</Text>
-      <Text style={styles.subtitle}>
-        {filteredItems.length} line{filteredItems.length !== 1 ? "s" : ""} detected
-      </Text>
+      <Text style={styles.title}>Today's Line Radar</Text>
+      <View style={styles.headerRight}>
+        <Text style={styles.subtitle}>
+          {filteredItems.length} line{filteredItems.length !== 1 ? "s" : ""} detected
+        </Text>
+        <TouchableOpacity style={styles.sportDropdown} activeOpacity={0.8}>
+          <Text style={styles.sportDropdownText}>{selectedSport === 'NCAAF' ? 'NCAA' : 'NFL'}</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   )
 
@@ -142,13 +149,25 @@ export default function RadarScreen() {
           <>
             {renderHeader()}
             <RadarFilters
-              selectedSport={selectedSport}
               selectedPropTypes={selectedPropTypes}
               selectedDeltaSign={selectedDeltaSign}
-              onSportChange={setSelectedSport}
               onPropTypeToggle={handlePropTypeToggle}
               onDeltaSignChange={setSelectedDeltaSign}
             />
+            <View style={styles.selectorContainer}>
+              <TouchableOpacity
+                style={[styles.selectorTab, linesTab === "today" && styles.selectorTabActive]}
+                onPress={() => setLinesTab("today")}
+              >
+                <Text style={[styles.selectorText, linesTab === "today" && styles.selectorTextActive]}>Today's Lines</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.selectorTab, linesTab === "suggestions" && styles.selectorTabActive]}
+                onPress={() => setLinesTab("suggestions")}
+              >
+                <Text style={[styles.selectorText, linesTab === "suggestions" && styles.selectorTextActive]}>Our Suggestions</Text>
+              </TouchableOpacity>
+            </View>
           </>
         }
         ListEmptyComponent={renderEmptyState}
@@ -190,6 +209,25 @@ const styles = StyleSheet.create({
     fontSize: typography.base,
     color: colors.textSecondary,
   },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  sportDropdown: {
+    backgroundColor: colors.card,
+    borderWidth: 1,
+    borderColor: colors.muted,
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+  },
+  sportDropdownText: {
+    fontSize: typography.sm,
+    color: colors.muted,
+    fontWeight: typography.medium,
+  },
   emptyContainer: {
     flex: 1,
     justifyContent: "center",
@@ -208,5 +246,30 @@ const styles = StyleSheet.create({
     color: colors.muted,
     textAlign: "center",
     lineHeight: 22,
+  },
+  selectorContainer: {
+    flexDirection: 'row',
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 4,
+    marginBottom: 12,
+  },
+  selectorTab: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 12,
+    borderRadius: 8,
+  },
+  selectorTabActive: {
+    backgroundColor: colors.surface,
+  },
+  selectorText: {
+    fontSize: typography.sm,
+    color: colors.muted,
+    fontWeight: typography.medium,
+  },
+  selectorTextActive: {
+    color: colors.primary,
   },
 })

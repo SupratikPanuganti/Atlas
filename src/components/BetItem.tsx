@@ -15,14 +15,11 @@ import { AnimatedProgressBar } from "./animations/AnimatedProgressBar"
 
 interface BetItemProps {
   bet: Bet
-  showCurrentValue?: boolean
   showDate?: boolean
   onViewBet?: (bet: Bet) => void
 }
 
-export function BetItem({ bet, showCurrentValue = false, showDate = false, onViewBet }: BetItemProps) {
-  const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`
-  
+export function BetItem({ bet, showDate = false, onViewBet }: BetItemProps) {
   const getBetStatusIcon = (status: string) => {
     switch (status) {
       case 'won':
@@ -35,7 +32,7 @@ export function BetItem({ bet, showCurrentValue = false, showDate = false, onVie
         </View>
       case 'pending':
         return <View style={[styles.statusBadge, { backgroundColor: colors.primary }]}>
-          <Text style={styles.statusText}>PENDING</Text>
+          <Text style={styles.statusText}>UPCOMING</Text>
         </View>
       default:
         return null
@@ -70,12 +67,6 @@ export function BetItem({ bet, showCurrentValue = false, showDate = false, onVie
     return date.toLocaleDateString()
   }
 
-  const calculateProfit = (bet: Bet) => {
-    if (bet.status === 'won') {
-      return bet.potentialWin - bet.stake
-    }
-    return -bet.stake
-  }
 
   return (
     <PressableCard
@@ -96,33 +87,6 @@ export function BetItem({ bet, showCurrentValue = false, showDate = false, onVie
 
       <View style={styles.betDetails}>
         <View style={styles.betStats}>
-          <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Stake</Text>
-            <Text style={styles.statValue}>{formatCurrency(bet.stake)}</Text>
-          </View>
-          
-          {showCurrentValue && bet.currentValue ? (
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Current</Text>
-              <Text style={styles.statValue}>{formatCurrency(bet.currentValue)}</Text>
-            </View>
-          ) : (
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>
-                {bet.status === 'won' || bet.status === 'lost' ? 'Profit' : 'Potential'}
-              </Text>
-              <Text style={[
-                styles.statValue,
-                { color: getBetStatusColor(bet.status) }
-              ]}>
-                {bet.status === 'won' || bet.status === 'lost' 
-                  ? formatCurrency(calculateProfit(bet))
-                  : formatCurrency(bet.potentialWin)
-                }
-              </Text>
-            </View>
-          )}
-
           {showDate && (
             <View style={styles.statItem}>
               <Text style={styles.statLabel}>Date</Text>
@@ -162,7 +126,7 @@ export function BetItem({ bet, showCurrentValue = false, showDate = false, onVie
       <View style={styles.betActions}>
         {getTrendIcon(bet.betType)}
         <Text style={styles.betTypeText}>
-          {bet.betType.toUpperCase()} {bet.odds.toFixed(2)}
+          {bet.betType.toUpperCase()}
         </Text>
         {onViewBet && (
           <Eye size={16} color={colors.primary} />
@@ -175,8 +139,19 @@ export function BetItem({ bet, showCurrentValue = false, showDate = false, onVie
 const styles = StyleSheet.create({
   betItem: {
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    marginHorizontal: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
   },
   betHeader: {
     flexDirection: "row",

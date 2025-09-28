@@ -25,15 +25,11 @@ import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 import { useNavigation } from "@react-navigation/native"
 import type { CompositeNavigationProp } from "@react-navigation/native"
-import type { BottomTabNavigationProp } from "@react-navigation/bottom-tabs"
 import type { StackNavigationProp } from "@react-navigation/stack"
 import type { MainTabParamList, RootStackParamList } from "../types/navigation"
 import { FadeInView, SlideInView, PressableCard } from "../components/animations"
 
-type HomeScreenNavigationProp = CompositeNavigationProp<
-  BottomTabNavigationProp<MainTabParamList, 'Home'>,
-  StackNavigationProp<RootStackParamList>
->
+type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList> & any
 
 const { width } = Dimensions.get("window")
 
@@ -61,8 +57,13 @@ export default function HomeScreen() {
   }, [setBets, setBettingStats])
 
   const handleViewBet = (bet: any) => {
-    // Navigate to bet details or live screen
-    console.log("View bet:", bet.id)
+    const propId = `${bet.prop}_${bet.betType === 'over' ? 'over' : 'under'}_${bet.line}_${(bet.player || 'player').toLowerCase().split(' ')[1] || 'player123'}`
+    navigation.navigate('LivePricing', {
+      lineId: propId,
+      lineData: { propId },
+      stake: bet.stake,
+      potential: bet.potentialWin,
+    })
   }
 
   return (
@@ -78,7 +79,7 @@ export default function HomeScreen() {
             </SlideInView>
             <FadeInView delay={400} duration={600}>
               <Text style={styles.subtitle}>
-                Betting Dashboard
+                Dashboard
               </Text>
             </FadeInView>
           </View>
@@ -106,32 +107,34 @@ export default function HomeScreen() {
               style={[styles.tab, activeTab === 'active' && styles.activeTab]}
               onPress={() => setActiveTab('active')}
             >
-              <Play size={20} color={activeTab === 'active' ? colors.primary : colors.muted} />
-              <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]}>
-                Active Bets
-              </Text>
+              <View style={styles.tabInner}>
+                <Play size={18} color={activeTab === 'active' ? colors.primary : colors.muted} />
+                <Text style={[styles.tabText, activeTab === 'active' && styles.activeTabText]} numberOfLines={1}>
+                  Active Bets
+                </Text>
+              </View>
             </PressableCard>
             
             <PressableCard
               style={[styles.tab, activeTab === 'history' && styles.activeTab]}
               onPress={() => setActiveTab('history')}
             >
-              <History size={20} color={activeTab === 'history' ? colors.primary : colors.muted} />
-              <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]}>
-                Bet History
-              </Text>
+              <View style={styles.tabInner}>
+                <History size={18} color={activeTab === 'history' ? colors.primary : colors.muted} />
+                <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]} numberOfLines={1}>
+                  Bet History
+                </Text>
+              </View>
             </PressableCard>
           </View>
         </SlideInView>
 
         {/* Tab Content */}
-        <View style={styles.tabContent}>
-          {activeTab === 'active' ? (
-            <ActiveBets bets={bets} onViewBet={handleViewBet} />
-          ) : (
-            <BetHistory bets={bets} onViewBet={handleViewBet} />
-          )}
-        </View>
+        {activeTab === 'active' ? (
+          <ActiveBets bets={bets} onViewBet={handleViewBet} />
+        ) : (
+          <BetHistory bets={bets} onViewBet={handleViewBet} />
+        )}
 
 
         {/* Bottom Spacing */}
@@ -185,16 +188,24 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     borderRadius: 12,
     padding: 4,
+    gap: 6,
+    overflow: "hidden",
   },
   tab: {
     flex: 1,
+    borderRadius: 8,
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  tabInner: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    gap: 6,
     paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    gap: 8,
+    paddingHorizontal: 12,
   },
   activeTab: {
     backgroundColor: colors.primary + "20",
@@ -203,14 +214,12 @@ const styles = StyleSheet.create({
     fontSize: typography.sm,
     fontWeight: typography.medium,
     color: colors.muted,
+    textAlign: "center",
+    flexShrink: 0,
   },
   activeTabText: {
     color: colors.primary,
     fontWeight: typography.semibold,
-  },
-  tabContent: {
-    paddingHorizontal: 16,
-    marginBottom: 24,
   },
   bottomSpacing: {
     height: 100,
