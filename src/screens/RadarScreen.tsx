@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity } from "react-native"
+import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Modal } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Search } from "lucide-react-native"
+import { Search, ChevronDown } from "lucide-react-native"
 import { useNavigation } from "@react-navigation/native"
 import { RadarRow } from "../components/RadarRow"
 import { RadarFilters } from "../components/RadarFilters"
@@ -16,50 +16,86 @@ export default function RadarScreen() {
   const { radarItems } = useAppStore()
   const navigation = useNavigation()
   const [refreshing, setRefreshing] = useState(false)
-  const [selectedSport, setSelectedSport] = useState("NCAAF")
+  const [selectedSport, setSelectedSport] = useState<"NCAA" | "NFL">("NCAA")
   const [selectedPropTypes, setSelectedPropTypes] = useState<string[]>(["PASS_YDS", "RUSH_YDS", "REC"])
   const [selectedDeltaSign, setSelectedDeltaSign] = useState<"both" | "positive" | "negative">("both")
   const [minDelta, setMinDelta] = useState(0.5)
   const [linesTab, setLinesTab] = useState<"today" | "suggestions">("today")
+  const [showSportDropdown, setShowSportDropdown] = useState(false)
 
-  // Demo data - Georgia vs Alabama NCAA Football props
-
+  // Demo data - NCAA and NFL Football props
   const demoRadarItems: RadarItem[] = [
+    // NCAA Football props
     {
       propId: "RUSH_YDS_over_125.5_milton",
       label: "Kendall Milton Rush Yds 125.5 o",
       deltaVsMedian: 1.5,
       staleMin: 4,
+      sport: "NCAA"
     },
     {
       propId: "PASS_YDS_over_275.5_beck",
       label: "Carson Beck Pass Yds 275.5 o",
       deltaVsMedian: 1.0,
       staleMin: 3,
+      sport: "NCAA"
     },
     {
       propId: "PASS_YDS_over_280.5_milroe",
       label: "Jalen Milroe Pass Yds 280.5 o",
       deltaVsMedian: 2.1,
       staleMin: 6,
+      sport: "NCAA"
     },
     {
       propId: "REC_over_5.5_smith",
       label: "Arian Smith Receptions 5.5 o",
       deltaVsMedian: 0.8,
       staleMin: 2,
+      sport: "NCAA"
     },
     {
       propId: "REC_over_6.5_williams",
       label: "Ryan Williams Receptions 6.5 o",
       deltaVsMedian: 1.8,
       staleMin: 5,
+      sport: "NCAA"
     },
     {
       propId: "RUSH_YDS_over_85.5_haynes",
       label: "Justice Haynes Rush Yds 85.5 o",
       deltaVsMedian: 1.2,
       staleMin: 3,
+      sport: "NCAA"
+    },
+    // NFL Football props
+    {
+      propId: "PASS_YDS_over_285.5_allen",
+      label: "Josh Allen Pass Yds 285.5 o",
+      deltaVsMedian: 1.3,
+      staleMin: 2,
+      sport: "NFL"
+    },
+    {
+      propId: "RUSH_YDS_over_95.5_henry",
+      label: "Derrick Henry Rush Yds 95.5 o",
+      deltaVsMedian: 0.9,
+      staleMin: 4,
+      sport: "NFL"
+    },
+    {
+      propId: "REC_over_7.5_kelce",
+      label: "Travis Kelce Receptions 7.5 o",
+      deltaVsMedian: 1.6,
+      staleMin: 1,
+      sport: "NFL"
+    },
+    {
+      propId: "PASS_TD_over_2.5_mahomes",
+      label: "Patrick Mahomes Pass TDs 2.5 o",
+      deltaVsMedian: 1.4,
+      staleMin: 3,
+      sport: "NFL"
     },
   ]
 
@@ -67,18 +103,23 @@ export default function RadarScreen() {
     const base = radarItems.length > 0 ? radarItems : demoRadarItems
     const items = linesTab === "today" ? base : base.filter(i => i.deltaVsMedian >= 1.0)
 
-      const filtered = items.filter((item) => {
+    const filtered = items.filter((item) => {
+      // Filter by sport
+      if (item.sport && item.sport !== selectedSport) {
+        return false
+      }
+
       // Filter by prop type
       const propType = item.propId.split("_")[0]
       if (selectedPropTypes.length > 0 && !selectedPropTypes.includes(propType)) {
         return false
       }
 
-    // Filter by delta sign grouping
-    // Per request: lines with value 1.0 should appear in both groups.
-    // Positive lines are those with delta >= 1.0, negative are delta <= 1.0
-    if (selectedDeltaSign === "positive" && item.deltaVsMedian < 1.0) return false
-    if (selectedDeltaSign === "negative" && item.deltaVsMedian > 1.0) return false
+      // Filter by delta sign grouping
+      // Per request: lines with value 1.0 should appear in both groups.
+      // Positive lines are those with delta >= 1.0, negative are delta <= 1.0
+      if (selectedDeltaSign === "positive" && item.deltaVsMedian < 1.0) return false
+      if (selectedDeltaSign === "negative" && item.deltaVsMedian > 1.0) return false
 
       return true
     })
@@ -89,7 +130,7 @@ export default function RadarScreen() {
     }
 
     return filtered.sort((a, b) => b.deltaVsMedian - a.deltaVsMedian)
-  }, [radarItems, demoRadarItems, selectedPropTypes, selectedDeltaSign, linesTab])
+  }, [radarItems, demoRadarItems, selectedPropTypes, selectedDeltaSign, linesTab, selectedSport])
 
   const handleRefresh = async () => {
     setRefreshing(true)
@@ -125,16 +166,48 @@ export default function RadarScreen() {
     </View>
   )
 
+  const handleSportSelect = (sport: "NCAA" | "NFL") => {
+    setSelectedSport(sport)
+    setShowSportDropdown(false)
+  }
+
   const renderHeader = () => (
-    <View style={styles.listHeader}>
-      <Text style={styles.title}>Today's Line Radar</Text>
-      <View style={styles.headerRight}>
-        <Text style={styles.subtitle}>
+    <View style={styles.contentHeader}>
+      <Text style={styles.sectionTitle}>Today's Line Radar</Text>
+      <View style={styles.headerBottom}>
+        <Text style={styles.sectionDescription}>
           {filteredItems.length} line{filteredItems.length !== 1 ? "s" : ""} detected
         </Text>
-        <TouchableOpacity style={styles.sportDropdown} activeOpacity={0.8}>
-          <Text style={styles.sportDropdownText}>{selectedSport === 'NCAAF' ? 'NCAA' : 'NFL'}</Text>
-        </TouchableOpacity>
+        <View style={styles.dropdownWrapper}>
+          <TouchableOpacity 
+            style={styles.sportDropdown} 
+            activeOpacity={0.8}
+            onPress={() => setShowSportDropdown(!showSportDropdown)}
+          >
+            <Text style={styles.sportDropdownText}>{selectedSport}</Text>
+            <ChevronDown size={16} color={colors.muted} />
+          </TouchableOpacity>
+          {showSportDropdown && (
+            <View style={styles.dropdownContainer}>
+              <TouchableOpacity 
+                style={[styles.dropdownOption, selectedSport === 'NCAA' && styles.dropdownOptionActive]}
+                onPress={() => handleSportSelect('NCAA')}
+              >
+                <Text style={[styles.dropdownOptionText, selectedSport === 'NCAA' && styles.dropdownOptionTextActive]}>
+                  NCAA
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity 
+                style={[styles.dropdownOption, selectedSport === 'NFL' && styles.dropdownOptionActive]}
+                onPress={() => handleSportSelect('NFL')}
+              >
+                <Text style={[styles.dropdownOptionText, selectedSport === 'NFL' && styles.dropdownOptionTextActive]}>
+                  NFL
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
       </View>
     </View>
   )
@@ -148,12 +221,14 @@ export default function RadarScreen() {
         ListHeaderComponent={
           <>
             {renderHeader()}
-            <RadarFilters
-              selectedPropTypes={selectedPropTypes}
-              selectedDeltaSign={selectedDeltaSign}
-              onPropTypeToggle={handlePropTypeToggle}
-              onDeltaSignChange={setSelectedDeltaSign}
-            />
+            <View style={styles.filtersContainer}>
+              <RadarFilters
+                selectedPropTypes={selectedPropTypes}
+                selectedDeltaSign={selectedDeltaSign}
+                onPropTypeToggle={handlePropTypeToggle}
+                onDeltaSignChange={setSelectedDeltaSign}
+              />
+            </View>
             <View style={styles.selectorContainer}>
               <TouchableOpacity
                 style={[styles.selectorTab, linesTab === "today" && styles.selectorTabActive]}
@@ -192,41 +267,90 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   listContent: {
-    padding: 16,
     flexGrow: 1,
+    paddingBottom: 20,
   },
-  listHeader: {
-    marginBottom: 20,
+  contentHeader: {
+    paddingHorizontal: 16,
     paddingTop: 16,
+    paddingBottom: 20,
   },
-  title: {
+  sectionTitle: {
     fontSize: typography["2xl"],
     fontWeight: typography.bold,
     color: colors.text,
     marginBottom: 4,
   },
-  subtitle: {
+  headerBottom: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sectionDescription: {
     fontSize: typography.base,
     color: colors.textSecondary,
+    flex: 1,
   },
-  headerRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 12,
+  filtersContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
   },
   sportDropdown: {
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.muted,
     borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    minWidth: 80,
   },
   sportDropdownText: {
     fontSize: typography.sm,
     color: colors.muted,
     fontWeight: typography.medium,
+  },
+  dropdownWrapper: {
+    position: 'relative',
+  },
+  dropdownContainer: {
+    position: 'absolute',
+    top: '100%',
+    right: 0,
+    backgroundColor: colors.card,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.muted,
+    width: 80,
+    marginTop: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+    zIndex: 1000,
+  },
+  dropdownOption: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  dropdownOptionActive: {
+    backgroundColor: colors.primary + '10',
+  },
+  dropdownOptionText: {
+    fontSize: typography.sm,
+    color: colors.text,
+    fontWeight: typography.medium,
+  },
+  dropdownOptionTextActive: {
+    color: colors.primary,
+    fontWeight: typography.semibold,
   },
   emptyContainer: {
     flex: 1,
@@ -249,27 +373,41 @@ const styles = StyleSheet.create({
   },
   selectorContainer: {
     flexDirection: 'row',
-    backgroundColor: colors.card,
+    backgroundColor: colors.background,
     borderRadius: 12,
     padding: 4,
-    marginBottom: 12,
+    marginHorizontal: 16,
+    marginBottom: 20,
+    gap: 6,
+    overflow: "hidden",
   },
   selectorTab: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
     borderRadius: 8,
+    minHeight: 48,
   },
   selectorTabActive: {
     backgroundColor: colors.surface,
+    shadowColor: colors.primary,
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   selectorText: {
     fontSize: typography.sm,
     color: colors.muted,
     fontWeight: typography.medium,
+    textAlign: "center",
   },
   selectorTextActive: {
     color: colors.primary,
+    fontWeight: typography.semibold,
   },
 })

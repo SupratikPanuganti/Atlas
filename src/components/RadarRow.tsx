@@ -105,14 +105,25 @@ export function RadarRow({ item, onPress, forceSign = "both" }: RadarRowProps) {
 const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.card,
-    borderRadius: 8,
-    marginVertical: 4,
+    borderRadius: 12,
+    marginVertical: 6,
+    marginHorizontal: 16,
     overflow: "hidden",
+    borderWidth: 1,
+    borderColor: colors.muted + '15',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   content: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
+    padding: 18,
   },
   propContainer: {
     flex: 2,

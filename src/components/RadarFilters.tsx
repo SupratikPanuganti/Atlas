@@ -73,17 +73,27 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: colors.card,
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    padding: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: colors.muted + '20',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
   },
   section: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: typography.sm,
     fontWeight: typography.semibold,
     color: colors.text,
-    marginBottom: 8,
+    marginBottom: 12,
     textTransform: "uppercase",
     letterSpacing: 0.5,
   },
@@ -93,11 +103,11 @@ const styles = StyleSheet.create({
   chipContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: 10,
   },
   deltaContainer: {
     flexDirection: "row",
-    gap: 8,
+    gap: 10,
     flexWrap: "wrap",
   },
   deltaButton: {

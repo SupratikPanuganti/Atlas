@@ -32,6 +32,7 @@ export interface RadarItem {
   label: string
   deltaVsMedian: number
   staleMin: number
+  sport?: "NCAA" | "NFL"
 }
 
 export interface AlertBannerProps {
