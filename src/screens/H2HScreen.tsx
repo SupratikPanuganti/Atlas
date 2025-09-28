@@ -18,7 +18,7 @@ import { useAppStore } from '../store/useAppStore'
 import type { H2HLine, GeminiResponse } from '../types'
 import { Button } from '../components/ui/Button'
 import { Card } from '../components/ui/Card'
-import { FadeInView } from '../components/animations/FadeInView'
+import { FadeInView, SlideInView, PressableCard } from '../components/animations'
 import { H2HLineCard } from '../components/H2HLineCard'
 
 
@@ -35,7 +35,6 @@ export default function H2HScreen() {
  const [showCreateModal, setShowCreateModal] = useState(false)
  const [refreshing, setRefreshing] = useState(false)
  const [filter, setFilter] = useState<'all' | 'open' | 'matched' | 'live'>('all')
- const [showEducationalBanner, setShowEducationalBanner] = useState(true)
 
 
  useEffect(() => {
@@ -124,122 +123,74 @@ export default function H2HScreen() {
 
 
  return (
-   <SafeAreaView style={{ flex: 1, backgroundColor: colors.surface }}>
-     {/* Page Header */}
-     <View style={styles.pageHeader}>
-       <Text style={styles.pageTitle}>H2H</Text>
-     </View>
-    
-     {/* Header */}
-     <View style={styles.header}>
-       <View style={styles.headerTop}>
-         <View>
-           <Text style={styles.title}>H2H Lines</Text>
-           <Text style={styles.subtitle}>Create custom prop lines and match 1-on-1</Text>
-         </View>
-         <View style={styles.creditsContainer}>
-           <Text style={styles.creditsText}>{userCredits}</Text>
-           <Text style={styles.creditsLabel}>Credits</Text>
-         </View>
-       </View>
-      
-       {/* Educational Banner */}
-       {showEducationalBanner && (
-         <View style={styles.educationalBanner}>
-           <AlertTriangle size={16} color={colors.warning} />
-           <Text style={styles.bannerText}>
-             Educational - Not Betting Advice • Credits Only
-           </Text>
-           <TouchableOpacity
-             onPress={() => setShowEducationalBanner(false)}
-             style={styles.bannerClose}
-           >
-             <Text style={styles.bannerCloseText}>×</Text>
-           </TouchableOpacity>
-         </View>
-       )}
-     </View>
-
-
-     {/* Filter Tabs */}
-     <View style={{
-       flexDirection: 'row',
-       paddingHorizontal: 20,
-       paddingVertical: 16,
-       gap: 12,
-     }}>
-       {(['all', 'open', 'matched', 'live'] as const).map((filterOption) => (
-         <TouchableOpacity
-           key={filterOption}
-           onPress={() => setFilter(filterOption)}
-           style={{
-             paddingHorizontal: 16,
-             paddingVertical: 8,
-             borderRadius: 20,
-             backgroundColor: filter === filterOption ? colors.primary : colors.surface,
-             borderWidth: 1,
-             borderColor: filter === filterOption ? colors.primary : colors.border,
-           }}
-         >
-           <Text style={[
-             {
-               fontSize: typography.caption.fontSize,
-               color: filter === filterOption ? colors.background : colors.text,
-               fontWeight: filter === filterOption ? '600' : '400',
-               textTransform: 'capitalize',
-             }
-           ]}>
-             {filterOption}
-           </Text>
-         </TouchableOpacity>
-       ))}
-     </View>
-
-
-     {/* Create Button */}
-     <View style={{ paddingHorizontal: 20, marginBottom: 16 }}>
-       <TouchableOpacity
-         onPress={() => setShowCreateModal(true)}
-         style={{
-           backgroundColor: colors.primary,
-           borderRadius: 12,
-           flexDirection: 'row',
-           alignItems: 'center',
-           justifyContent: 'center',
-           gap: 8,
-           paddingVertical: 14,
-           paddingHorizontal: 20,
-         }}
-       >
-         <Plus size={20} color="#000000" />
-         <Text style={[{ fontSize: typography.button.fontSize, color: '#000000' }]}>
-           Create Line
-         </Text>
-       </TouchableOpacity>
-     </View>
-
-
-     {/* Lines List */}
-     <ScrollView
-       style={{ flex: 1 }}
+   <SafeAreaView style={styles.container} edges={[]}>
+     <ScrollView 
+       style={styles.scrollView} 
+       showsVerticalScrollIndicator={false}
        refreshControl={
          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
        }
-       showsVerticalScrollIndicator={false}
      >
-       <View style={{ paddingHorizontal: 20, paddingBottom: 100 }}>
+       {/* Page Content Header */}
+       <View style={styles.contentHeader}>
+         <Text style={styles.sectionTitle}>H2H Lines</Text>
+         <Text style={styles.sectionDescription}>Create custom prop lines and match 1-on-1</Text>
+       </View>
+
+       {/* Credits Display */}
+       <FadeInView delay={200} duration={600}>
+         <View style={styles.creditsContainer}>
+           <Text style={styles.creditsText}>{userCredits}</Text>
+           <Text style={styles.creditsLabel}>Credits Available</Text>
+         </View>
+       </FadeInView>
+
+
+       {/* Filter Tabs */}
+       <SlideInView delay={400} direction="up" duration={600}>
+         <View style={styles.tabsContainer}>
+           {(['all', 'open', 'matched', 'live'] as const).map((filterOption) => (
+             <PressableCard
+               key={filterOption}
+               onPress={() => setFilter(filterOption)}
+               style={[styles.tab, filter === filterOption && styles.activeTab]}
+             >
+               <View style={styles.tabInner}>
+                 <Text style={[styles.tabText, filter === filterOption && styles.activeTabText]}>
+                   {filterOption}
+                 </Text>
+               </View>
+             </PressableCard>
+           ))}
+         </View>
+       </SlideInView>
+
+       {/* Create Button */}
+       <FadeInView delay={600} duration={600}>
+         <View style={styles.createButtonContainer}>
+           <TouchableOpacity
+             onPress={() => setShowCreateModal(true)}
+             style={styles.createButton}
+             activeOpacity={0.8}
+           >
+             <Plus size={20} color={colors.background} />
+             <Text style={styles.createButtonText}>
+               Create Line
+             </Text>
+           </TouchableOpacity>
+         </View>
+       </FadeInView>
+
+       {/* Lines List */}
+       <View style={styles.linesContainer}>
          {filteredLines.length === 0 ? (
-           <FadeInView>
-             <Card style={{
-               padding: 40,
-               alignItems: 'center',
-               backgroundColor: colors.card,
-             }}>
+           <FadeInView delay={800} duration={600}>
+             <Card style={styles.emptyCard}>
                <Users size={48} color={colors.muted} />
-               <Text style={[{ fontSize: typography.h3.fontSize, color: colors.text, marginTop: 16, textAlign: 'center' }]}>
+               <Text style={styles.emptyTitle}>
                  No lines yet
                </Text>
-               <Text style={[{ fontSize: typography.body.fontSize, color: colors.muted, marginTop: 8, textAlign: 'center' }]}>
+               <Text style={styles.emptySubtitle}>
                  {filter === 'all'
                    ? 'Create your first custom prop line to get started'
                    : `No ${filter} lines found`
@@ -248,7 +199,7 @@ export default function H2HScreen() {
              </Card>
            </FadeInView>
          ) : (
-           <View style={{ gap: 12 }}>
+           <View style={styles.linesList}>
              {filteredLines.map((line, index) => (
                <H2HLineCard
                  key={line.id}
@@ -260,6 +211,9 @@ export default function H2HScreen() {
            </View>
          )}
        </View>
+
+       {/* Bottom Spacing */}
+       <View style={styles.bottomSpacing} />
      </ScrollView>
 
 
@@ -683,75 +637,147 @@ function getStatusIcon(status: H2HLine['status']) {
 
 
 const styles = StyleSheet.create({
- pageHeader: {
-   paddingHorizontal: 20,
-   paddingTop: 8,
-   paddingBottom: 4,
-   borderBottomWidth: 1,
-   borderBottomColor: colors.border,
-   alignItems: 'center',
- },
- pageTitle: {
-   fontSize: typography.lg,
-   fontWeight: typography.bold,
-   color: colors.text,
- },
- header: {
-   padding: 16,
-   marginBottom: 8,
- },
- headerTop: {
-   flexDirection: 'row',
-   justifyContent: 'space-between',
-   alignItems: 'flex-start',
- },
- title: {
-   fontSize: typography["2xl"],
-   fontWeight: typography.bold,
-   color: colors.text,
-   marginBottom: 4,
- },
- subtitle: {
-   fontSize: typography.base,
-   color: colors.textSecondary,
- },
- creditsContainer: {
-   alignItems: 'flex-end',
- },
- creditsText: {
-   fontSize: typography.lg,
-   fontWeight: typography.bold,
-   color: colors.primary,
- },
- creditsLabel: {
-   fontSize: typography.caption.fontSize,
-   color: colors.textSecondary,
-   marginTop: 2,
- },
- educationalBanner: {
-   backgroundColor: colors.warning + '20',
-   borderColor: colors.warning,
-   borderWidth: 1,
-   borderRadius: 8,
-   padding: 12,
-   marginTop: 16,
-   flexDirection: 'row',
-   alignItems: 'center',
- },
- bannerText: {
-   fontSize: typography.caption.fontSize,
-   color: colors.warning,
-   marginLeft: 8,
-   flex: 1,
- },
- bannerClose: {
-   marginLeft: 8,
-   padding: 4,
- },
- bannerCloseText: {
-   fontSize: 16,
-   color: colors.warning,
- },
+  container: {
+    flex: 1,
+    backgroundColor: colors.surface,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  contentHeader: {
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: typography["2xl"],
+    fontWeight: typography.bold,
+    color: colors.text,
+    marginBottom: 4,
+  },
+  sectionDescription: {
+    fontSize: typography.base,
+    color: colors.textSecondary,
+  },
+  creditsContainer: {
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    padding: 16,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 16,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  creditsText: {
+    fontSize: typography["2xl"],
+    fontWeight: typography.bold,
+    color: colors.primary,
+  },
+  creditsLabel: {
+    fontSize: typography.sm,
+    color: colors.textSecondary,
+    marginTop: 4,
+  },
+  tabsContainer: {
+    flexDirection: "row",
+    marginHorizontal: 16,
+    marginBottom: 16,
+    backgroundColor: colors.background,
+    borderRadius: 12,
+    padding: 4,
+    gap: 6,
+    overflow: "hidden",
+  },
+  tab: {
+    flex: 1,
+    borderRadius: 8,
+    minHeight: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    overflow: "hidden",
+  },
+  tabInner: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+  },
+  activeTab: {
+    backgroundColor: colors.primary + "20",
+  },
+  tabText: {
+    fontSize: typography.sm,
+    fontWeight: typography.medium,
+    color: colors.muted,
+    textAlign: "center",
+    flexShrink: 0,
+    textTransform: 'capitalize',
+  },
+  activeTabText: {
+    color: colors.primary,
+    fontWeight: typography.semibold,
+  },
+  createButtonContainer: {
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  createButton: {
+    backgroundColor: colors.primary,
+    borderRadius: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    paddingVertical: 16,
+    paddingHorizontal: 24,
+    shadowColor: colors.primary,
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  createButtonText: {
+    fontSize: typography.lg,
+    color: colors.background,
+    fontWeight: typography.bold,
+  },
+  linesContainer: {
+    paddingHorizontal: 16,
+  },
+  linesList: {
+    gap: 12,
+  },
+  emptyCard: {
+    padding: 40,
+    alignItems: 'center',
+    backgroundColor: colors.card,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  emptyTitle: {
+    fontSize: typography.h3.fontSize,
+    color: colors.text,
+    marginTop: 16,
+    textAlign: 'center',
+    fontWeight: typography.semibold,
+  },
+  emptySubtitle: {
+    fontSize: typography.body.fontSize,
+    color: colors.muted,
+    marginTop: 8,
+    textAlign: 'center',
+  },
+  bottomSpacing: {
+    height: 100,
+  },
 })
 
 

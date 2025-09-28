@@ -79,7 +79,7 @@ function MainTabNavigator() {
       <Tab.Screen 
         name="H2H" 
         component={H2HScreen}
-        options={{ headerShown: false }}
+        options={{ title: "H2H Lines" }}
       />
       <Tab.Screen 
         name="Chats" 

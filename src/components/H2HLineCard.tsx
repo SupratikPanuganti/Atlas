@@ -115,7 +115,7 @@ export function H2HLineCard({
           <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <View style={{ flex: 1 }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                <Text style={[typography.h4, { color: colors.text }]}>
+                <Text style={[typography.h4, { color: colors.text, fontWeight: typography.semibold }]}>
                   {line.player} {line.side.toUpperCase()} {line.customLine} {getPropDisplayName(line.propType)}
                 </Text>
                 {isUserLine && (
@@ -131,7 +131,7 @@ export function H2HLineCard({
                   </View>
                 )}
               </View>
-              <Text style={[typography.caption, { color: colors.muted, marginTop: 2 }]}>
+              <Text style={[typography.caption, { color: colors.textSecondary, marginTop: 2 }]}>
                 {line.game.awayTeam} @ {line.game.homeTeam} • {line.game.gameTime}
               </Text>
             </View>
@@ -161,7 +161,7 @@ export function H2HLineCard({
                       <Text style={[typography.h4, { color: colors.text }]}>
                         Current: {liveData.currentValue}
                       </Text>
-                      <Text style={[typography.caption, { color: colors.textSecondary }]}>
+                      <Text style={[typography.caption, { color: colors.muted }]}>
                         Need: {liveData.needsValue.toFixed(1)} more
                       </Text>
                     </>
@@ -172,7 +172,7 @@ export function H2HLineCard({
                   )}
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={[typography.caption, { color: colors.textSecondary }]}>Hit Probability</Text>
+                  <Text style={[typography.caption, { color: colors.muted }]}>Hit Probability</Text>
                   {liveData ? (
                     <Text style={[typography.h3, { 
                       color: liveData.hitProbability > 0.6 ? colors.success : 
@@ -182,7 +182,7 @@ export function H2HLineCard({
                       {Math.round(liveData.hitProbability * 100)}%
                     </Text>
                   ) : (
-                    <Text style={[typography.h3, { color: colors.textSecondary }]}>
+                    <Text style={[typography.h3, { color: colors.muted }]}>
                       --
                     </Text>
                   )}
@@ -205,8 +205,8 @@ export function H2HLineCard({
                     }} />
                   </View>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 4 }}>
-                    <Text style={[typography.caption, { color: colors.textSecondary }]}>0</Text>
-                    <Text style={[typography.caption, { color: colors.textSecondary }]}>{line.customLine}</Text>
+                    <Text style={[typography.caption, { color: colors.muted }]}>0</Text>
+                    <Text style={[typography.caption, { color: colors.muted }]}>{line.customLine}</Text>
                   </View>
                 </View>
               )}
