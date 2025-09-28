@@ -61,7 +61,7 @@ export default function LoginScreen({ onBack, onNavigateToSignup }: LoginScreenP
       <View style={styles.content}>
         <View style={styles.titleSection}>
           <Text style={styles.title}>Sign In</Text>
-          <Text style={styles.subtitle}>Access your EdgeBeacon dashboard</Text>
+          <Text style={styles.subtitle}>Access your Atlas dashboard</Text>
         </View>
 
         {/* Form */}
@@ -133,7 +133,7 @@ export default function LoginScreen({ onBack, onNavigateToSignup }: LoginScreenP
           <Button
             title="Try Demo Mode"
             onPress={() => {
-              setEmail("demo@edgebeacon.com")
+              setEmail("demo@atlas.com")
               setPassword("demo123")
               handleLogin()
             }}

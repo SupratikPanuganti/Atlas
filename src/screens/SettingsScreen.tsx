@@ -60,7 +60,7 @@ export default function SettingsScreen() {
 
           <View style={styles.profileRow}>
             <Text style={styles.profileLabel}>Email</Text>
-            <Text style={styles.profileValue}>{user?.email || "demo@edgebeacon.com"}</Text>
+            <Text style={styles.profileValue}>{user?.email || "demo@atlas.com"}</Text>
           </View>
 
           <Button
@@ -165,7 +165,7 @@ export default function SettingsScreen() {
 
           <View style={styles.aboutRow}>
             <Text style={styles.aboutLabel}>Team</Text>
-            <Text style={styles.aboutValue}>EdgeBeacon</Text>
+            <Text style={styles.aboutValue}>Atlas</Text>
           </View>
 
           <View style={styles.aboutRow}>

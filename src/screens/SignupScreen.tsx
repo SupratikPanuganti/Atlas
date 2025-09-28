@@ -78,7 +78,7 @@ export default function SignupScreen({ onBack, onNavigateToLogin }: SignupScreen
       {/* Content */}
       <View style={styles.content}>
         <View style={styles.titleSection}>
-          <Text style={styles.title}>Join EdgeBeacon</Text>
+          <Text style={styles.title}>Join Atlas</Text>
           <Text style={styles.subtitle}>Start pricing sports props like a pro</Text>
         </View>
 

@@ -9,7 +9,7 @@ import {
   Dimensions,
   Animated,
 } from "react-native"
-import { PanGestureHandler, State } from "react-native-gesture-handler"
+import { PanGestureHandler, State, GestureHandlerRootView } from "react-native-gesture-handler"
 import { LinearGradient } from "expo-linear-gradient"
 import * as Haptics from "expo-haptics"
 import { SafeAreaView } from "react-native-safe-area-context"
@@ -29,15 +29,15 @@ const { width, height } = Dimensions.get("window")
 const features = [
   {
     icon: Activity,
-    title: "Smart Line Detection",
-    description: "Advanced algorithms detect mispriced betting lines in real-time, giving you the edge before markets adjust",
+    title: "Hidden Line Discovery",
+    description: "Uncover mispriced lines before they disappear. Our advanced algorithms find the hidden gems that others miss",
     color: "#00FF88",
     gradient: ["#00FF88", "#00CC6A"],
   },
   {
     icon: Users,
-    title: "Head-to-Head Betting",
-    description: "Create custom lines and match with other players using our innovative peer-to-peer betting platform",
+    title: "Community Discovery",
+    description: "Join our community of sharp bettors to discover hidden lines and share insights in real-time",
     color: "#FF6B6B",
     gradient: ["#FF6B6B", "#FF4444"],
   },
@@ -52,18 +52,12 @@ const features = [
 
 export default function WelcomeScreen({ onNavigateToLogin, onNavigateToSignup }: WelcomeScreenProps = {}) {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const { login } = useAppStore()
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current
   const slideAnim = useRef(new Animated.Value(0)).current
   const scaleAnim = useRef(new Animated.Value(0.8)).current
-  const rotateAnim = useRef(new Animated.Value(0)).current
   const sparkleAnim = useRef(new Animated.Value(0)).current
-  
-  // Pan gesture values
-  const translateX = useRef(new Animated.Value(0)).current
-  const panRef = useRef(null)
 
   useEffect(() => {
     // Entrance animations
@@ -107,63 +101,41 @@ export default function WelcomeScreen({ onNavigateToLogin, onNavigateToSignup }:
     return () => sparkleLoop.stop()
   }, [])
 
-  useEffect(() => {
-    // Smooth slide transition animation
-    Animated.parallel([
-      Animated.spring(translateX, {
-        toValue: -currentSlide * width,
-        tension: 100,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-      Animated.spring(rotateAnim, {
-        toValue: currentSlide * 0.05,
-        tension: 100,
-        friction: 8,
-        useNativeDriver: true,
-      }),
-    ]).start()
-  }, [currentSlide])
+  // Simple navigation functions
+  const goToNextSlide = () => {
+    if (currentSlide < features.length - 1) {
+      setCurrentSlide(currentSlide + 1)
+    } else {
+      setCurrentSlide(0) // Loop back to first
+    }
+  }
 
-  const onGestureEvent = Animated.event(
-    [{ nativeEvent: { translationX: translateX } }],
-    { useNativeDriver: true }
-  )
+  const goToPreviousSlide = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1)
+    } else {
+      setCurrentSlide(features.length - 1) // Loop to last
+    }
+  }
 
   const onHandlerStateChange = (event: any) => {
     if (event.nativeEvent.state === State.END) {
       const { translationX, velocityX } = event.nativeEvent
       
-      // More sensitive swipe detection with better thresholds
+      // Simple swipe detection
       const swipeThreshold = width * 0.2
       const velocityThreshold = 300
       
       if (Math.abs(translationX) > swipeThreshold || Math.abs(velocityX) > velocityThreshold) {
-        if (translationX > 0 && currentSlide > 0) {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
+        
+        if (translationX > 0) {
           // Swipe right - go to previous slide
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-          setCurrentSlide(currentSlide - 1)
-        } else if (translationX < 0 && currentSlide < features.length - 1) {
-          // Swipe left - go to next slide
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
-          setCurrentSlide(currentSlide + 1)
+          goToPreviousSlide()
         } else {
-          // Reset to current slide
-          Animated.spring(translateX, {
-            toValue: -currentSlide * width,
-            useNativeDriver: true,
-            tension: 100,
-            friction: 8,
-          }).start()
+          // Swipe left - go to next slide
+          goToNextSlide()
         }
-      } else {
-        // Reset to current slide with smooth animation
-        Animated.spring(translateX, {
-          toValue: -currentSlide * width,
-          useNativeDriver: true,
-          tension: 100,
-          friction: 8,
-        }).start()
       }
     }
   }
@@ -179,14 +151,15 @@ export default function WelcomeScreen({ onNavigateToLogin, onNavigateToSignup }:
   })
 
   return (
-    <SafeAreaView style={styles.container} edges={["top"]}>
-      {/* Animated Background Gradient */}
-      <LinearGradient
-        colors={['#000000', '#001a0d', '#003d1a', '#000000']}
-        style={styles.gradientBackground}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-      >
+    <GestureHandlerRootView style={styles.container}>
+      <SafeAreaView style={styles.container} edges={["top"]}>
+        {/* Animated Background Gradient */}
+        <LinearGradient
+          colors={['#000000', '#001a0d', '#003d1a', '#000000']}
+          style={styles.gradientBackground}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
         {/* Floating Sparkles */}
         <Animated.View
           style={[
@@ -226,80 +199,62 @@ export default function WelcomeScreen({ onNavigateToLogin, onNavigateToSignup }:
 
         {/* Swipeable Feature Slides */}
         <PanGestureHandler
-          ref={panRef}
-          onGestureEvent={onGestureEvent}
           onHandlerStateChange={onHandlerStateChange}
         >
-          <Animated.View
-            style={[
-              styles.slidesContainer,
-              {
-                transform: [
-                  { translateX },
-                  { rotateY: rotateAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['0deg', '5deg'],
-                  }) },
-                ],
-              },
-            ]}
-          >
-            {features.map((feature, index) => (
-              <Animated.View
-                key={index}
-                style={[
-                  styles.slide,
-                  {
-                    opacity: fadeAnim,
-                    transform: [
-                      {
-                        scale: scaleAnim.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: [0.8, 1],
-                        }),
-                      },
-                    ],
-                  },
-                ]}
-              >
-        <View style={styles.slideContent}>
-                  {/* Animated Icon Container */}
-                  <Animated.View
-                    style={[
-                      styles.iconContainer,
-                      {
-                        backgroundColor: feature.color + "15",
-                        borderColor: feature.color + "30",
-                        transform: [
-                          {
-                            rotate: sparkleAnim.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: ['0deg', '10deg'],
-                            }),
-                          },
-                        ],
-                      },
-                    ]}
+          <View style={styles.slidesContainer}>
+            <Animated.View
+              style={[
+                styles.slide,
+                {
+                  opacity: fadeAnim,
+                  transform: [
+                    {
+                      scale: scaleAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <View style={styles.slideContent}>
+                {/* Animated Icon Container */}
+                <Animated.View
+                  style={[
+                    styles.iconContainer,
+                    {
+                      backgroundColor: features[currentSlide].color + "15",
+                      borderColor: features[currentSlide].color + "30",
+                      transform: [
+                        {
+                          rotate: sparkleAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: ['0deg', '10deg'],
+                          }),
+                        },
+                      ],
+                    },
+                  ]}
+                >
+                  <LinearGradient
+                    colors={features[currentSlide].gradient as [string, string]}
+                    style={styles.iconGradient}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
                   >
-                    <LinearGradient
-                      colors={feature.gradient as [string, string]}
-                      style={styles.iconGradient}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 1 }}
-                    >
-                      {React.createElement(feature.icon, { 
-              size: 48, 
-                        color: "#FFFFFF" 
-            })}
-                    </LinearGradient>
-                  </Animated.View>
+                    {React.createElement(features[currentSlide].icon, { 
+                      size: 48, 
+                      color: "#FFFFFF" 
+                    })}
+                  </LinearGradient>
+                </Animated.View>
 
-                  <Text style={styles.slideTitle}>{feature.title}</Text>
-                  <Text style={styles.slideDescription}>{feature.description}</Text>
+                <Text style={styles.slideTitle}>{features[currentSlide].title}</Text>
+                <Text style={styles.slideDescription}>{features[currentSlide].description}</Text>
+              </View>
+            </Animated.View>
           </View>
-              </Animated.View>
-            ))}
-          </Animated.View>
         </PanGestureHandler>
 
         {/* Enhanced Indicators */}
@@ -317,7 +272,7 @@ export default function WelcomeScreen({ onNavigateToLogin, onNavigateToSignup }:
                       scale: index === currentSlide ? 
                         scaleAnim.interpolate({
                           inputRange: [0, 1],
-                          outputRange: [1, 1.2],
+                          outputRange: [1, 1.3],
                         }) : 1,
                     },
                   ],
@@ -348,7 +303,7 @@ export default function WelcomeScreen({ onNavigateToLogin, onNavigateToSignup }:
       >
         <TouchableOpacity
           style={styles.primaryButton}
-          onPress={() => login("demo@atlas.com", "demo123")}
+          onPress={onNavigateToSignup}
         >
           <LinearGradient
             colors={['#00FF88', '#00CC6A'] as [string, string]}
@@ -363,12 +318,13 @@ export default function WelcomeScreen({ onNavigateToLogin, onNavigateToSignup }:
 
         <TouchableOpacity
           style={styles.secondaryButton}
-          onPress={() => login("demo@atlas.com", "demo123")}
+          onPress={onNavigateToLogin}
         >
           <Text style={styles.secondaryButtonText}>Sign In</Text>
         </TouchableOpacity>
       </Animated.View>
-    </SafeAreaView>
+      </SafeAreaView>
+    </GestureHandlerRootView>
   )
 }
 
@@ -411,8 +367,8 @@ const styles = StyleSheet.create({
   },
   slidesContainer: {
     flex: 1,
-    flexDirection: "row",
-    width: width * features.length,
+    justifyContent: "center",
+    alignItems: "center",
   },
   slide: {
     width: width,

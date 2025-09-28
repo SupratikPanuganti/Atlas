@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Atlas",
-    "slug": "edge-beacon",
+    "slug": "atlas",
     "version": "1.0.0",
     "orientation": "portrait",
     "sdkVersion": "54.0.0",
