@@ -132,7 +132,6 @@ DATABASE_URL=your_supabase_connection_string
 - **Alert System**: Notifications for significant mispricing opportunities
 
 ### 📡 Radar (Today's Line Detection)
-
 - **Market Scanning**: Continuous monitoring of betting lines
 - **Mispricing Alerts**: Real-time notifications for arbitrage opportunities
 - **Filtering & Sorting**: Customizable views by sport, player, or margin
