@@ -81,16 +81,14 @@ export function BettingStatsCards({ stats }: BettingStatsCardsProps) {
         <StatCard
           title="Total Earnings"
           value={formatCurrency(stats.totalProfit)}
-          subtitle={`${stats.totalBets} bets`}
           icon={<DollarSign size={20} color={colors.primary} />}
-          color={getProfitColor(stats.totalProfit)}
+          color={colors.positive}
           trend={getTrendIcon(stats.totalProfit)}
           delay={0}
         />
         <StatCard
           title="Total Wins"
           value={totalWins.toString()}
-          subtitle={`${formatPercentage(stats.winRate)} win rate`}
           icon={<Trophy size={20} color={colors.positive} />}
           color={colors.positive}
           trend={stats.currentStreak.type === 'win' ? 

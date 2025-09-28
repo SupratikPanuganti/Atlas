@@ -121,12 +121,12 @@ function RootStackNavigator() {
           <Stack.Screen 
             name="LivePricing" 
             component={LiveScreen}
-            options={{ title: "Live Pricing" }}
+            options={{ title: "Live" }}
           />
           <Stack.Screen 
             name="Transparency" 
             component={TransparencyScreen}
-            options={{ headerShown: false }}
+            options={{ title: "Model Transparency" }}
           />
           <Stack.Screen 
             name="WatchMode" 
@@ -136,7 +136,7 @@ function RootStackNavigator() {
           <Stack.Screen 
             name="Settings" 
             component={SettingsScreen}
-            options={{ title: "Settings" }}
+            options={{ title: "Profile" }}
           />
         </>
       ) : (

@@ -312,8 +312,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
   starLine: (propId) => set((state) => ({
     starredPropIds: state.starredPropIds.includes(propId)
-      ? state.starredPropIds
-      : [...state.starredPropIds, propId]
+      ? state.starredPropIds.filter(id => id !== propId) // Remove if already starred (unfavorite)
+      : [...state.starredPropIds, propId] // Add if not starred (favorite)
   })),
 
   // H2H actions

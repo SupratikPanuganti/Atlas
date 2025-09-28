@@ -1,7 +1,8 @@
 import { ScrollView, StyleSheet, TouchableOpacity, Text, View } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { useNavigation } from "@react-navigation/native"
-import { ArrowLeft, Info, BookOpen } from "lucide-react-native"
+import { Info, BookOpen } from "lucide-react-native"
+import { FadeInView } from "../components/animations"
 import { CalibrationChart } from "../components/CalibrationChart"
 import { MetricsBlock } from "../components/MetricsBlock"
 import { YesterdayBuckets } from "../components/YesterdayBuckets"
@@ -14,9 +15,6 @@ export default function TransparencyScreen() {
   const [selectedCalibrationPoint, setSelectedCalibrationPoint] = useState<any>(null)
   const [showEducationalTips, setShowEducationalTips] = useState(false)
   
-  const handleBackToLivePricing = () => {
-    navigation.goBack()
-  }
   
   // Demo calibration data with AI summaries for all points
   const demoBins = [
@@ -107,52 +105,56 @@ export default function TransparencyScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={[]}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        
-        {/* Back Button */}
-        <TouchableOpacity style={styles.backButton} onPress={handleBackToLivePricing}>
-          <ArrowLeft size={20} color={colors.primary} />
-          <Text style={styles.backText}>Back to Live Pricing</Text>
-        </TouchableOpacity>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
 
         {/* Metrics Overview */}
-        <MetricsBlock brier={0.19} sampleSize={210} lastUpdate="Today 6:00 AM EST" />
+        <FadeInView delay={200} duration={600}>
+          <MetricsBlock brier={0.19} sampleSize={210} lastUpdate="Today 6:00 AM EST" />
+        </FadeInView>
 
         {/* Educational Header */}
-        <View style={styles.educationalHeader}>
-          <TouchableOpacity 
-            style={styles.helpButton}
-            onPress={() => setShowEducationalTips(!showEducationalTips)}
-          >
-            <BookOpen size={16} color={colors.primary} />
-            <Text style={styles.helpText}>Learn About Calibration</Text>
-          </TouchableOpacity>
-        </View>
+        <FadeInView delay={300} duration={600}>
+          <View style={styles.educationalHeader}>
+            <TouchableOpacity 
+              style={styles.helpButton}
+              onPress={() => setShowEducationalTips(!showEducationalTips)}
+            >
+              <BookOpen size={16} color={colors.primary} />
+              <Text style={styles.helpText}>Learn About Calibration</Text>
+            </TouchableOpacity>
+          </View>
+        </FadeInView>
 
         {/* Educational Tips */}
         {showEducationalTips && (
-          <View style={styles.educationalTips}>
-            <Text style={styles.tipsTitle}>What is Model Calibration?</Text>
-            <Text style={styles.tipsText}>
-              Calibration measures how well our predictions match reality. When we say "60% chance," 
-              we should be right about 60% of the time. Click on chart points to see detailed analysis!
-            </Text>
-            <Text style={styles.tipsText}>
-              • Green dots = Well calibrated (predicted ≈ actual)
-              • Blue dots = Needs improvement (predicted ≠ actual)
-            </Text>
-          </View>
+          <FadeInView delay={0} duration={400}>
+            <View style={styles.educationalTips}>
+              <Text style={styles.tipsTitle}>What is Model Calibration?</Text>
+              <Text style={styles.tipsText}>
+                Calibration measures how well our predictions match reality. When we say "60% chance," 
+                we should be right about 60% of the time. Click on chart points to see detailed analysis!
+              </Text>
+              <Text style={styles.tipsText}>
+                • Green dots = Well calibrated (predicted ≈ actual)
+                • Blue dots = Needs improvement (predicted ≠ actual)
+              </Text>
+            </View>
+          </FadeInView>
         )}
 
         {/* Calibration Chart */}
-        <CalibrationChart 
-          bins={enhancedDemoBins} 
-          onPointPress={(bin, index) => setSelectedCalibrationPoint(bin)}
-          selectedPoint={selectedCalibrationPoint}
-        />
+        <FadeInView delay={400} duration={600}>
+          <CalibrationChart 
+            bins={enhancedDemoBins} 
+            onPointPress={(bin, index) => setSelectedCalibrationPoint(bin)}
+            selectedPoint={selectedCalibrationPoint}
+          />
+        </FadeInView>
 
         {/* Yesterday's Performance */}
-        <YesterdayBuckets buckets={demoBuckets} />
+        <FadeInView delay={500} duration={600}>
+          <YesterdayBuckets buckets={demoBuckets} />
+        </FadeInView>
       </ScrollView>
     </SafeAreaView>
   )
@@ -165,23 +167,9 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-  },
-  content: {
-    padding: 16,
-    paddingTop: 40,
-    paddingBottom: 120,
-  },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-    paddingVertical: 8,
-  },
-  backText: {
-    fontSize: typography.base,
-    color: colors.primary,
-    marginLeft: 8,
-    fontWeight: typography.medium,
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 16,
   },
   educationalHeader: {
     marginVertical: 16,

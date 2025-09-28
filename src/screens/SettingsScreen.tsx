@@ -3,7 +3,7 @@
 import React from "react"
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Bell, Play, Info, Smartphone } from "lucide-react-native"
+import { Bell, Info, Smartphone } from "lucide-react-native"
 import { Card } from "../components/ui/Card"
 import { Slider } from "../components/ui/Slider"
 import { Button } from "../components/ui/Button"
@@ -19,13 +19,6 @@ export default function SettingsScreen() {
   const navigation = useNavigation()
 
   const [snoozeDuration, setSnoozeDuration] = React.useState(10)
-
-  const handlePlayDemo = () => {
-    // Trigger demo alert
-    showAlertBanner("Underpriced now", "Over 7.5 AST • Worth $0.28 vs $0.22 (EV +$0.06)")
-
-    Alert.alert("Demo Alert Triggered", "Check the Live tab to see the demo alert banner!", [{ text: "OK" }])
-  }
 
   const handleLogout = () => {
     Alert.alert(
@@ -45,12 +38,12 @@ export default function SettingsScreen() {
   return (
     <SafeAreaView style={styles.container} edges={[]}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-        {/* User Profile Section */}
+        {/* Account Info Section */}
         <SlideInView delay={0} direction="up" duration={600}>
           <Card style={styles.section}>
           <View style={styles.sectionHeader}>
             <Info size={20} color={colors.primary} />
-            <Text style={styles.sectionTitle}>Profile</Text>
+            <Text style={styles.sectionTitle}>Account Info</Text>
           </View>
 
           <View style={styles.profileRow}>
@@ -73,44 +66,9 @@ export default function SettingsScreen() {
         </Card>
         </SlideInView>
 
-        {/* Demo Section */}
-        <FadeInView delay={300} duration={600}>
-          <Card style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Play size={20} color={colors.primary} />
-            <Text style={styles.sectionTitle}>Demo</Text>
-          </View>
-
-          <View style={styles.settingRow}>
-            <View style={styles.settingInfo}>
-              <Text style={styles.settingLabel}>Demo Stream</Text>
-              <Text style={styles.settingDescription}>Currently using simulated data for demonstration</Text>
-            </View>
-          </View>
-
-          <Button
-            title="Trigger Demo Alert"
-            onPress={handlePlayDemo}
-            variant="outline"
-            size="sm"
-            style={styles.demoButton}
-          />
-          
-          <Button
-            title="Test Explain Feature"
-            onPress={() => navigation.navigate("LivePricing", { 
-              lineId: "demo_explain_test", 
-              lineData: { test: true } 
-            })}
-            variant="outline"
-            size="sm"
-            style={styles.demoButton}
-          />
-        </Card>
-        </FadeInView>
 
         {/* Alert Settings */}
-        <FadeInView delay={600} duration={600}>
+        <FadeInView delay={300} duration={600}>
           <Card style={styles.section}>
           <View style={styles.sectionHeader}>
             <Bell size={20} color={colors.primary} />
@@ -151,7 +109,7 @@ export default function SettingsScreen() {
         </FadeInView>
 
         {/* About Section */}
-        <FadeInView delay={900} duration={600}>
+        <FadeInView delay={600} duration={600}>
           <Card style={styles.section}>
           <View style={styles.sectionHeader}>
             <Info size={20} color={colors.primary} />
@@ -229,10 +187,6 @@ const styles = StyleSheet.create({
     fontSize: typography.sm,
     color: colors.textSecondary,
     lineHeight: 18,
-  },
-  demoButton: {
-    marginTop: 12,
-    alignSelf: "flex-start",
   },
   aboutRow: {
     flexDirection: "row",

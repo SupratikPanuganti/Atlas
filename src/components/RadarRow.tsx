@@ -12,7 +12,7 @@ interface RadarRowProps {
 }
 
 export function RadarRow({ item, onPress, forceSign = "both" }: RadarRowProps) {
-  const { addBetFromRadar, starredPropIds } = useAppStore()
+  const { addBetFromRadar, starredPropIds, starLine, bets, setBets } = useAppStore()
   const getDeltaColor = (delta: number) => {
     if (delta > 1) return colors.positive
     if (delta === 1) return colors.danger
@@ -66,9 +66,26 @@ export function RadarRow({ item, onPress, forceSign = "both" }: RadarRowProps) {
         {/* Actions */}
         <View style={styles.actions}>
           <TouchableOpacity
-            accessibilityLabel="Add to Active Bets"
+            accessibilityLabel={starredPropIds.includes(item.propId) ? "Remove from favorites" : "Add to favorites"}
             onPress={() => {
-              addBetFromRadar(item)
+              if (starredPropIds.includes(item.propId)) {
+                // Already starred - unfavorite (remove from starred list and remove bet)
+                starLine(item.propId)
+                
+                // Find and remove the corresponding bet
+                const betToRemove = bets.find(bet => 
+                  bet.prop === item.propId.split('_')[0] && 
+                  bet.betType === (item.propId.split('_')[1] === 'over' ? 'over' : 'under') &&
+                  bet.line === parseFloat(item.propId.split('_')[2])
+                )
+                
+                if (betToRemove) {
+                  setBets(bets.filter(bet => bet.id !== betToRemove.id))
+                }
+              } else {
+                // Not starred - favorite (add to starred list and create bet)
+                addBetFromRadar(item)
+              }
             }}
             style={styles.favoriteButton}
           >
