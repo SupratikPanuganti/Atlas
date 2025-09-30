@@ -245,9 +245,9 @@ function CreateLineModal({
  userCredits: number
  getGeminiAnalysis: (player: string, propType: string, customLine: number) => Promise<any>
 }) {
- const [sport, setSport] = useState<H2HLine['sport']>('basketball')
+ const [sport, setSport] = useState<H2HLine['sport']>('football')
  const [player, setPlayer] = useState('')
- const [propType, setPropType] = useState<H2HLine['propType']>('points')
+ const [propType, setPropType] = useState<H2HLine['propType']>('passing_yards')
  const [customLine, setCustomLine] = useState('')
  const [side, setSide] = useState<'over' | 'under'>('over')
  const [stakeCredits, setStakeCredits] = useState('')
@@ -330,8 +330,8 @@ function CreateLineModal({
    setStakeCredits('')
    setGeminiAnalysis(null)
    setSide('over')
-   setSport('basketball')
-   setPropType('points')
+  setSport('football')
+  setPropType('passing_yards')
  }
 
 
@@ -786,24 +786,24 @@ function getMockH2HLines(): H2HLine[] {
    {
      id: '1',
      creatorId: 'user123',
-     sport: 'basketball',
+     sport: 'football',
      game: {
-       homeTeam: 'Lakers',
-       awayTeam: 'Warriors',
+       homeTeam: 'Georgia Bulldogs',
+       awayTeam: 'Alabama Crimson Tide',
        gameTime: 'Tonight 8:00 PM',
        gameId: 'game_123',
      },
-     player: 'LeBron James',
-     propType: 'points',
-     customLine: 36.5,
+     player: 'Carson Beck',
+     propType: 'passing_yards',
+     customLine: 275.5,
      side: 'over',
      stakeCredits: 250,
      payoutMultiplier: 1.0,
-     marketLine: 34.5,
-     fairValue: 35.2,
+     marketLine: 265.5,
+     fairValue: 270.2,
      geminiAnalysis: {
-       fairValueExplanation: 'Based on recent form and matchup analysis, fair value is around 35.2 points',
-       suggestedAdjustment: 'Consider 35.5 for better match probability',
+       fairValueExplanation: 'Based on recent form and matchup analysis, fair value is around 270.2 passing yards',
+       suggestedAdjustment: 'Consider 270.5 for better match probability',
        matchLikelihood: 0.73,
      },
      status: 'open',
@@ -813,16 +813,16 @@ function getMockH2HLines(): H2HLine[] {
    {
      id: '2',
      creatorId: 'user456',
-     sport: 'basketball',
+     sport: 'football',
      game: {
-       homeTeam: 'Celtics',
-       awayTeam: 'Heat',
+       homeTeam: 'Ohio State Buckeyes',
+       awayTeam: 'Michigan Wolverines',
        gameTime: 'Tonight 10:30 PM',
        gameId: 'game_456',
      },
-     player: 'Jayson Tatum',
-     propType: 'points',
-     customLine: 28.5,
+     player: 'Jalen Milroe',
+     propType: 'rushing_yards',
+     customLine: 45.5,
      side: 'under',
      stakeCredits: 150,
      payoutMultiplier: 1.0,
@@ -835,16 +835,16 @@ function getMockH2HLines(): H2HLine[] {
    {
      id: '3',
      creatorId: 'user789',
-     sport: 'basketball',
+     sport: 'football',
      game: {
-       homeTeam: 'Nuggets',
-       awayTeam: 'Suns',
+       homeTeam: 'Texas Longhorns',
+       awayTeam: 'Oklahoma Sooners',
        gameTime: 'Live - Q3 8:32',
        gameId: 'game_789',
      },
-     player: 'Nikola Jokic',
-     propType: 'assists',
-     customLine: 8.5,
+     player: 'Kendall Milton',
+     propType: 'rushing_yards',
+     customLine: 85.5,
      side: 'over',
      stakeCredits: 300,
      payoutMultiplier: 1.0,
@@ -855,7 +855,7 @@ function getMockH2HLines(): H2HLine[] {
      matchedAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
      gameStarted: true,
      liveData: {
-       currentValue: 7,
+       currentValue: 67,
        timeRemaining: 'Q3 8:32',
        gameStatus: 'live',
        lastUpdate: new Date().toISOString(),

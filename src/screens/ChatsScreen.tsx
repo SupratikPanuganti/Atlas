@@ -18,6 +18,7 @@ import { Search, MessageCircle, Plus, TrendingUp, Users, Send } from "lucide-rea
 import { Card } from "../components/ui/Card"
 import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
+import { bettingLinesService, type BettingLine } from "../services/bettingLinesService"
 
 // Types for chat functionality
 interface ChatMessage {
@@ -61,98 +62,73 @@ export default function ChatsScreen() {
   const [showStartConversation, setShowStartConversation] = useState(false)
   const [selectedConversation, setSelectedConversation] = useState<LineConversation | null>(null)
   const [newMessage, setNewMessage] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [bettingLines, setBettingLines] = useState<BettingLine[]>([])
 
-  // Demo data for conversations
-  const [conversations, setConversations] = useState<LineConversation[]>([
-    {
-      id: 'conv_1',
-      propId: 'RUSH_YDS_over_125.5_player1',
-      player: 'Kendall Milton',
-      market: 'Rushing Yards',
-      line: 125.5,
-      betType: 'over',
-      participants: 23,
-      isTrending: true,
-      createdAt: new Date().toISOString(),
-      messages: [
-        {
-          id: 'msg_1',
-          userId: 'user_1',
-          username: 'PropTrader22',
-          message: 'Georgia\'s O-line is dominating today. Milton easily hits the over.',
-          timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString()
-        },
-        {
-          id: 'msg_2',
-          userId: 'user_2',
-          username: 'BetShark',
-          message: 'Agreed! Alabama\'s run defense has been suspect all season.',
-          timestamp: new Date(Date.now() - 3 * 60 * 1000).toISOString()
-        }
-      ],
-      lastMessage: {
-        id: 'msg_2',
-        userId: 'user_2',
-        username: 'BetShark',
-        message: 'Agreed! Alabama\'s run defense has been suspect all season.',
-        timestamp: new Date(Date.now() - 3 * 60 * 1000).toISOString()
-      }
-    },
-    {
-      id: 'conv_2',
-      propId: 'PASS_YDS_over_275.5_player2',
-      player: 'Jalen Milroe',
-      market: 'Passing Yards',
-      line: 275.5,
-      betType: 'over',
-      participants: 18,
-      isTrending: true,
-      createdAt: new Date().toISOString(),
-      messages: [
-        {
-          id: 'msg_3',
-          userId: 'user_3',
-          username: 'AnalyticsPro',
-          message: 'Weather conditions look perfect for passing. Wind under 5mph.',
-          timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString()
-        }
-      ],
-      lastMessage: {
-        id: 'msg_3',
-        userId: 'user_3',
-        username: 'AnalyticsPro',
-        message: 'Weather conditions look perfect for passing. Wind under 5mph.',
-        timestamp: new Date(Date.now() - 10 * 60 * 1000).toISOString()
-      }
-    },
-    {
-      id: 'conv_3',
-      propId: 'REC_over_4.5_player3',
-      player: 'Arian Smith',
-      market: 'Receptions',
-      line: 4.5,
-      betType: 'over',
-      participants: 12,
-      isTrending: false,
-      createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-      messages: [
-        {
-          id: 'msg_4',
-          userId: 'user_4',
-          username: 'StatGuru',
-          message: 'Smith averages 6.2 targets per game in SEC play. Should hit this easily.',
-          timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString()
-        }
-      ],
-      lastMessage: {
-        id: 'msg_4',
-        userId: 'user_4',
-        username: 'StatGuru',
-        message: 'Smith averages 6.2 targets per game in SEC play. Should hit this easily.',
-        timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString()
+  // State for conversations - now will be populated from actual betting lines
+  const [conversations, setConversations] = useState<LineConversation[]>([])
+
+  // Load betting lines on component mount
+  useEffect(() => {
+    const loadBettingLines = async () => {
+      try {
+        setLoading(true)
+        const lines = await bettingLinesService.getTodaysLines('NCAA')
+        setBettingLines(lines)
+        
+        // Create some sample conversations from the actual betting lines
+        // In a real app, these would come from a chat/conversation service
+        const sampleConversations: LineConversation[] = lines.slice(0, 3).map((line, index) => {
+          const edge = Math.max(line.edge_over, line.edge_under)
+          const recommendation = line.edge_over > line.edge_under ? 'over' : 'under'
+          const propId = `${line.prop_type}_${recommendation}_${line.line}_${line.player_name.toLowerCase().replace(/\s+/g, '_')}`
+          
+          return {
+            id: `conv_${line.id}`,
+            propId,
+            player: line.player_name,
+            market: bettingLinesService.getPropDisplayName(line.prop_type),
+            line: line.line,
+            betType: recommendation,
+            participants: Math.floor(Math.random() * 20) + 5, // Random participants for demo
+            isTrending: index < 2, // First two are trending
+            createdAt: line.created_at,
+            messages: [
+              {
+                id: `msg_${line.id}_1`,
+                userId: 'user_1',
+                username: 'PropTrader22',
+                message: `${line.player_name} has a strong edge here. The ${recommendation} looks solid.`,
+                timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString()
+              },
+              {
+                id: `msg_${line.id}_2`,
+                userId: 'user_2',
+                username: 'BetShark',
+                message: `AI confidence is ${Math.round(line.ai_confidence * 100)}%. That's a good sign.`,
+                timestamp: new Date(Date.now() - 3 * 60 * 1000).toISOString()
+              }
+            ],
+            lastMessage: {
+              id: `msg_${line.id}_2`,
+              userId: 'user_2',
+              username: 'BetShark',
+              message: `AI confidence is ${Math.round(line.ai_confidence * 100)}%. That's a good sign.`,
+              timestamp: new Date(Date.now() - 3 * 60 * 1000).toISOString()
+            }
+          }
+        })
+        
+        setConversations(sampleConversations)
+      } catch (error) {
+        console.error('Error loading betting lines:', error)
+      } finally {
+        setLoading(false)
       }
     }
-  ])
+
+    loadBettingLines()
+  }, [])
   // If navigated with a targetPropId, open that conversation if present
   useEffect(() => {
     const target = route.params?.targetPropId
@@ -169,65 +145,74 @@ export default function ChatsScreen() {
         [
           { text: 'Cancel', style: 'cancel' },
           { text: 'Start', style: 'default', onPress: () => {
-            // Create a minimal conversation stub from propId
-            const parts = target.split('_')
-            const propType = parts[0]
-            const line = parseFloat(parts[2]) || 0
-            const playerId = parts[3] || 'player'
-            const nameMap: Record<string, string> = {
-              beck: 'Carson Beck', milroe: 'Jalen Milroe', milton: 'Kendall Milton', smith: 'Arian Smith', williams: 'Ryan Williams', haynes: 'Justice Haynes'
+            // Find the betting line that matches this propId
+            const matchingLine = bettingLines.find(line => {
+              const edge = Math.max(line.edge_over, line.edge_under)
+              const recommendation = line.edge_over > line.edge_under ? 'over' : 'under'
+              const propId = `${line.prop_type}_${recommendation}_${line.line}_${line.player_name.toLowerCase().replace(/\s+/g, '_')}`
+              return propId === target
+            })
+            
+            if (matchingLine) {
+              const edge = Math.max(matchingLine.edge_over, matchingLine.edge_under)
+              const recommendation = matchingLine.edge_over > matchingLine.edge_under ? 'over' : 'under'
+              
+              const newConv: LineConversation = {
+                id: `conv_${Date.now()}`,
+                propId: target,
+                player: matchingLine.player_name,
+                market: bettingLinesService.getPropDisplayName(matchingLine.prop_type),
+                line: matchingLine.line,
+                betType: recommendation,
+                participants: 1,
+                isTrending: false,
+                createdAt: new Date().toISOString(),
+                messages: []
+              }
+              setConversations(prev => [newConv, ...prev])
+              setSelectedConversation(newConv)
             }
-            const player = nameMap[playerId] || playerId
-            const marketMap: Record<string, string> = { PASS_YDS: 'Passing Yards', RUSH_YDS: 'Rushing Yards', REC: 'Receptions', PASS_TD: 'Passing Touchdowns', RUSH_TD: 'Rushing Touchdowns', REC_YDS: 'Receiving Yards' }
-            const betType = (parts[1] as 'over' | 'under') || 'over'
-            const newConv: LineConversation = {
-              id: `conv_${Date.now()}`,
-              propId: target,
-              player,
-              market: marketMap[propType] || propType,
-              line,
-              betType,
-              participants: 1,
-              isTrending: false,
-              createdAt: new Date().toISOString(),
-              messages: []
-            }
-            setConversations(prev => [newConv, ...prev])
-            setSelectedConversation(newConv)
           } }
         ]
       )
     }
-  }, [route.params?.targetPropId, route.params?.ensureCreate, conversations])
+  }, [route.params?.targetPropId, route.params?.ensureCreate, conversations, bettingLines])
 
 
-  // Demo data for available lines without conversations
-  const [availableLines, setAvailableLines] = useState<PropLine[]>([
-    {
-      propId: 'PASS_TD_over_1.5_player4',
-      player: 'Carson Beck',
-      market: 'Passing Touchdowns',
-      line: 1.5,
-      betType: 'over',
-      hasConversation: false
-    },
-    {
-      propId: 'REC_YDS_over_85.5_player5',
-      player: 'Brock Bowers',
-      market: 'Receiving Yards',
-      line: 85.5,
-      betType: 'over',
-      hasConversation: false
-    },
-    {
-      propId: 'RUSH_TD_over_0.5_player6',
-      player: 'Justice Haynes',
-      market: 'Rushing Touchdowns',
-      line: 0.5,
-      betType: 'over',
-      hasConversation: false
+  // Available lines without conversations - derived from betting lines
+  const [availableLines, setAvailableLines] = useState<PropLine[]>([])
+
+  // Update available lines when betting lines change
+  useEffect(() => {
+    if (bettingLines.length > 0) {
+      const existingPropIds = new Set(conversations.map(conv => conv.propId))
+      
+      const available: PropLine[] = bettingLines
+        .filter(line => {
+          const edge = Math.max(line.edge_over, line.edge_under)
+          const recommendation = line.edge_over > line.edge_under ? 'over' : 'under'
+          const propId = `${line.prop_type}_${recommendation}_${line.line}_${line.player_name.toLowerCase().replace(/\s+/g, '_')}`
+          return !existingPropIds.has(propId)
+        })
+        .slice(0, 10) // Limit to first 10 available lines
+        .map(line => {
+          const edge = Math.max(line.edge_over, line.edge_under)
+          const recommendation = line.edge_over > line.edge_under ? 'over' : 'under'
+          const propId = `${line.prop_type}_${recommendation}_${line.line}_${line.player_name.toLowerCase().replace(/\s+/g, '_')}`
+          
+          return {
+            propId,
+            player: line.player_name,
+            market: bettingLinesService.getPropDisplayName(line.prop_type),
+            line: line.line,
+            betType: recommendation,
+            hasConversation: false
+          }
+        })
+      
+      setAvailableLines(available)
     }
-  ])
+  }, [bettingLines, conversations])
 
   const getTrendingConversations = () => {
     return conversations
@@ -385,6 +370,16 @@ export default function ChatsScreen() {
       <Text style={styles.messageTime}>{formatTime(item.timestamp)}</Text>
     </View>
   )
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={[]}>
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading betting lines...</Text>
+        </View>
+      </SafeAreaView>
+    )
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={[]}>
@@ -614,6 +609,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.surface,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: typography.base,
+    color: colors.textSecondary,
   },
   content: {
     flex: 1,

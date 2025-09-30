@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Dimensions,
+  ActivityIndicator,
 } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { 
@@ -40,30 +41,77 @@ export default function HomeScreen() {
     user, 
     bets, 
     bettingStats, 
-    setBets, 
-    setBettingStats, 
-    calculateBettingStats 
+    loadUserBets,
+    loadBettingStats,
+    isAuthenticated
   } = useAppStore()
   const navigation = useNavigation<HomeScreenNavigationProp>()
   const [activeTab, setActiveTab] = useState<TabType>('active')
+  const [loading, setLoading] = useState(true)
 
-  // Load demo betting data on component mount
+  // Load user betting data on component mount
   useEffect(() => {
-    const demoBets = demoService.generateDemoBets()
-    const demoStats = demoService.generateDemoBettingStats()
-    
-    setBets(demoBets)
-    setBettingStats(demoStats)
-  }, [setBets, setBettingStats])
+    const loadData = async () => {
+      if (isAuthenticated && user) {
+        try {
+          setLoading(true)
+          await Promise.all([
+            loadUserBets(),
+            loadBettingStats()
+          ])
+        } catch (error) {
+          console.error('Error loading betting data:', error)
+        } finally {
+          setLoading(false)
+        }
+      } else {
+        setLoading(false)
+      }
+    }
+
+    loadData()
+  }, [isAuthenticated, user, loadUserBets, loadBettingStats])
 
   const handleViewBet = (bet: any) => {
     const propId = `${bet.prop}_${bet.betType === 'over' ? 'over' : 'under'}_${bet.line}_${(bet.player || 'player').toLowerCase().split(' ')[1] || 'player123'}`
+    
+    // Create lineData object with all the necessary fields for LiveScreen
+    const lineData = {
+      propId,
+      // Include analysis and events from the bet (which comes from betting lines)
+      analysis: bet.analysis,
+      events: bet.events,
+      player_name: bet.player,
+      prop_type: bet.prop_type || bet.prop.toLowerCase(),
+      over_under: bet.over_under || bet.betType,
+      line: bet.line,
+      // Include betting line ID for reference
+      betting_line_id: bet.betting_line_id,
+      // Include other relevant fields
+      player: bet.player,
+      prop: bet.prop,
+      betType: bet.betType
+    }
+    
+    console.log('HomeScreen: Navigating to LiveScreen with lineData:', lineData)
+    
     navigation.navigate('LivePricing', {
       lineId: propId,
-      lineData: { propId },
+      lineData,
       stake: bet.stake,
       potential: bet.potentialWin,
     })
+  }
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container} edges={["top"]}>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={colors.primary} />
+          <Text style={styles.loadingText}>Loading your bets...</Text>
+        </View>
+      </SafeAreaView>
+    )
   }
 
   return (
@@ -223,5 +271,16 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 100,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: 16,
+  },
+  loadingText: {
+    fontSize: typography.base,
+    color: colors.muted,
+    fontWeight: '500',
   },
 })

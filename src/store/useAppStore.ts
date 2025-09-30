@@ -1,5 +1,10 @@
 import { create } from "zustand"
 import type { PricingData, LiveStreamData, RadarItem, Bet, BettingStats, BettingDashboard, H2HLine, H2HMatch, H2HUser, GeminiResponse } from "../types"
+import { authService } from "../services/authService"
+import { bettingService } from "../services/bettingService"
+import { bettingLinesService } from "../services/bettingLinesService"
+import { databaseService } from "../services/databaseService"
+import { startNCAAMockTriggers, stopNCAAMockTriggers } from "../services/ncaaMockTriggerService"
 
 interface AppState {
   // Authentication
@@ -46,11 +51,14 @@ interface AppState {
   // Actions
   login: (email: string, password: string) => Promise<void>
   signup: (email: string, password: string, name: string) => Promise<void>
-  logout: () => void
+  logout: () => Promise<void>
+  checkAuthStatus: () => Promise<void>
   setCurrentPricing: (pricing: PricingData) => void
   setLiveStream: (stream: LiveStreamData) => void
   setConnectionStatus: (connected: boolean) => void
   setRadarItems: (items: RadarItem[]) => void
+  loadRadarItems: (sport?: 'NCAA' | 'NFL', tab?: 'today' | 'suggestions', propTypes?: string[], deltaSign?: 'both' | 'positive' | 'negative') => Promise<void>
+  refreshRadarItems: (sport?: 'NCAA' | 'NFL', tab?: 'today' | 'suggestions', propTypes?: string[], deltaSign?: 'both' | 'positive' | 'negative') => Promise<void>
   showAlertBanner: (title: string, subtitle: string) => void
   hideAlert: () => void
   updateSettings: (settings: Partial<Pick<AppState, "mispricingThreshold" | "minConfidence">>) => void
@@ -64,6 +72,19 @@ interface AppState {
   calculateBettingStats: () => BettingStats
   // Create bet from a radar line
   addBetFromRadar: (item: RadarItem) => Bet
+  
+  // Helper function to get prop display name
+  getPropDisplayName: (propType: string) => string
+  
+  // Helper function to generate consistent propId from bet or radar item
+  generatePropId: (data: { prop: string, betType: string, line: number, player: string }) => string
+  
+  // Dynamic betting actions
+  loadUserBets: () => Promise<void>
+  loadActiveBets: () => Promise<void>
+  loadBetHistory: () => Promise<void>
+  loadBettingStats: () => Promise<void>
+  createUserBet: (betParams: import('../services/bettingService').CreateBetParams) => Promise<void>
   starLine: (propId: string) => void
 
   // H2H actions
@@ -99,43 +120,265 @@ export const useAppStore = create<AppState>((set, get) => ({
   userCredits: 1500,
 
   // Actions
+  refreshRadarItems: async (sport?: 'NCAA' | 'NFL', tab?: 'today' | 'suggestions', propTypes?: string[], deltaSign?: 'both' | 'positive' | 'negative') => {
+    try {
+      // Use the same logic as loadRadarItems
+      const bettingLines = await databaseService.getBettingLines()
+      let radarItems: RadarItem[] = bettingLines.map(line => ({
+        propId: `${line.prop_type}_${line.over_under}_${line.line}_${line.player_name.toLowerCase().replace(/\s+/g, '_')}`,
+        label: `${line.player_name} ${line.prop_type} ${line.line} ${line.over_under}`,
+        deltaVsMedian: parseFloat(line.delta),
+        staleMin: Math.max(0, Math.floor((Date.now() - new Date(line.last_updated).getTime()) / (1000 * 60))),
+        sport: line.sport as 'NCAA' | 'NFL',
+        player: line.player_name,
+        prop: line.prop_type,
+        line: parseFloat(line.line),
+        confidence: line.suggested ? 0.8 : 0.6,
+        volume: Math.floor(Math.random() * 1000) + 100,
+        // Include analysis and events data for LiveScreen
+        analysis: line.analysis,
+        events: line.events,
+        player_name: line.player_name,
+        prop_type: line.prop_type,
+        over_under: line.over_under,
+        bettingLineId: line.id
+      }))
+      
+      if (sport) {
+        radarItems = radarItems.filter(item => item.sport === sport)
+      }
+      
+      // Filter by prop types
+      if (propTypes && propTypes.length > 0) {
+        radarItems = radarItems.filter(item => propTypes.includes(item.prop))
+      }
+      
+      // Filter by delta sign (positive = >1, negative = <=1)
+      if (deltaSign && deltaSign !== 'both') {
+        if (deltaSign === 'positive') {
+          radarItems = radarItems.filter(item => item.deltaVsMedian > 1)
+        } else if (deltaSign === 'negative') {
+          radarItems = radarItems.filter(item => item.deltaVsMedian <= 1)
+        }
+      }
+      
+      // For suggestions tab, show only top 3 based on delta (highest first), then most recent time
+      if (tab === 'suggestions') {
+        radarItems = radarItems
+          .sort((a, b) => {
+            // First sort by delta (highest first)
+            if (b.deltaVsMedian !== a.deltaVsMedian) {
+              return b.deltaVsMedian - a.deltaVsMedian
+            }
+            // If deltas are equal, sort by most recent time (lowest staleMin first)
+            return a.staleMin - b.staleMin
+          })
+          .slice(0, 3) // Take only top 3
+      }
+      
+      set({ radarItems })
+    } catch (error) {
+      console.error('Error refreshing radar items:', error)
+    }
+  },
+  
   login: async (email: string, password: string) => {
-    // Mock authentication - in real app, this would call an API
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        set({
-          isAuthenticated: true,
-          user: {
-            id: "1",
-            email,
-            name: email.split("@")[0],
-          },
+    try {
+      const { user: authUser } = await authService.signIn(email, password)
+      
+      if (!authUser) {
+        throw new Error('Authentication failed')
+      }
+
+      // Get user profile from our users table
+      const userProfile = await authService.getUserProfile(authUser.id)
+      
+      set({
+        isAuthenticated: true,
+        user: {
+          id: authUser.id,
+          email: authUser.email || email,
+          name: userProfile?.username || email.split("@")[0],
+        },
+      })
+
+      // Start NCAA mock triggers after successful login
+      console.log('🏈 Starting NCAA mock triggers after login')
+      startNCAAMockTriggers(get())
+
+      // Load user's betting data after successful login
+      try {
+        await Promise.all([
+          bettingService.getUserBets(authUser.id),
+          bettingService.getBettingStats(authUser.id)
+        ]).then(([bets, stats]) => {
+          set({ bets, bettingStats: stats })
         })
-        resolve()
-      }, 1000)
-    })
+      } catch (error) {
+        console.error('Error loading user data after login:', error)
+        // Don't fail login if betting data fails to load
+      }
+    } catch (error) {
+      console.error('Login error:', error)
+      throw error
+    }
   },
   signup: async (email: string, password: string, name: string) => {
-    // Mock authentication - in real app, this would call an API
-    return new Promise((resolve) => {
-      setTimeout(() => {
+    try {
+      const { user: authUser } = await authService.signUp(email, name, password)
+      
+      if (!authUser) {
+        throw new Error('Signup failed')
+      }
+
+      // Create user profile in our users table
+      await authService.createUserProfile(authUser.id, email, name)
+      
+      set({
+        isAuthenticated: true,
+        user: {
+          id: authUser.id,
+          email: authUser.email || email,
+          name,
+        },
+        bets: [], // Initialize with empty bets for new user
+        bettingStats: null, // Initialize with null stats for new user
+      })
+
+      // Start NCAA mock triggers after successful signup
+      console.log('🏈 Starting NCAA mock triggers after signup')
+      startNCAAMockTriggers(get())
+    } catch (error) {
+      console.error('Signup error:', error)
+      throw error
+    }
+  },
+  logout: async () => {
+    try {
+      // Stop NCAA mock triggers before logout
+      console.log('🏈 Stopping NCAA mock triggers before logout')
+      stopNCAAMockTriggers()
+      
+      await authService.signOut()
+      set({ isAuthenticated: false, user: null, bets: [], bettingStats: null })
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Still clear local state even if logout fails
+      stopNCAAMockTriggers()
+      set({ isAuthenticated: false, user: null, bets: [], bettingStats: null })
+    }
+  },
+  checkAuthStatus: async () => {
+    try {
+      const user = await authService.getCurrentUser()
+      if (user) {
+        const userProfile = await authService.getUserProfile(user.id)
         set({
           isAuthenticated: true,
           user: {
-            id: "1",
-            email,
-            name,
+            id: user.id,
+            email: user.email || '',
+            name: userProfile?.username || user.email?.split("@")[0] || 'User',
           },
         })
-        resolve()
-      }, 1000)
-    })
+
+        // Start NCAA mock triggers if user is already authenticated
+        console.log('🏈 Starting NCAA mock triggers for existing auth')
+        startNCAAMockTriggers(get())
+
+        // Load user's betting data if user exists
+        try {
+          await Promise.all([
+            bettingService.getUserBets(user.id),
+            bettingService.getBettingStats(user.id)
+          ]).then(([bets, stats]) => {
+            set({ bets, bettingStats: stats })
+          })
+        } catch (error) {
+          console.error('Error loading user data in checkAuthStatus:', error)
+          // Initialize with empty data if loading fails
+          set({ bets: [], bettingStats: null })
+        }
+      }
+    } catch (error) {
+      console.error('Auth status check error:', error)
+      set({ isAuthenticated: false, user: null })
+    }
   },
-  logout: () => set({ isAuthenticated: false, user: null }),
   setCurrentPricing: (pricing) => set({ currentPricing: pricing }),
   setLiveStream: (stream) => set({ liveStream: stream }),
   setConnectionStatus: (connected) => set({ isConnected: connected }),
   setRadarItems: (items) => set({ radarItems: items }),
+  loadRadarItems: async (sport, tab = 'today', propTypes = [], deltaSign = 'both') => {
+    try {
+      console.log('useAppStore: Loading radar items for sport:', sport, 'tab:', tab, 'propTypes:', propTypes, 'deltaSign:', deltaSign)
+      
+      // Get betting lines directly from database
+      const bettingLines = await databaseService.getBettingLines()
+      console.log('useAppStore: Got', bettingLines.length, 'betting lines from database')
+      
+      // Convert to radar items and filter
+      let radarItems: RadarItem[] = bettingLines.map(line => ({
+        propId: `${line.prop_type}_${line.over_under}_${line.line}_${line.player_name.toLowerCase().replace(/\s+/g, '_')}`,
+        label: `${line.player_name} ${line.prop_type} ${line.line} ${line.over_under}`,
+        deltaVsMedian: parseFloat(line.delta),
+        staleMin: Math.max(0, Math.floor((Date.now() - new Date(line.last_updated).getTime()) / (1000 * 60))),
+        sport: line.sport as 'NCAA' | 'NFL',
+        bettingLineId: line.id, // Include the actual betting line ID
+        player: line.player_name,
+        prop: line.prop_type,
+        line: parseFloat(line.line),
+        confidence: line.suggested ? 0.8 : 0.6,
+        volume: Math.floor(Math.random() * 1000) + 100,
+        // Include analysis and events data for LiveScreen
+        analysis: line.analysis,
+        events: line.events,
+        player_name: line.player_name,
+        prop_type: line.prop_type,
+        over_under: line.over_under
+      }))
+      
+      // Filter by sport
+      if (sport) {
+        radarItems = radarItems.filter(item => item.sport === sport)
+      }
+      
+      // Filter by prop types
+      if (propTypes && propTypes.length > 0) {
+        radarItems = radarItems.filter(item => propTypes.includes(item.prop))
+      }
+      
+      // Filter by delta sign (positive = >1, negative = <=1)
+      if (deltaSign && deltaSign !== 'both') {
+        if (deltaSign === 'positive') {
+          radarItems = radarItems.filter(item => item.deltaVsMedian > 1)
+        } else if (deltaSign === 'negative') {
+          radarItems = radarItems.filter(item => item.deltaVsMedian <= 1)
+        }
+      }
+      
+      // For suggestions tab, show only top 3 based on delta (highest first), then most recent time
+      if (tab === 'suggestions') {
+        radarItems = radarItems
+          .sort((a, b) => {
+            // First sort by delta (highest first)
+            if (b.deltaVsMedian !== a.deltaVsMedian) {
+              return b.deltaVsMedian - a.deltaVsMedian
+            }
+            // If deltas are equal, sort by most recent time (lowest staleMin first)
+            return a.staleMin - b.staleMin
+          })
+          .slice(0, 3) // Take only top 3
+      }
+      
+      console.log('useAppStore: Got', radarItems.length, 'radar items after filtering')
+      set({ radarItems })
+      
+    } catch (error) {
+      console.error('Error loading radar items:', error)
+      // Keep existing radar items on error
+    }
+  },
   showAlertBanner: (title, subtitle) =>
     set({
       showAlert: true,
@@ -145,7 +388,10 @@ export const useAppStore = create<AppState>((set, get) => ({
   updateSettings: (settings) => set((state) => ({ ...state, ...settings })),
   
   // Betting actions
-  setBets: (bets) => set({ bets }),
+  setBets: (bets) => {
+    console.log('useAppStore: Setting bets, count:', bets.length)
+    set({ bets })
+  },
   addBet: (bet) => set((state) => ({ bets: [...state.bets, bet] })),
   updateBet: (betId, updates) => set((state) => ({
     bets: state.bets.map(bet => bet.id === betId ? { ...bet, ...updates } : bet)
@@ -251,29 +497,19 @@ export const useAppStore = create<AppState>((set, get) => ({
   addBetFromRadar: (item) => {
     const state = get()
 
-    // Parse propId: e.g., "PASS_YDS_over_275.5_beck"
-    const parts = item.propId.split("_")
-    const prop = (parts[0] || "PROP") as Bet["prop"]
-    const betType = ((parts[1] || "over") as "over" | "under")
-    const line = parseFloat(parts[2]) || 0
-    const playerId = parts[3] || "player123"
-
-    const nameMap: Record<string, string> = {
-      beck: "Carson Beck",
-      milroe: "Jalen Milroe",
-      milton: "Kendall Milton",
-      smith: "Arian Smith",
-      williams: "Ryan Williams",
-      haynes: "Justice Haynes",
-      player123: "Carson Beck",
-      player456: "Kendall Milton",
-      player789: "Arian Smith",
-    }
-
-    const playerName = nameMap[playerId] || playerId.replace("player", "Player ")
+    // Use the actual data from the radar item instead of parsing propId
+    const prop = item.prop.toUpperCase() as Bet["prop"]
+    const betType = item.label.includes("over") ? "over" : "under"
+    const line = item.line
+    const playerName = item.player
 
     // If a matching real bet already exists, just star it and return it
-    const existing = state.bets.find(b => b.prop === prop && b.betType === betType && b.line === line && b.player === playerName)
+    const existing = state.bets.find(b => 
+      b.prop === prop && 
+      b.betType === betType && 
+      b.line === line && 
+      b.player === playerName
+    )
     if (existing) {
       set((s) => ({
         starredPropIds: s.starredPropIds.includes(item.propId)
@@ -283,22 +519,28 @@ export const useAppStore = create<AppState>((set, get) => ({
       return existing
     }
 
+    // Create a proper bet with realistic data
+    const stake = 50 // Default stake
+    const odds = 1.85 // Default odds
+    const potentialWin = stake * odds
+
     const newBet: Bet = {
-      id: `line_${Date.now()}`,
+      id: `mock_bet_${Date.now()}`,
       prop,
       player: playerName,
-      market: prop === "REC" ? "Receptions" : prop === "PASS_YDS" ? "Passing Yards" : prop === "RUSH_YDS" ? "Rushing Yards" : prop,
+      market: getPropDisplayName(item.prop),
       line,
       betType,
-      odds: 1.88,
-      stake: 0,
-      potentialWin: 0,
+      odds,
+      stake,
+      potentialWin,
       status: "pending",
       placedAt: new Date().toISOString(),
       gameInfo: {
-        homeTeam: "Georgia Bulldogs",
-        awayTeam: "Alabama Crimson Tide",
-        gameTime: "Today",
+        homeTeam: item.sport === "NCAA" ? "Georgia Tech" : "Kansas City",
+        awayTeam: item.sport === "NCAA" ? "Wake Forest" : "Denver",
+        gameTime: "8:00 PM EST",
+        currentScore: item.sport === "NCAA" ? "Georgia Tech 21 - Wake Forest 14" : "Kansas City 28 - Denver 17",
       },
     }
 
@@ -308,8 +550,43 @@ export const useAppStore = create<AppState>((set, get) => ({
         ? state.starredPropIds
         : [...state.starredPropIds, item.propId]
     }))
+    
+    console.log('useAppStore: Created new bet from radar item:', newBet)
+    console.log('useAppStore: Total bets after adding:', get().bets.length)
+    
     return newBet
   },
+
+  // Helper function to get prop display name
+  getPropDisplayName: (propType: string): string => {
+    const propNames: Record<string, string> = {
+      'passing_yards': 'Passing Yards',
+      'rushing_yards': 'Rushing Yards',
+      'receptions': 'Receptions',
+      'passing_tds': 'Passing Touchdowns',
+      'rushing_tds': 'Rushing Touchdowns',
+      'receiving_tds': 'Receiving Touchdowns',
+      'pass_yards': 'Passing Yards',
+      'rush_yards': 'Rushing Yards',
+      'rec_yards': 'Receiving Yards',
+      'pass_tds': 'Passing Touchdowns',
+      'rush_tds': 'Rushing Touchdowns',
+      'rec_tds': 'Receiving Touchdowns',
+      'pass_completions': 'Pass Completions',
+      'rush_attempts': 'Rush Attempts',
+      'interceptions': 'Interceptions',
+      'total_tds': 'Total Touchdowns'
+    }
+    return propNames[propType] || propType
+  },
+  
+  generatePropId: (data) => {
+    const playerName = data.player.toLowerCase().replace(/\s+/g, '_')
+    const propType = data.prop.toLowerCase()
+    const betType = data.betType
+    return `${propType}_${betType}_${data.line}_${playerName}`
+  },
+  
   starLine: (propId) => set((state) => ({
     starredPropIds: state.starredPropIds.includes(propId)
       ? state.starredPropIds.filter(id => id !== propId) // Remove if already starred (unfavorite)
@@ -437,4 +714,104 @@ export const useAppStore = create<AppState>((set, get) => ({
       Math.abs(l.customLine - line.customLine) <= 1.0 // Within 1 point
     )
   },
+
+  // Dynamic betting actions
+  loadUserBets: async () => {
+    const { user } = get()
+    if (!user) return
+
+    try {
+      const bets = await bettingService.getUserBets(user.id)
+      set({ bets })
+      
+      // Update starred state based on favorited bets
+      const favoritedBets = bets.filter(bet => bet.is_favorited === true)
+      const starredPropIds = favoritedBets.map(bet => {
+        return get().generatePropId({
+          prop: bet.prop,
+          betType: bet.betType,
+          line: bet.line,
+          player: bet.player
+        })
+      })
+      
+      set({ starredPropIds })
+      console.log('Updated starred state based on favorited bets:', starredPropIds)
+    } catch (error) {
+      console.error('Error loading user bets:', error)
+    }
+  },
+
+  loadActiveBets: async () => {
+    const { user } = get()
+    if (!user) return
+
+    try {
+      const activeBets = await bettingService.getActiveBets(user.id)
+      const { bets } = get()
+      // Keep settled bets that are still favorited, plus the new active bets
+      const settledBets = bets.filter(bet => 
+        (bet.status === 'won' || bet.status === 'lost') && 
+        bet.is_favorited !== false
+      )
+      const allBets = [...activeBets, ...settledBets]
+      set({ bets: allBets })
+      
+      // Update starred state based on all favorited bets
+      const favoritedBets = allBets.filter(bet => bet.is_favorited === true)
+      const starredPropIds = favoritedBets.map(bet => {
+        return get().generatePropId({
+          prop: bet.prop,
+          betType: bet.betType,
+          line: bet.line,
+          player: bet.player
+        })
+      })
+      
+      set({ starredPropIds })
+      console.log('Updated starred state based on active bets:', starredPropIds)
+    } catch (error) {
+      console.error('Error loading active bets:', error)
+    }
+  },
+
+  loadBetHistory: async () => {
+    const { user } = get()
+    if (!user) return
+
+    try {
+      const betHistory = await bettingService.getBetHistory(user.id)
+      const { bets } = get()
+      const activeBets = bets.filter(bet => bet.status === 'live' || bet.status === 'pending')
+      set({ bets: [...activeBets, ...betHistory] })
+    } catch (error) {
+      console.error('Error loading bet history:', error)
+    }
+  },
+
+  loadBettingStats: async () => {
+    const { user } = get()
+    if (!user) return
+
+    try {
+      const stats = await bettingService.getBettingStats(user.id)
+      set({ bettingStats: stats })
+    } catch (error) {
+      console.error('Error loading betting stats:', error)
+    }
+  },
+
+  createUserBet: async (betParams: import('../services/bettingService').CreateBetParams) => {
+    const { user } = get()
+    if (!user) throw new Error('User not authenticated')
+
+    try {
+      const newBet = await bettingService.createBet(user.id, betParams)
+      const { bets } = get()
+      set({ bets: [newBet, ...bets] })
+    } catch (error) {
+      console.error('Error creating bet:', error)
+      throw error
+    }
+  }
 }))

@@ -57,8 +57,21 @@ export default function SignupScreen({ onBack, onNavigateToLogin }: SignupScreen
     try {
       await signup(email, password, name)
       // Navigation will be handled by the parent component
-    } catch (error) {
-      Alert.alert("Signup Failed", "An error occurred during signup")
+    } catch (error: any) {
+      console.error('Signup error:', error)
+      let errorMessage = "Signup failed. Please try again."
+      
+      if (error?.message?.includes('Password should be at least 6 characters')) {
+        errorMessage = "Password must be at least 6 characters long"
+      } else if (error?.message?.includes('Email address') && error?.message?.includes('is invalid')) {
+        errorMessage = "Please enter a valid email address"
+      } else if (error?.message?.includes('User already registered') || error?.message?.includes('Email already registered')) {
+        errorMessage = "An account with this email already exists"
+      } else if (error?.message) {
+        errorMessage = error.message
+      }
+      
+      Alert.alert("Signup Failed", errorMessage)
     } finally {
       setLoading(false)
     }

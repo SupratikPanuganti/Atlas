@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { View, Text, StyleSheet } from "react-native"
 import { 
   Clock, 
@@ -9,6 +9,7 @@ import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 import type { Bet } from "../types"
 import { FadeInView } from "./animations"
+import { useAppStore } from "../store/useAppStore"
 
 interface ActiveBetsProps {
   bets: Bet[]
@@ -16,7 +17,18 @@ interface ActiveBetsProps {
 }
 
 export function ActiveBets({ bets, onViewBet }: ActiveBetsProps) {
-  const activeBets = bets.filter(bet => bet.status === 'live' || bet.status === 'pending')
+  const { loadActiveBets, user } = useAppStore()
+  // Filter for active bets (live or pending) - the service already filters by favorited status
+  const activeBets = bets.filter(bet => 
+    bet.status === 'live' || bet.status === 'pending'
+  )
+
+  // Load active bets when component mounts and user is authenticated
+  useEffect(() => {
+    if (user) {
+      loadActiveBets()
+    }
+  }, [user, loadActiveBets])
   
   if (activeBets.length === 0) {
     return (

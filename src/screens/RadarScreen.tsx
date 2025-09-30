@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 import { View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity, Modal } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
-import { Search, ChevronDown } from "lucide-react-native"
+import { Search, ChevronDown, Activity } from "lucide-react-native"
 import { useNavigation } from "@react-navigation/native"
 import { RadarRow } from "../components/RadarRow"
 import { RadarFilters } from "../components/RadarFilters"
@@ -13,130 +13,82 @@ import { colors } from "../theme/colors"
 import { typography } from "../theme/typography"
 
 export default function RadarScreen() {
-  const { radarItems } = useAppStore()
+  const { radarItems, loadRadarItems, refreshRadarItems } = useAppStore()
   const navigation = useNavigation()
   const [refreshing, setRefreshing] = useState(false)
+  const [loading, setLoading] = useState(true)
   const [selectedSport, setSelectedSport] = useState<"NCAA" | "NFL">("NCAA")
-  const [selectedPropTypes, setSelectedPropTypes] = useState<string[]>(["PASS_YDS", "RUSH_YDS", "REC"])
+  const [selectedPropTypes, setSelectedPropTypes] = useState<string[]>([]) // Empty = show all
   const [selectedDeltaSign, setSelectedDeltaSign] = useState<"both" | "positive" | "negative">("both")
+  // Removed freshness filter
   const [minDelta, setMinDelta] = useState(0.5)
   const [linesTab, setLinesTab] = useState<"today" | "suggestions">("today")
   const [showSportDropdown, setShowSportDropdown] = useState(false)
+  const [lastRefreshTime, setLastRefreshTime] = useState<Date | null>(null)
 
-  // Demo data - NCAA and NFL Football props
-  const demoRadarItems: RadarItem[] = [
-    // NCAA Football props
-    {
-      propId: "RUSH_YDS_over_125.5_milton",
-      label: "Kendall Milton Rush Yds 125.5 o",
-      deltaVsMedian: 1.5,
-      staleMin: 4,
-      sport: "NCAA"
-    },
-    {
-      propId: "PASS_YDS_over_275.5_beck",
-      label: "Carson Beck Pass Yds 275.5 o",
-      deltaVsMedian: 1.0,
-      staleMin: 3,
-      sport: "NCAA"
-    },
-    {
-      propId: "PASS_YDS_over_280.5_milroe",
-      label: "Jalen Milroe Pass Yds 280.5 o",
-      deltaVsMedian: 2.1,
-      staleMin: 6,
-      sport: "NCAA"
-    },
-    {
-      propId: "REC_over_5.5_smith",
-      label: "Arian Smith Receptions 5.5 o",
-      deltaVsMedian: 0.8,
-      staleMin: 2,
-      sport: "NCAA"
-    },
-    {
-      propId: "REC_over_6.5_williams",
-      label: "Ryan Williams Receptions 6.5 o",
-      deltaVsMedian: 1.8,
-      staleMin: 5,
-      sport: "NCAA"
-    },
-    {
-      propId: "RUSH_YDS_over_85.5_haynes",
-      label: "Justice Haynes Rush Yds 85.5 o",
-      deltaVsMedian: 1.2,
-      staleMin: 3,
-      sport: "NCAA"
-    },
-    // NFL Football props
-    {
-      propId: "PASS_YDS_over_285.5_allen",
-      label: "Josh Allen Pass Yds 285.5 o",
-      deltaVsMedian: 1.3,
-      staleMin: 2,
-      sport: "NFL"
-    },
-    {
-      propId: "RUSH_YDS_over_95.5_henry",
-      label: "Derrick Henry Rush Yds 95.5 o",
-      deltaVsMedian: 0.9,
-      staleMin: 4,
-      sport: "NFL"
-    },
-    {
-      propId: "REC_over_7.5_kelce",
-      label: "Travis Kelce Receptions 7.5 o",
-      deltaVsMedian: 1.6,
-      staleMin: 1,
-      sport: "NFL"
-    },
-    {
-      propId: "PASS_TD_over_2.5_mahomes",
-      label: "Patrick Mahomes Pass TDs 2.5 o",
-      deltaVsMedian: 1.4,
-      staleMin: 3,
-      sport: "NFL"
-    },
-  ]
-
-  const filteredItems = useMemo(() => {
-    const base = radarItems.length > 0 ? radarItems : demoRadarItems
-    const items = linesTab === "today" ? base : base.filter(i => i.deltaVsMedian >= 1.0)
-
-    const filtered = items.filter((item) => {
-      // Filter by sport
-      if (item.sport && item.sport !== selectedSport) {
-        return false
+  // Load radar items on component mount and when filters change
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true)
+        console.log('RadarScreen: Starting to load data...')
+        await loadRadarItems(selectedSport, linesTab, selectedPropTypes, selectedDeltaSign)
+        console.log('RadarScreen: Data loading completed')
+      } catch (error) {
+        console.error('Error loading radar items:', error)
+      } finally {
+        setLoading(false)
       }
-
-      // Filter by prop type
-      const propType = item.propId.split("_")[0]
-      if (selectedPropTypes.length > 0 && !selectedPropTypes.includes(propType)) {
-        return false
-      }
-
-      // Filter by delta sign grouping
-      // Per request: lines with value 1.0 should appear in both groups.
-      // Positive lines are those with delta >= 1.0, negative are delta <= 1.0
-      if (selectedDeltaSign === "positive" && item.deltaVsMedian < 1.0) return false
-      if (selectedDeltaSign === "negative" && item.deltaVsMedian > 1.0) return false
-
-      return true
-    })
-
-    // Sort: negatives should be least->greatest, positives greatest->least. "both" defaults to greatest->least.
-    if (selectedDeltaSign === "negative") {
-      return filtered.sort((a, b) => a.deltaVsMedian - b.deltaVsMedian)
     }
 
-    return filtered.sort((a, b) => b.deltaVsMedian - a.deltaVsMedian)
-  }, [radarItems, demoRadarItems, selectedPropTypes, selectedDeltaSign, linesTab, selectedSport])
+    loadData()
+  }, [selectedSport, linesTab, selectedPropTypes, selectedDeltaSign, loadRadarItems])
+
+  // Set up automatic refresh for NCAA lines (more frequent) vs NFL lines
+  useEffect(() => {
+    const refreshInterval = selectedSport === 'NCAA' ? 15000 : 30000 // 15s for NCAA, 30s for NFL
+    
+    const interval = setInterval(() => {
+      if (selectedSport === 'NCAA') {
+        console.log('🔄 Auto-refreshing NCAA radar items...')
+        setLastRefreshTime(new Date())
+      }
+      refreshRadarItems(selectedSport, linesTab, selectedPropTypes, selectedDeltaSign)
+    }, refreshInterval)
+
+    return () => clearInterval(interval)
+  }, [refreshRadarItems, selectedSport, linesTab, selectedPropTypes, selectedDeltaSign])
+
+  // No hardcoded data - only use database data
+
+  const filteredItems = useMemo(() => {
+    // Filtering is now done in the service, so just return the radar items
+    console.log('RadarScreen - radarItems:', radarItems.length, radarItems)
+    console.log('RadarScreen - Current filters:', {
+      selectedSport,
+      linesTab,
+      selectedPropTypes,
+      selectedDeltaSign
+    })
+    
+    if (radarItems.length === 0) {
+      console.log('RadarScreen: No database data available')
+      return []
+    }
+
+    return radarItems
+  }, [radarItems, selectedSport, linesTab, selectedPropTypes, selectedDeltaSign])
 
   const handleRefresh = async () => {
     setRefreshing(true)
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setRefreshing(false)
+    try {
+      // Use the new refresh method for dynamic updates with current filters
+      await refreshRadarItems(selectedSport, linesTab, selectedPropTypes, selectedDeltaSign)
+    } catch (error) {
+      console.error('Error refreshing radar items:', error)
+    } finally {
+      setRefreshing(false)
+    }
   }
 
   const handlePropTypeToggle = (propType: string) => {
@@ -144,6 +96,8 @@ export default function RadarScreen() {
       prev.includes(propType) ? prev.filter((type) => type !== propType) : [...prev, propType],
     )
   }
+
+  // Removed freshness filter handler
 
   const handleRadarItemPress = (item: RadarItem) => {
     console.log("Radar item pressed:", item)
@@ -169,11 +123,25 @@ export default function RadarScreen() {
   const handleSportSelect = (sport: "NCAA" | "NFL") => {
     setSelectedSport(sport)
     setShowSportDropdown(false)
+    // Data will be reloaded by useEffect
   }
 
   const renderHeader = () => (
     <View style={styles.contentHeader}>
-      <Text style={styles.sectionTitle}>Today's Line Radar</Text>
+      <View style={styles.titleRow}>
+        <Text style={styles.sectionTitle}>Today's Line Radar</Text>
+        <View style={styles.liveIndicator}>
+          <Activity size={12} color={colors.primary} />
+          <Text style={styles.liveText}>
+            {selectedSport === 'NCAA' ? 'NCAA LIVE' : 'LIVE'}
+          </Text>
+          {selectedSport === 'NCAA' && lastRefreshTime && (
+            <Text style={styles.refreshTime}>
+              {Math.floor((Date.now() - lastRefreshTime.getTime()) / 1000)}s ago
+            </Text>
+          )}
+        </View>
+      </View>
       <View style={styles.headerBottom}>
         <Text style={styles.sectionDescription}>
           {filteredItems.length} line{filteredItems.length !== 1 ? "s" : ""} detected
@@ -222,23 +190,29 @@ export default function RadarScreen() {
           <>
             {renderHeader()}
             <View style={styles.filtersContainer}>
-              <RadarFilters
-                selectedPropTypes={selectedPropTypes}
-                selectedDeltaSign={selectedDeltaSign}
-                onPropTypeToggle={handlePropTypeToggle}
-                onDeltaSignChange={setSelectedDeltaSign}
-              />
+            <RadarFilters
+              selectedPropTypes={selectedPropTypes}
+              selectedDeltaSign={selectedDeltaSign}
+              onPropTypeToggle={handlePropTypeToggle}
+              onDeltaSignChange={setSelectedDeltaSign}
+            />
             </View>
             <View style={styles.selectorContainer}>
               <TouchableOpacity
                 style={[styles.selectorTab, linesTab === "today" && styles.selectorTabActive]}
-                onPress={() => setLinesTab("today")}
+                onPress={() => {
+                  setLinesTab("today")
+                  // Data will be reloaded by useEffect
+                }}
               >
                 <Text style={[styles.selectorText, linesTab === "today" && styles.selectorTextActive]}>Today's Lines</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.selectorTab, linesTab === "suggestions" && styles.selectorTabActive]}
-                onPress={() => setLinesTab("suggestions")}
+                onPress={() => {
+                  setLinesTab("suggestions")
+                  // Data will be reloaded by useEffect
+                }}
               >
                 <Text style={[styles.selectorText, linesTab === "suggestions" && styles.selectorTextActive]}>Our Suggestions</Text>
               </TouchableOpacity>
@@ -275,11 +249,41 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 20,
   },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   sectionTitle: {
     fontSize: typography["2xl"],
     fontWeight: typography.bold,
     color: colors.text,
-    marginBottom: 4,
+  },
+  liveIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: colors.success + '20',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  liveDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.success,
+    marginRight: 4,
+  },
+  liveText: {
+    fontSize: typography.xs,
+    fontWeight: typography.semibold,
+    color: colors.success,
+  },
+  refreshTime: {
+    fontSize: typography.xs,
+    color: colors.muted,
+    marginLeft: 4,
   },
   headerBottom: {
     flexDirection: 'row',

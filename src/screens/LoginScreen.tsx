@@ -39,8 +39,19 @@ export default function LoginScreen({ onBack, onNavigateToSignup }: LoginScreenP
     try {
       await login(email, password)
       // Navigation will be handled by the parent component
-    } catch (error) {
-      Alert.alert("Login Failed", "Invalid email or password")
+    } catch (error: any) {
+      console.error('Login error:', error)
+      let errorMessage = "Login failed. Please try again."
+      
+      if (error?.message?.includes('Invalid login credentials')) {
+        errorMessage = "Invalid email or password"
+      } else if (error?.message?.includes('Email not confirmed')) {
+        errorMessage = "Please check your email and confirm your account"
+      } else if (error?.message) {
+        errorMessage = error.message
+      }
+      
+      Alert.alert("Login Failed", errorMessage)
     } finally {
       setLoading(false)
     }
