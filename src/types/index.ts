@@ -33,6 +33,19 @@ export interface RadarItem {
   deltaVsMedian: number
   staleMin: number
   sport?: "NCAA" | "NFL"
+  isRecent?: boolean
+  bettingLineId?: string // ID of the betting line in the database
+  player?: string
+  prop?: string
+  line?: number
+  confidence?: number
+  volume?: number
+  // Fields for LiveScreen analysis
+  analysis?: string // Historical analysis from database
+  events?: string // Live events from database
+  player_name?: string // Player name from database
+  prop_type?: string // Prop type from database
+  over_under?: string // Over/under from database
 }
 
 export interface AlertBannerProps {
@@ -85,6 +98,7 @@ export interface Bet {
   status: 'pending' | 'live' | 'won' | 'lost'
   placedAt: string
   settledAt?: string
+  is_favorited?: boolean // Whether this bet is currently favorited
   gameInfo: {
     homeTeam: string
     awayTeam: string
@@ -99,6 +113,12 @@ export interface Bet {
     projected: number
     confidence: number
   }
+  // Fields from betting lines for LiveScreen analysis
+  analysis?: string // Historical analysis from betting line
+  events?: string // Live events from betting line
+  prop_type?: string // Prop type from betting line
+  over_under?: string // Over/under from betting line
+  betting_line_id?: string // Reference to original betting line
 }
 
 export interface BettingStats {

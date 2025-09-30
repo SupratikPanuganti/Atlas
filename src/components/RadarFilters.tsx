@@ -11,7 +11,33 @@ interface RadarFiltersProps {
   onDeltaSignChange: (sign: "both" | "positive" | "negative") => void
 }
 
-const PROP_TYPES = ["PASS YDS", "RUSH YDS", "REC", "PASS TD", "RUSH TD", "REC YDS"]
+// Use actual database prop types from our minimal schema
+const PROP_TYPES = [
+  "pass_yards", 
+  "rush_yards", 
+  "rec_yards",
+  "receptions", 
+  "pass_tds", 
+  "rush_tds", 
+  "rec_tds", 
+  "pass_completions", 
+  "interceptions", 
+  "total_tds"
+]
+
+// Display names for UI
+const PROP_TYPE_DISPLAY_NAMES: { [key: string]: string } = {
+  'pass_yards': 'PASS YDS',
+  'rush_yards': 'RUSH YDS', 
+  'rec_yards': 'REC YDS',
+  'receptions': 'REC',
+  'pass_tds': 'PASS TD',
+  'rush_tds': 'RUSH TD',
+  'rec_tds': 'REC TD',
+  'pass_completions': 'PASS COMP',
+  'interceptions': 'INT',
+  'total_tds': 'TOTAL TD'
+}
 
 const RadarFilters = ({
   selectedPropTypes,
@@ -28,7 +54,7 @@ const RadarFilters = ({
           {PROP_TYPES.map((propType) => (
             <Chip
               key={propType}
-              label={propType}
+              label={PROP_TYPE_DISPLAY_NAMES[propType] || propType}
               onPress={() => onPropTypeToggle(propType)}
               variant={selectedPropTypes.includes(propType) ? "positive" : "default"}
             />
@@ -60,11 +86,10 @@ const RadarFilters = ({
             size="sm"
             style={styles.deltaButton}
           />
-          
-
-          
         </View>
       </View>
+
+      {/* Removed freshness filter */}
     </View>
   )
 }

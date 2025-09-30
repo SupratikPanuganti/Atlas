@@ -211,28 +211,28 @@ class LiveTrackingService {
       homeScore,
       awayScore,
       players: {
-        'lebron_james': {
-          name: 'LeBron James',
+        'carson_beck': {
+          name: 'Carson Beck',
           stats: {
-            points: isFirstFetch ? 18 : Math.min(50, (existing?.players?.['lebron_james']?.stats?.points || 18) + (Math.random() < 0.05 ? Math.floor(Math.random() * 3) : 0)),
-            assists: isFirstFetch ? 5 : Math.min(15, (existing?.players?.['lebron_james']?.stats?.assists || 5) + (Math.random() < 0.03 ? 1 : 0)),
-            rebounds: isFirstFetch ? 7 : Math.min(20, (existing?.players?.['lebron_james']?.stats?.rebounds || 7) + (Math.random() < 0.04 ? 1 : 0)),
+            passing_yards: isFirstFetch ? 185 : Math.min(400, (existing?.players?.['carson_beck']?.stats?.passing_yards || 185) + (Math.random() < 0.05 ? Math.floor(Math.random() * 25) : 0)),
+            rushing_yards: isFirstFetch ? 12 : Math.min(50, (existing?.players?.['carson_beck']?.stats?.rushing_yards || 12) + (Math.random() < 0.03 ? Math.floor(Math.random() * 8) : 0)),
+            passing_tds: isFirstFetch ? 1 : Math.min(5, (existing?.players?.['carson_beck']?.stats?.passing_tds || 1) + (Math.random() < 0.02 ? 1 : 0)),
           }
         },
-        'jayson_tatum': {
-          name: 'Jayson Tatum',
+        'jalen_milroe': {
+          name: 'Jalen Milroe',
           stats: {
-            points: isFirstFetch ? 22 : Math.min(50, (existing?.players?.['jayson_tatum']?.stats?.points || 22) + (Math.random() < 0.05 ? Math.floor(Math.random() * 3) : 0)),
-            assists: isFirstFetch ? 3 : Math.min(15, (existing?.players?.['jayson_tatum']?.stats?.assists || 3) + (Math.random() < 0.02 ? 1 : 0)),
-            rebounds: isFirstFetch ? 6 : Math.min(20, (existing?.players?.['jayson_tatum']?.stats?.rebounds || 6) + (Math.random() < 0.03 ? 1 : 0)),
+            passing_yards: isFirstFetch ? 165 : Math.min(350, (existing?.players?.['jalen_milroe']?.stats?.passing_yards || 165) + (Math.random() < 0.04 ? Math.floor(Math.random() * 20) : 0)),
+            rushing_yards: isFirstFetch ? 28 : Math.min(80, (existing?.players?.['jalen_milroe']?.stats?.rushing_yards || 28) + (Math.random() < 0.05 ? Math.floor(Math.random() * 12) : 0)),
+            passing_tds: isFirstFetch ? 1 : Math.min(4, (existing?.players?.['jalen_milroe']?.stats?.passing_tds || 1) + (Math.random() < 0.02 ? 1 : 0)),
           }
         },
-        'nikola_jokic': {
-          name: 'Nikola Jokic',
+        'kendall_milton': {
+          name: 'Kendall Milton',
           stats: {
-            points: isFirstFetch ? 15 : Math.min(50, (existing?.players?.['nikola_jokic']?.stats?.points || 15) + (Math.random() < 0.04 ? Math.floor(Math.random() * 3) : 0)),
-            assists: isFirstFetch ? 8 : Math.min(20, (existing?.players?.['nikola_jokic']?.stats?.assists || 8) + (Math.random() < 0.06 ? 1 : 0)),
-            rebounds: isFirstFetch ? 9 : Math.min(25, (existing?.players?.['nikola_jokic']?.stats?.rebounds || 9) + (Math.random() < 0.05 ? 1 : 0)),
+            rushing_yards: isFirstFetch ? 45 : Math.min(150, (existing?.players?.['kendall_milton']?.stats?.rushing_yards || 45) + (Math.random() < 0.06 ? Math.floor(Math.random() * 15) : 0)),
+            receptions: isFirstFetch ? 2 : Math.min(8, (existing?.players?.['kendall_milton']?.stats?.receptions || 2) + (Math.random() < 0.03 ? 1 : 0)),
+            receiving_yards: isFirstFetch ? 18 : Math.min(60, (existing?.players?.['kendall_milton']?.stats?.receiving_yards || 18) + (Math.random() < 0.04 ? Math.floor(Math.random() * 12) : 0)),
           }
         }
       },
