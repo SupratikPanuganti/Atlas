@@ -37,6 +37,17 @@ export interface AppConfig {
 
 // Environment-based configuration
 const getConfig = (): AppConfig => {
+  // Log environment variables for debugging (only in dev)
+  if (__DEV__) {
+    console.log('Environment variables loaded:', {
+      hasSupabaseUrl: !!process.env.EXPO_PUBLIC_SUPABASE_URL,
+      hasSupabaseKey: !!process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY,
+      hasOpenAI: !!process.env.EXPO_PUBLIC_OPENAI_API_KEY,
+      hasGemini: !!process.env.EXPO_PUBLIC_GEMINI_API_KEY,
+      supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL?.substring(0, 30) + '...',
+    })
+  }
+
   return {
     supabase: {
       url: process.env.EXPO_PUBLIC_SUPABASE_URL || '',
@@ -79,19 +90,25 @@ export const validateConfig = (): { isValid: boolean; errors: string[] } => {
   const errors: string[] = []
   
   if (!config.supabase.url) {
-    errors.push('Supabase URL is required')
+    errors.push('❌ EXPO_PUBLIC_SUPABASE_URL is missing from .env file')
   }
   
   if (!config.supabase.anonKey) {
-    errors.push('Supabase anon key is required')
+    errors.push('❌ EXPO_PUBLIC_SUPABASE_ANON_KEY is missing from .env file')
   }
   
   if (config.features.aiAnalysis && !config.apis.openai.apiKey) {
-    errors.push('OpenAI API key is required for AI analysis')
+    errors.push('⚠️  EXPO_PUBLIC_OPENAI_API_KEY is missing (AI features will be limited)')
   }
   
   if (config.features.aiAnalysis && !config.apis.gemini.apiKey) {
-    errors.push('Gemini API key is required for AI analysis')
+    errors.push('⚠️  EXPO_PUBLIC_GEMINI_API_KEY is missing (AI features will be limited)')
+  }
+  
+  if (errors.length > 0) {
+    console.error('\n🚨 CONFIGURATION ERRORS:\n' + errors.join('\n'))
+    console.error('\n💡 Solution: Create a .env file in the root directory with required variables.')
+    console.error('   See env.example for the required format.\n')
   }
   
   return {
